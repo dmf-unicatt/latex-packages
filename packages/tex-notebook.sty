@@ -131,6 +131,7 @@ def call_code(code: str, all_codes: list[str], python_state: dict[str, any], pyt
     cell_figure_path
         The path of the file where the plotly image was saved. Returns None if no plot was produced.
     """
+    import ast
     import contextlib
     import io
     import os
@@ -138,17 +139,21 @@ def call_code(code: str, all_codes: list[str], python_state: dict[str, any], pyt
     # Append current code
     all_codes.append(code)
 
-    # Split by line, and caputer implicit output on the last line
+    # Split by line, and capture implicit output on the last line
     lines = code.splitlines()
     if (
-        len(lines) > 0 and                          # The code is not empty
-        len(lines[-1].strip()) > 0 and              # The last line is not just whitespace
-        not lines[-1].startswith((" ", "\t")) and   # The last line is not indented
-        not lines[-1].startswith("#") and           # The last line is not a comment
-        not any(bad in lines[-1] for bad in ("=", "print", "raise"))  # The last line would implicitly print
+        len(lines) > 0 and           # The code is not empty
+        len(lines[-1].strip()) > 0   # The last line is not just whitespace
     ):
-        lines[-1] = "_last_line_output = " + lines[-1]
-        lines[-1] = "_last_line_output = " + lines[-1]
+      try:
+          # Try to parse last line as an expression
+          ast.parse(lines[-1], mode="eval")
+      except SyntaxError:
+          # Not an expression, do nothing
+          pass
+      else:
+          # It is an expression, so capture implicit output
+          lines[-1] = "_last_line_output = " + lines[-1]
 
     # Execute the code
     output_buffer = io.StringIO()

@@ -393,6 +393,24 @@ def run_latex_tests(tex_tests: list[str]) -> None:
         run_command(CLEAN_CMD + [tex_file], cwd=test_dir)
 
 
+def is_in_xsim_files_dir(path: str) -> bool:
+    """
+    Check if the given file path is inside any directory whose name starts with "xsim-files".
+
+    Parameters
+    ----------
+    path
+        The file path to check.
+
+    Returns
+    -------
+    :
+        True if the path contains a directory starting with "xsim-files", False otherwise.
+    """
+    parts = path.split(os.sep)
+    return any(part.startswith("xsim-files") for part in parts)
+
+
 def main() -> None:
     """
     Run LaTeX tests filtered by command line arguments.
@@ -420,16 +438,18 @@ def main() -> None:
 
             elif os.path.isdir(path):
                 # Directory provided: search recursively for test_*.tex files
-                tex_tests.extend(
-                    sorted(glob.glob(os.path.join(path, "**", "test_*.tex"), recursive=True))
-                )
+                found_files = sorted(glob.glob(os.path.join(path, "**", "test_*.tex"), recursive=True))
+                # Filter out files in xsim-files directories
+                filtered_files = [f for f in found_files if not is_in_xsim_files_dir(f)]
+                tex_tests.extend(filtered_files)
 
             else:
                 print(f"File or directory not found or unsupported: {path}")
                 sys.exit(1)
     else:
         # Autodiscovery: search recursively in current directory
-        tex_tests = sorted(glob.glob("**/test_*.tex", recursive=True))
+        found_files = sorted(glob.glob("**/test_*.tex", recursive=True))
+        tex_tests = [f for f in found_files if not is_in_xsim_files_dir(f)]
 
     if tex_tests:
         run_latex_tests(tex_tests)

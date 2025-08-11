@@ -15,7 +15,18 @@ jobs:
   test-packages-in-docker:
     strategy:
       matrix:
-        tag-name: [debian-12, debian-testing, debian-unstable, debian-experimental]
+        include:
+          - tag-name: ubuntu-22.04
+          - tag-name: ubuntu-22.10
+          - tag-name: debian-12
+          - tag-name: ubuntu-23.04
+          - tag-name: ubuntu-23.10
+          - tag-name: ubuntu-24.04
+          - tag-name: ubuntu-24.10
+          - tag-name: ubuntu-25.04
+          - tag-name: debian-testing
+          - tag-name: debian-unstable
+          - tag-name: debian-experimental
       fail-fast: false
     container: ghcr.io/dmf-unicatt/latex-packages:latest-${{ matrix.tag-name }}
     runs-on: ubuntu-latest

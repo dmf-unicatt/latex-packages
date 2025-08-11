@@ -9,7 +9,40 @@ jobs:
   test:
     strategy:
       matrix:
-        base-image: [debian:12, debian:testing, debian:unstable, debian:experimental]
+        include:
+          - base-image: ubuntu:22.04
+            tag-name: ubuntu-22.04
+            expected-texlive-version: "2021.20220204-1"
+          - base-image: ubuntu:22.10
+            tag-name: ubuntu-22.10
+            expected-texlive-version: "2022.20220722-1"
+          - base-image: debian:12
+            tag-name: debian-12
+            expected-texlive-version: "2022.20230122-3"
+          - base-image: ubuntu:23.04
+            tag-name: ubuntu-23.04
+            expected-texlive-version: "2022.20230122-2"
+          - base-image: ubuntu:23.10
+            tag-name: ubuntu-23.10
+            expected-texlive-version: "2023.20230613-3"
+          - base-image: ubuntu:24.04
+            tag-name: ubuntu-24.04
+            expected-texlive-version: "2023.20240207-1"
+          - base-image: ubuntu:24.10
+            tag-name: ubuntu-24.10
+            expected-texlive-version: "2024.20240706-1"
+          - base-image: ubuntu:25.04
+            tag-name: ubuntu-25.04
+            expected-texlive-version: "2024.20250309-1"
+          - base-image: debian:testing
+            tag-name: debian-testing
+            expected-texlive-version: "2024.20250309-1"
+          - base-image: debian:unstable
+            tag-name: debian-unstable
+            expected-texlive-version: "2024.20250309-1"
+          - base-image: debian:experimental
+            tag-name: debian-experimental
+            expected-texlive-version: "2025.20250727-1"
       fail-fast: false
     runs-on: ubuntu-latest
     defaults:
@@ -20,14 +53,24 @@ jobs:
       - name: Create image
         run: |
           BASE_IMAGE="${{ matrix.base-image }}"
-          TAG_NAME="${BASE_IMAGE//:/-}"
+          TAG_NAME="${{ matrix.tag-name }}"
           docker build --build-arg BASE_IMAGE=${BASE_IMAGE} -t ghcr.io/dmf-unicatt/latex-packages:latest-${TAG_NAME} .
+      - name: Check texlive-base version
+        run: |
+          TAG_NAME="${{ matrix.tag-name }}"
+          EXPECTED_VERSION="${{ matrix.expected-texlive-version }}"
+          ACTUAL_VERSION=$(docker run --rm ghcr.io/dmf-unicatt/latex-packages:latest-${TAG_NAME} \
+            bash -c "dpkg -s texlive-base | grep '^Version:' | awk '{print \$2}'")
+          echo "Detected texlive-base version: $ACTUAL_VERSION"
+          if [ "$ACTUAL_VERSION" != "$EXPECTED_VERSION" ]; then
+            echo "Version mismatch! Expected version was $EXPECTED_VERSION, but got $ACTUAL_VERSION"
+            exit 1
+          fi
       - name: Login to GitHub Container Registry
         run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
       - name: Publish image to GitHub packages
         run: |
-          BASE_IMAGE="${{ matrix.base-image }}"
-          TAG_NAME="${BASE_IMAGE//:/-}"
+          TAG_NAME="${{ matrix.tag-name }}"
           docker push ghcr.io/dmf-unicatt/latex-packages:latest-${TAG_NAME}
 
   warn:

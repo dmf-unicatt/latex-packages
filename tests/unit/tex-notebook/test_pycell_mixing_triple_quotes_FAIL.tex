@@ -44,4 +44,11 @@ quattro_cuatro'''
 print("\n".join([Z, N]))
 \end{pycell}
 
+\ifPythonTeXLoaded
+% nothing else to be done
+\else
+% Mock failure in the third cell, since pythontex is not running
+\printfailfilelinebyline{expected/\jobname.err.txt}
+\fi
+
 \end{document}

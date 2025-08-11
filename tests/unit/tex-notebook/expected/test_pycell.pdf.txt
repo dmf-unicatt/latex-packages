@@ -102,8 +102,7 @@
 
     Variable resets
 
-    You can use \restartpythontexsession to control when the python session
-    resets. For instance, here it resets at every chapter, and therefore
+    In this file the python session resets at every chapter, and therefore
 
 1   a = 1
 2   b = "this is a string"

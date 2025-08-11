@@ -1,16 +1,6 @@
 \documentclass{book}
 \usepackage{tests-tex-notebook}
 
-\ifPythonTeXLoaded
-\restartpythontexsession{\thechapter}
-\makeatletter
-\@addtoreset{linenum}{chapter}
-\makeatother
-\else
-\usepackage{etoolbox}
-\pretocmd{\chapter}{\stepcounter{lastpynotebook}}{}{}
-\fi
-
 \begin{document}
 
 \chapter{Case with numbers}
@@ -129,7 +119,7 @@ quattro_cuatro
 
 \chapter{Variable resets}
 
-You can use \texttt{\textbackslash restartpythontexsession} to control when the python session resets. For instance, here it resets at every chapter, and therefore
+In this file the python session resets at every chapter, and therefore
 
 \begin{pycell}
 a = 1

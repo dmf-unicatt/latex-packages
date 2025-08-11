@@ -1,10 +1,6 @@
 \documentclass{book}
 \usepackage{tests-tex-notebook}
 
-\ifPythonTeXLoaded
-\restartpythontexsession{\thechapter}
-\fi
-
 \begin{document}
 
 \chapter{Case with explicit error}
@@ -27,7 +23,7 @@ This correctly prints the value of variable.
 
 \chapter{Variable resets}
 
-You can use \texttt{\textbackslash restartpythontexsession} to control when the python session resets. For instance, here it resets at every chapter, and therefore
+In this file the python session resets at every chapter, and therefore
 
 \begin{pycell}
 a

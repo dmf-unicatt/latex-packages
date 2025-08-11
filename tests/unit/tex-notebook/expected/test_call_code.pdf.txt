@@ -177,7 +177,7 @@
 128   all_codes, local_variables, pytex)
 129   assert cell_output == ""
 130   assert cell_figure_path == (
-131       "pythontex-files-test_call_code/py_default_0_79.png"
+131       "pythontex-files-test_call_code/py_default_1_79.png"
 132   )
 
 

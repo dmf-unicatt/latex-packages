@@ -1,6 +1,9 @@
 \RequirePackage{tests-common}
-\typeout{FOUND common}
 \RequirePackage{tex-notebook}
+
+% Require etoolbox to patch the chapter command and increment the pynotebook counter
+\RequirePackage{etoolbox}
+\pretocmd{\chapter}{\stepcounter{pynotebook}}{}{}
 
 % Add a command to mock a failure. Used when pythontex is not available and thus cannot trigger a failure
 \makeatletter

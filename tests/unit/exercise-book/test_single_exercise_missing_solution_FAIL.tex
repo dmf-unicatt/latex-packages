@@ -1,0 +1,28 @@
+\documentclass{book}
+\usepackage{tests-exercise-book}
+
+\begin{document}
+
+\chapter{Exercises}
+
+\section{First section}
+
+\subsection{First subsection}
+
+\begin{exercise}[subtitle={Simple Addition}]
+  What is \(2 + 2\)?
+\end{exercise}
+
+\begin{additionalinformation}
+Open python and type 2 + 2
+\end{additionalinformation}
+
+\chapter{Additional information (moved above)}
+\AssertPropertyInAllExercises{additionalinformation}
+\PrintExercisePropertySectionBySection{additionalinformation}
+
+\chapter{Solutions}
+\AssertPropertyInAllExercises{solution}
+\PrintExercisePropertySectionBySection{solution}
+
+\end{document}

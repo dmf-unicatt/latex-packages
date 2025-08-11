@@ -1,0 +1,1 @@
+! Package exercise-book Error: Exercise 1 has no solution.

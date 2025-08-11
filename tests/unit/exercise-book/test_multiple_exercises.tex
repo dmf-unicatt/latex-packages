@@ -1,0 +1,116 @@
+\documentclass{book}
+\usepackage{tests-exercise-book}
+
+\begin{document}
+
+\chapter{Exercises}
+
+\section{First section}
+
+\subsection{First subsection}
+
+\begin{exercise}[subtitle={Simple Addition}]
+  What is \(2 + 2\)?
+\end{exercise}
+
+\begin{solution}
+  \(2 + 2 = 4\)
+\end{solution}
+
+\begin{additionalinformation}
+Open python and type 2 + 2
+\end{additionalinformation}
+
+\section{Second section}
+
+\subsection{A subsection}
+
+\begin{exercise}[examdate={January 15, 2020}, examproblemnumber={1}, examproblemid={2020_01_15_01}]
+  What is \(3 + 3\)?
+\end{exercise}
+
+\begin{solution}
+  \(3 + 3 = 6\)
+\end{solution}
+
+\begin{additionalinformation}
+Open python and type 3 + 3
+\end{additionalinformation}
+
+\subsection{Another subsection}
+
+\begin{exercise}
+  What is \(13 + 3\)?
+\end{exercise}
+
+\begin{solution}
+  \(13 + 3 = 16\)
+\end{solution}
+
+\begin{additionalinformation}
+Open python and type 13 + 3
+\end{additionalinformation}
+
+\begin{exercise}
+  What is \(13 + 3\)?
+\end{exercise}
+
+\begin{solution}
+16 it seems
+\end{solution}
+
+\begin{additionalinformation}
+Open python and type 13 + 3 (again)
+\end{additionalinformation}
+
+\subsection{A fourth subsection}
+
+\begin{exercise}[examdate={January 16, 2020}, examproblemnumber={1}, examproblemid={2020_01_16_01}]
+  What is \(13 + 13\)? I wish I knew, but this exercise will never show up because it will be replaced by another one.
+\end{exercise}
+
+\begin{solution}
+  \(13 + 13 = 26\)
+
+Still, this formula will never be shown because it is in the solution of an exercise with will be replaced.
+\end{solution}
+
+\begin{additionalinformation}
+Open python and type 13 + 13.
+
+Still, this text will never be shown because it is in the solution of an exercise with will be replaced.
+\end{additionalinformation}
+
+\begin{exercise}[print=false]
+This exercise will not show up because it has \texttt{print=false}.
+\end{exercise}
+
+\begin{solution}
+This solution will not show up because its exercise has \texttt{print=false}.
+\end{solution}
+
+\begin{additionalinformation}
+This additional information will not show up because its exercise has \texttt{print=false}.
+\end{additionalinformation}
+
+\begin{exercise}[examdate={January 16, 2021}, examproblemnumber={1}, examproblemid={2021_01_16_01}, replaces={2020_01_16_01}]
+  What is \(23 + 3\)? This replaced the exercise of the previous year, which was asking about \(13 + 3\): look in the source code to find it.
+\end{exercise}
+
+\begin{solution}
+  \(23 + 3 = 26\).
+\end{solution}
+
+\begin{additionalinformation}
+Open python and type 23 + 3
+\end{additionalinformation}
+
+\chapter{Solutions}
+\AssertPropertyInAllExercises{solution}
+\PrintExercisePropertySectionBySection{solution}
+
+\chapter{Additional information}
+\AssertPropertyInAllExercises{additionalinformation}
+\PrintExercisePropertySectionBySection{additionalinformation}
+
+\end{document}

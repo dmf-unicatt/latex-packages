@@ -1,0 +1,91 @@
+! Package exercise-book Error: Missing examdate and examproblemnumber.
+
+l.26 \end{exercise}
+
+
+! Package exercise-book Error: Missing examdate.
+
+l.38 \end{exercise}
+
+! Package exercise-book Error: Missing examproblemid.
+
+l.38 \end{exercise}
+
+
+! Package exercise-book Error: Missing examdate.
+
+l.50 \end{exercise}
+
+
+! Package exercise-book Error: Missing examproblemnumber.
+
+l.62 \end{exercise}
+
+! Package exercise-book Error: Missing examproblemid.
+
+l.62 \end{exercise}
+
+
+! Package exercise-book Error: Missing examproblemnumber.
+
+l.74 \end{exercise}
+
+
+! Package exercise-book Error: Missing examproblemid.
+
+l.86 \end{exercise}
+
+
+! Package exercise-book Error: Extra examproblemid.
+
+l.122 \end{exercise}
+
+
+! Package exercise-book Error: Extra examproblemnumber.
+
+l.134 \end{exercise}
+
+
+! Package exercise-book Error: Extra examdate.
+
+l.146 \end{exercise}
+
+
+! Package exercise-book Error: Extra examproblemnumber.
+
+l.158 \end{exercise}
+
+! Package exercise-book Error: Extra examproblemid.
+
+l.158 \end{exercise}
+
+
+! Package exercise-book Error: Extra examdate.
+
+l.170 \end{exercise}
+
+! Package exercise-book Error: Extra examproblemid.
+
+l.170 \end{exercise}
+
+
+! Package exercise-book Error: Extra examdate.
+
+l.182 \end{exercise}
+
+! Package exercise-book Error: Extra examproblemnumber.
+
+l.182 \end{exercise}
+
+
+! Package exercise-book Error: Extra examdate.
+
+l.194 \end{exercise}
+
+! Package exercise-book Error: Extra examproblemnumber.
+
+l.194 \end{exercise}
+
+! Package exercise-book Error: Extra examproblemid.
+
+l.194 \end{exercise}

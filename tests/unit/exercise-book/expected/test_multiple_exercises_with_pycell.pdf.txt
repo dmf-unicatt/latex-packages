@@ -1,0 +1,157 @@
+    Chapter A
+
+    Exercises
+
+    1      First section
+    1.1      First subsection
+    Exercise 1 (Simple Addition). What is 2 + 2?
+      Please answer.
+    Go to: solution1 .
+
+
+    2      Second section
+    2.1      A subsection
+    Exercise 2. What is 3 + 3?
+    Go to: solution2 .
+
+    2.2      Another subsection
+    Exercise 3. What is 13 + 3?
+    Go to: solution3 .
+
+    Exercise 4.        Discuss this code
+
+1   13 + 3
+
+
+    16
+
+    Go to: solution4 .
+        1 Links to label sol:1, counter value 5
+        2 Links to label sol:2, counter value 6
+        3 Links to label sol:3, counter value 7
+        4 Links to label sol:4, counter value 8
+    Chapter B
+
+    Solutions
+
+    1      First section1
+    1.1      First subsection2
+    Exercise 13 . Using LaTex I know that
+      2+2=4
+    Go to: additional information4 .
+
+
+    2      Second section5
+    2.1      A subsection6
+    Exercise 27 . 3 + 3 = 6
+      Want to try with python?
+
+1   3 + 3
+
+
+    6
+
+    Go to: additional information8 .
+
+        1 Links to label sec:1.1, counter value 1
+        2 Links to label sec:1.1.1, counter value 1.1
+        3 Links to label ex:1, counter value 1
+        4 Links to label add:1, counter value 1
+        5 Links to label sec:1.2, counter value 2
+        6 Links to label sec:1.2.1, counter value 2.1
+        7 Links to label ex:2, counter value 2
+        8 Links to label add:2, counter value 2
+2.2    Another subsection9
+Exercise 310 . 13 + 3 = 16
+Go to: additional information11 .
+
+Exercise 412 . It’s the sum of two numbers, and prints 16.
+Go to: additional information13 .
+
+
+
+
+  9 Links to label sec:1.2.2, counter value 2.2
+ 10 Links to label ex:3, counter value 3
+ 11 Links to label add:3, counter value 3
+ 12 Links to label ex:4, counter value 4
+ 13 Links to label add:4, counter value 4
+    Chapter C
+
+    Additional information
+
+    1      First section1
+    1.1      First subsection2
+    Exercise 13 .       Open python and do the following:
+1   2 + 2
+
+    4
+
+
+    2      Second section4
+    2.1      A subsection5
+    Exercise 26 .       You can proceed as before, say
+1   3 + 3
+
+    6
+         Still, there is also a more elaborated solution with variables:
+2   a = 3
+3   b = 3
+4   a + b
+
+    6
+        1 Links to label sec:1.1, counter value 1
+        2 Links to label sec:1.1.1, counter value 1.1
+        3 Links to label ex:1, counter value 1
+        4 Links to label sec:1.2, counter value 2
+        5 Links to label sec:1.2.1, counter value 2.1
+        6 Links to label ex:2, counter value 2
+    2.2     Another subsection7
+    Exercise 38 .     A more elaborated solution with functions:
+
+
+1   def my_sum(a, b):
+2       return a + b
+3
+
+4   print(my_sum(13, 3))
+
+
+
+
+    16
+
+
+
+
+    Exercise 49 .     A more elaborated solution with a plot. Store the numbers in a
+    list.
+
+
+1   numbers = [3, 13]
+
+
+
+
+         Then plot their cumulative sum.
+
+
+2   import plotly.express as px
+3   fig = px.scatter(
+4       x=[1, 2],
+5       y=[numbers[0], numbers[0] + numbers[1]]
+6   )
+7   fig
+
+
+
+
+      7 Links to label sec:1.2.2, counter value 2.2
+      8 Links to label ex:3, counter value 3
+      9 Links to label ex:4, counter value 4
+         You can plot again the figure if you want.
+8   print(sum(numbers))
+9   fig
+
+    16
+

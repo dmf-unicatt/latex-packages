@@ -1,0 +1,44 @@
+Chapter A
+
+Exercises
+
+1      First section
+1.1      First subsection
+Exercise 1 (Simple Addition). What is 2 + 2?
+Go to: solution1 .
+
+
+
+
+    1 Links to label sol:1, counter value 2
+Chapter B
+
+Solutions
+
+1      First section1
+1.1      First subsection2
+Exercise 13 . 2 + 2 = 4
+Go to: additional information4 .
+
+
+
+
+    1 Links to label sec:1.1, counter value 1
+    2 Links to label sec:1.1.1, counter value 1.1
+    3 Links to label ex:1, counter value 1
+    4 Links to label add:1, counter value 1
+Chapter C
+
+Additional information
+
+1 First section1
+1.1    First subsection2
+Exercise 13 .     Open python and type 2 + 2
+
+
+
+
+  1 Links to label sec:1.1, counter value 1
+  2 Links to label sec:1.1.1, counter value 1.1
+  3 Links to label ex:1, counter value 1
+

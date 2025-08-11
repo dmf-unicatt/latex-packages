@@ -1,0 +1,28 @@
+\documentclass{book}
+\usepackage{tests-exercise-book}
+
+\begin{document}
+
+\chapter{Exercises}
+
+\section{First section}
+
+\subsection{First subsection}
+
+\begin{exercise}[subtitle={Simple Addition}]
+  What is \(2 + 2\)?
+\end{exercise}
+
+\begin{solution}
+  \(2 + 2 = 4\)
+\end{solution}
+
+\chapter{Solutions}
+\AssertPropertyInAllExercises{solution}
+\PrintExercisePropertySectionBySection{solution}
+
+\chapter{Additional information}
+\AssertPropertyInAllExercises{additionalinformation}
+\PrintExercisePropertySectionBySection{additionalinformation}
+
+\end{document}

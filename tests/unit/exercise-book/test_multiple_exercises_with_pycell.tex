@@ -1,0 +1,156 @@
+\documentclass{book}
+\usepackage{tests-exercise-book}
+
+\begin{document}
+
+\chapter{Exercises}
+
+\section{First section}
+
+\subsection{First subsection}
+
+\begin{exercise}[subtitle={Simple Addition}]
+  What is \(2 + 2\)?
+
+  Please answer.
+\end{exercise}
+
+\begin{solution}
+Using LaTex I know that
+
+  \(2 + 2 = 4\)
+\end{solution}
+
+\begin{additionalinformation}
+Open python and do the following:
+
+\begin{pycell}
+2 + 2
+\end{pycell}
+\begin{pyexpectedoutput}
+4
+\end{pyexpectedoutput}
+\end{additionalinformation}
+
+\section{Second section}
+
+\subsection{A subsection}
+
+\begin{exercise}
+  What is \(3 + 3\)?
+\end{exercise}
+
+\begin{solution}
+  \(3 + 3 = 6\)
+
+Want to try with python?
+\begin{pycell}
+3 + 3
+\end{pycell}
+\begin{pyexpectedoutput}
+6
+\end{pyexpectedoutput}
+\end{solution}
+
+\begin{additionalinformation}
+You can proceed as before, say
+\begin{pycell}
+3 + 3
+\end{pycell}
+\begin{pyexpectedoutput}
+6
+\end{pyexpectedoutput}
+
+Still, there is also a more elaborated solution with variables:
+
+\begin{pycell}
+a = 3
+b = 3
+a + b
+\end{pycell}
+\begin{pyexpectedoutput}
+6
+\end{pyexpectedoutput}
+\end{additionalinformation}
+
+\subsection{Another subsection}
+
+\begin{exercise}
+  What is \(13 + 3\)?
+\end{exercise}
+
+\begin{solution}
+  \(13 + 3 = 16\)
+\end{solution}
+
+\begin{additionalinformation}
+A more elaborated solution with functions:
+
+\begin{pycell}
+def my_sum(a, b):
+    return a + b
+
+print(my_sum(13, 3))
+\end{pycell}
+\begin{pyexpectedoutput}
+16
+\end{pyexpectedoutput}
+\end{additionalinformation}
+
+\begin{exercise}
+Discuss this code
+
+\begin{pycell}
+13 + 3
+\end{pycell}
+\begin{pyexpectedoutput}
+16
+\end{pyexpectedoutput}
+\end{exercise}
+
+\begin{solution}
+It's the sum of two numbers, and prints 16.
+\end{solution}
+
+\begin{additionalinformation}
+A more elaborated solution with a plot. Store the numbers in a list.
+
+\begin{pycell}
+numbers = [3, 13]
+\end{pycell}
+
+Then plot their cumulative sum.
+
+\begin{pycell}
+import plotly.express as px
+fig = px.scatter(
+    x=[1, 2],
+    y=[numbers[0], numbers[0] + numbers[1]]
+)
+fig
+\end{pycell}
+\pyexpectedfigure{images/scatter_12_316.png}
+
+\newpage
+
+You can plot again the figure if you want.
+
+\begin{pycell}
+print(sum(numbers))
+fig
+\end{pycell}
+\begin{pyexpectedoutput}
+16
+\end{pyexpectedoutput}
+\pyexpectedfigure{images/scatter_12_316.png}
+\end{additionalinformation}
+
+\chapter{Solutions}
+\AssertPropertyInAllExercises{solution}
+\PrintExercisePropertySectionBySection{solution}
+
+\chapter{Additional information}
+\AssertPropertyInAllExercises{additionalinformation}
+\PrintExercisePropertySectionBySection{additionalinformation}
+
+\end{document}

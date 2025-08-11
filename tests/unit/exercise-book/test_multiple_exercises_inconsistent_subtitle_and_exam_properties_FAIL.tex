@@ -1,0 +1,210 @@
+\documentclass{book}
+\usepackage{tests-exercise-book}
+
+\begin{document}
+
+\chapter{Exercises}
+
+\section{All possible combinations of subtitle, examdate, examproblemnumber, examproblemid}
+
+The following exercise is valid: no properties at all.
+
+\begin{exercise}
+  What is \(1 + 1\)?
+\end{exercise}
+\begin{solution}
+  \(1 + 1 = 2\)
+\end{solution}
+\begin{additionalinformation}
+Open python and type 1 + 1
+\end{additionalinformation}
+
+The following exercise is invalid: only examproblemid provided (must have all three exam properties together).
+
+\begin{exercise}[examproblemid={2020-01-15-02}]
+  What is \(2 + 2\)?
+\end{exercise}
+\begin{solution}
+  \(2 + 2 = 4\)
+\end{solution}
+\begin{additionalinformation}
+Open python and type 2 + 2
+\end{additionalinformation}
+
+The following exercise is invalid: only examproblemnumber provided (must have all three exam properties together).
+
+\begin{exercise}[examproblemnumber={3}]
+  What is \(3 + 3\)?
+\end{exercise}
+\begin{solution}
+  \(3 + 3 = 6\)
+\end{solution}
+\begin{additionalinformation}
+Open python and type 3 + 3
+\end{additionalinformation}
+
+The following exercise is invalid: examproblemnumber and examproblemid provided without examdate.
+
+\begin{exercise}[examproblemnumber={4}, examproblemid={2020-01-15-04}]
+  What is \(4 + 4\)?
+\end{exercise}
+\begin{solution}
+  \(4 + 4 = 8\)
+\end{solution}
+\begin{additionalinformation}
+Open python and type 4 + 4
+\end{additionalinformation}
+
+The following exercise is invalid: only examdate provided (must have all three exam properties together).
+
+\begin{exercise}[examdate={January 15, 2020}]
+  What is \(5 + 5\)?
+\end{exercise}
+\begin{solution}
+  \(5 + 5 = 10\)
+\end{solution}
+\begin{additionalinformation}
+Open python and type 5 + 5
+\end{additionalinformation}
+
+The following exercise is invalid: examdate and examproblemid provided without examproblemnumber.
+
+\begin{exercise}[examdate={January 15, 2020}, examproblemid={2020-01-15-06}]
+  What is \(6 + 6\)?
+\end{exercise}
+\begin{solution}
+  \(6 + 6 = 12\)
+\end{solution}
+\begin{additionalinformation}
+Open python and type 6 + 6
+\end{additionalinformation}
+
+The following exercise is invalid: examdate and examproblemnumber provided without examproblemid.
+
+\begin{exercise}[examdate={January 15, 2020}, examproblemnumber={7}]
+  What is \(7 + 7\)?
+\end{exercise}
+\begin{solution}
+  \(7 + 7 = 14\)
+\end{solution}
+\begin{additionalinformation}
+Open python and type 7 + 7
+\end{additionalinformation}
+
+The following exercise is valid: all three exam properties provided.
+
+\begin{exercise}[examdate={January 15, 2020}, examproblemnumber={8}, examproblemid={2020-01-15-08}]
+  What is \(8 + 8\)?
+\end{exercise}
+\begin{solution}
+  \(8 + 8 = 16\)
+\end{solution}
+\begin{additionalinformation}
+Open python and type 8 + 8
+\end{additionalinformation}
+
+The following exercise is valid: only subtitle provided.
+
+\begin{exercise}[subtitle={Simple Addition}]
+  What is \(9 + 9\)?
+\end{exercise}
+\begin{solution}
+  \(9 + 9 = 18\)
+\end{solution}
+\begin{additionalinformation}
+Open python and type 9 + 9
+\end{additionalinformation}
+
+The following exercise is invalid: subtitle and examproblemid provided.
+
+\begin{exercise}[subtitle={Simple Addition}, examproblemid={2020-01-15-10}]
+  What is \(10 + 10\)?
+\end{exercise}
+\begin{solution}
+  \(10 + 10 = 20\)
+\end{solution}
+\begin{additionalinformation}
+Open python and type 10 + 10
+\end{additionalinformation}
+
+The following exercise is invalid: subtitle and examproblemnumber provided.
+
+\begin{exercise}[subtitle={Simple Addition}, examproblemnumber={11}]
+  What is \(11 + 11\)?
+\end{exercise}
+\begin{solution}
+  \(11 + 11 = 22\)
+\end{solution}
+\begin{additionalinformation}
+Open python and type 11 + 11
+\end{additionalinformation}
+
+The following exercise is invalid: subtitle and examdate provided.
+
+\begin{exercise}[subtitle={Simple Addition}, examdate={January 15, 2020}]
+  What is \(12 + 12\)?
+\end{exercise}
+\begin{solution}
+  \(12 + 12 = 24\)
+\end{solution}
+\begin{additionalinformation}
+Open python and type 12 + 12
+\end{additionalinformation}
+
+The following exercise is invalid: subtitle, examproblemnumber, and examproblemid provided.
+
+\begin{exercise}[subtitle={Simple Addition}, examproblemnumber={13}, examproblemid={2020-01-15-13}]
+  What is \(13 + 13\)?
+\end{exercise}
+\begin{solution}
+  \(13 + 13 = 26\)
+\end{solution}
+\begin{additionalinformation}
+Open python and type 13 + 13
+\end{additionalinformation}
+
+The following exercise is invalid: subtitle, examdate, and examproblemid provided.
+
+\begin{exercise}[subtitle={Simple Addition}, examdate={January 15, 2020}, examproblemid={2020-01-15-14}]
+  What is \(14 + 14\)?
+\end{exercise}
+\begin{solution}
+  \(14 + 14 = 28\)
+\end{solution}
+\begin{additionalinformation}
+Open python and type 14 + 14
+\end{additionalinformation}
+
+The following exercise is invalid: subtitle, examdate, and examproblemnumber provided.
+
+\begin{exercise}[subtitle={Simple Addition}, examdate={January 15, 2020}, examproblemnumber={15}]
+  What is \(15 + 15\)?
+\end{exercise}
+\begin{solution}
+  \(15 + 15 = 30\)
+\end{solution}
+\begin{additionalinformation}
+Open python and type 15 + 15
+\end{additionalinformation}
+
+The following exercise is invalid: subtitle, examdate, examproblemnumber, and examproblemid all provided.
+
+\begin{exercise}[subtitle={Simple Addition}, examdate={January 15, 2020}, examproblemnumber={16}, examproblemid={2020-01-15-16}]
+  What is \(16 + 16\)?
+\end{exercise}
+\begin{solution}
+  \(16 + 16 = 32\)
+\end{solution}
+\begin{additionalinformation}
+Open python and type 16 + 16
+\end{additionalinformation}
+
+\chapter{Solutions}
+\AssertPropertyInAllExercises{solution}
+\PrintExercisePropertySectionBySection{solution}
+
+\chapter{Additional information}
+\AssertPropertyInAllExercises{additionalinformation}
+\PrintExercisePropertySectionBySection{additionalinformation}
+
+\end{document}

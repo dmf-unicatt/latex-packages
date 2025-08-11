@@ -1,0 +1,487 @@
+%%% ================================================================
+%%%                     REQUIRED PACKAGES
+%%% ================================================================
+
+% For conditional logic and environment patching
+\RequirePackage{etoolbox}
+
+% For string comparison and manipulation
+\RequirePackage{xstring}
+
+% LaTeX3 programming layer
+\RequirePackage{expl3}
+
+% For exercise and solution environments, where use-files is to allow verbatim environments.
+% Note that modern LaTeX3 allows "+c" environments that would overcome the need to write
+% to an output file and still allow verbatim environments, but xsim hardcodes its own
+% environments with the choice "b" instead of "+c".
+\RequirePackage[use-files]{xsim}
+
+% To automatically create subdirectory for xsim auxiliary files
+\RequirePackage{shellesc}
+
+% To link exercises and solutions
+\RequirePackage{hyperref}
+
+% Load the tex-notebook package from this same repository for the pycell environment
+\RequirePackage{tex-notebook}
+
+%%% ================================================================
+%%%                     BASE DOCUMENT CONFIGURATION
+%%% ================================================================
+
+%%% ----------------------------------------------------------------
+%%% Hyperref configuration
+%%% ----------------------------------------------------------------
+
+\hypersetup{
+  colorlinks=true,     % Use colored text for links instead of boxes
+  linkcolor=black,     % Set all colors to black
+  citecolor=black,
+  urlcolor=black,
+  pdfborder={0 0 0},   % Remove border around links
+  bookmarksdepth=0     % Disable bookmarks
+}
+
+%%% ----------------------------------------------------------------
+%%% Section and chapter numbering
+%%% ----------------------------------------------------------------
+
+% Display chapters as letters (e.g., "Chapter A")
+\renewcommand{\thechapter}{\Alph{chapter}}
+
+% Automatically label chapters (e.g., \label{chap:1})
+\makeatletter
+\pretocmd{\@makechapterhead}{%
+  \label{chap:\arabic{chapter}}%
+}{}{}
+\makeatother
+
+% Display sections without chapter number (e.g., "2" instead of "A.2")
+\renewcommand{\thesection}{\arabic{section}}
+
+% Automatically label sections and subsections
+\let\oldsection\section
+\let\oldsubsection\subsection
+
+\makeatletter
+\RenewDocumentCommand{\section}{sm}{
+  \IfBooleanTF{#1}
+    { \oldsection*{#2} }
+    {
+      \oldsection{#2}
+      \label{sec:\arabic{chapter}.\arabic{section}}
+    }
+}
+\RenewDocumentCommand{\subsection}{sm}{
+  \IfBooleanTF{#1}
+    { \oldsubsection*{#2} }
+    {
+      \oldsubsection{#2}
+      \label{sec:\arabic{chapter}.\arabic{section}.\arabic{subsection}}
+    }
+}
+\makeatother
+
+%%% ================================================================
+%%%                     INTEGRATION WITH XSIM
+%%% ================================================================
+
+%%% ----------------------------------------------------------------
+%%% Helper: check if label exists
+%%% ----------------------------------------------------------------
+
+\makeatletter
+\newcommand{\labelExists}[1]{%
+  \ifcsname r@#1\endcsname
+    \expandafter\@firstoftwo
+  \else
+    \expandafter\@secondoftwo
+  \fi
+}
+\makeatother
+
+%%% ----------------------------------------------------------------
+%%% Helper: create links to be used in xsim environments and
+%%% sectioning environments
+%%% ----------------------------------------------------------------
+
+\NewDocumentCommand{\linktoxsimenv}{m m}{%
+  \hyperref[#1]{#2}%
+}
+\NewDocumentCommand{\linktosection}{m}{%
+  \nameref{#1}%
+}
+
+%%% ----------------------------------------------------------------
+%%% xsim verbatim directory configuration
+%%% ----------------------------------------------------------------
+
+% Put xsim verbatim files in a subdirectory to avoid cluttering the root path
+\ifcase\ShellEscapeStatus
+  \PackageError{exercise-book}{Shell escape is disabled}{Must compile with --shell-escape enabled to create a work directory for xsim files}
+\or
+  \immediate\write18{mkdir -p xsim-files-\jobname}
+\or
+  \PackageError{exercise-book}{Shell escape is restricted}{Must compile with --shell-escape enabled to create a work directory for xsim files}
+\else
+  \PackageError{exercise-book}{Unknown shell escape status}{Check your TeX engine.}
+\fi
+
+\xsimsetup{
+  path=xsim-files-\jobname
+}
+
+%%% ----------------------------------------------------------------
+%%% Print exercises by default, but not solutions
+%%% ----------------------------------------------------------------
+
+\xsimsetup{
+  exercise/print = true,
+  solution/print = false
+}
+
+%%% ----------------------------------------------------------------
+%%% Customize header style
+%%% ----------------------------------------------------------------
+
+% Define a property for the exam date, exam problem name and examproblemid
+\DeclareExerciseProperty{examdate}
+\DeclareExerciseProperty{examproblemnumber}
+\DeclareExerciseProperty{examproblemid}
+
+% Define booleans to store property presence
+\newif\ifhasSubtitle
+\newif\ifhasExamDate
+\newif\ifhasExamProblemNumber
+\newif\ifhasExamProblemId
+
+% Count how many exercises have been printed, in order to have a continuous numbering
+\newcounter{printedexercises}
+
+% Store the printed exercises counter as an exercise property
+\DeclareExerciseProperty{printedcounter}
+
+% Helper command to determine if exercise will actually be printed
+\ExplSyntaxOn
+\NewDocumentCommand{\IfExercisePrintT}{mmm}
+ {
+  \xsim_exercise_if_print:nnT {#1} {#2} {#3}
+ }
+\ExplSyntaxOff
+
+% Add a pre-hook to increment the printed exercise counters only if the exercise will actually be printed
+\xsimsetup{
+  exercise/pre-hook = {%
+    \IfExercisePrintT{\ExerciseType}{\ExerciseID}{%
+      \stepcounter{pynotebook}% increment counter of tex-notebook package
+      \stepcounter{printedexercises}%
+      \expanded{\SetExerciseProperty{printedcounter}{\number\value{printedexercises}}}%
+    }
+  },
+}
+
+% Custom exercise heading using paragraph style
+\newcommand{\exerciseHeading}[1]{%
+  \GetExercisePropertyTF{subtitle}{\hasSubtitletrue}{\hasSubtitlefalse}%
+  \GetExercisePropertyTF{examdate}{\hasExamDatetrue}{\hasExamDatefalse}%
+  \GetExercisePropertyTF{examproblemnumber}{\hasExamProblemNumbertrue}{\hasExamProblemNumberfalse}%
+  \GetExercisePropertyTF{examproblemid}{\hasExamProblemIdtrue}{\hasExamProblemIdfalse}%
+  % Property check: if subtitle present
+  \ifhasSubtitle
+    % Error if other exam properties also present
+    \ifhasExamDate
+      \PackageError{exercise-book}{Extra examdate}{Cannot have 'examdate' if 'subtitle' is provided}%
+    \fi
+    \ifhasExamProblemNumber
+      \PackageError{exercise-book}{Extra examproblemnumber}{Cannot have 'examproblemnumber' if 'subtitle' is provided}%
+    \fi
+    \ifhasExamProblemId
+      \PackageError{exercise-book}{Extra examproblemid}{Cannot have 'examproblemid' if 'subtitle' is provided}%
+    \fi
+  % Property check: if no subtitle, but examdate present
+  \else\ifhasExamDate
+    % Must have examproblemnumber and examproblemid too
+    \ifhasExamProblemNumber
+    \else
+      \PackageError{exercise-book}{Missing examproblemnumber}{Must have 'examproblemnumber' if 'examdate' is provided}%
+    \fi
+    \ifhasExamProblemId
+    \else
+      \PackageError{exercise-book}{Missing examproblemid}{Must have 'examproblemid' if 'examdate' is provided}%
+    \fi
+  % Property check: if no subtitle or examdate, but examproblemnumber present
+  \else\ifhasExamProblemNumber
+    % Must have examdate and examproblemid
+    \PackageError{exercise-book}{Missing examdate}{Must have 'examdate' if 'examproblemnumber' is provided}%
+    \ifhasExamProblemId
+    \else
+      \PackageError{exercise-book}{Missing examproblemid}{Must have 'examproblemid' if 'examproblemnumber' is provided}%
+    \fi
+  % Property check: if no subtitle, examdate, or examproblemnumber, but examproblemid present
+  \else\ifhasExamProblemId
+    % Must have examdate and examproblemnumber
+    \PackageError{exercise-book}{Missing examdate and examproblemnumber}{Must have 'examdate' and 'examproblemnumber' if 'examproblemid' is provided}%
+  \fi\fi\fi\fi%
+  % Increment counter and print heading
+  \paragraph{%
+    Exercise~\theprintedexercises\normalfont%
+    \ifhasSubtitle
+      \space(\itshape\GetExerciseProperty{subtitle}).%
+    \else
+      \ifhasExamDate
+        \space\space(\itshape\GetExerciseProperty{examdate}).%
+      \else
+        .%
+      \fi
+    \fi
+  }%
+}
+\SetExerciseParameter{exercise}{exercise-heading}{\exerciseHeading}
+
+% Custom solution heading with link back to the exercise
+\newcommand{\solutionHeading}[1]{%
+  \edef\exref{ex:\GetExerciseProperty{id}}%
+  \paragraph{\linktoxsimenv{\exref}{Exercise~\GetExerciseProperty{printedcounter}}\normalfont.}%
+}
+\SetExerciseParameter{exercise}{solution-heading}{\solutionHeading}
+
+%%% ----------------------------------------------------------------
+%%% Track solution presence and allow verbatim content
+%%% ----------------------------------------------------------------
+
+% Define a property to track if an exercise has a solution
+\DeclareExerciseProperty{hassolution}
+
+% Set the hassolution flag when a solution is provided
+\AtBeginEnvironment{solution}{
+  \edef\ExerciseType{\csname g_xsim_exercise_type_tl\endcsname}%
+  \edef\ExerciseID{\csname g_xsim_exercise_id_tl\endcsname}%
+  \SetExerciseProperty{hassolution}{1}%
+}
+
+%%% ----------------------------------------------------------------
+%%% Attach subsection value property to each exercise and
+%%% labels to each exercise and solution
+%%% (done with a begin-hook: must be done altogether as there can
+%%%  only be a single begin-hook)
+%%% ----------------------------------------------------------------
+
+% Store subsection number in exercise metadata
+\DeclareExerciseProperty{subsection-value}
+
+% Automatically attach subsection to each exercise and label to each exercise and solution
+\xsimsetup{
+  exercise/begin-hook = {%
+    \expanded{\SetExerciseProperty{subsection-value}{\number\value{subsection}}}%
+    \label{ex:\ExerciseID}%
+  },
+  solution/begin-hook = {%
+    \label{sol:\ExerciseID}%
+  }
+}
+
+%%% ----------------------------------------------------------------
+%%% Property and environment to add additional information
+%%% ----------------------------------------------------------------
+
+\ifLaTeXTwentyFive
+
+%%% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%%% If LaTeX >= 2025/06/01: use an environment with +c specification
+%%% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+% Define a property for additional informations
+\DeclareExerciseProperty{additionalinformation}
+
+% Store additional information code in the exercise metadata
+\ExplSyntaxOn
+
+\tl_new:N \l__additionalinformation_content_tl
+
+\NewDocumentEnvironment{additionalinformation}{+c}
+  {
+    % Store the current exercise type and ID
+    \edef\ExerciseType{\csname g_xsim_exercise_type_tl\endcsname}
+    \edef\ExerciseID{\csname g_xsim_exercise_id_tl\endcsname}
+
+    % Store the code block as a property of the exercise
+    \SetExerciseProperty{additionalinformation}
+      {
+        % Normalize line endings to ^^J
+        \tl_set:Nn \l__additionalinformation_content_tl {#1}
+        \tl_replace_all:Nnn \l__additionalinformation_content_tl {\obeyedline} {^^J}
+
+        % Evaluate the string for storage
+        \exp_args:Nx \scantokens {
+          \tl_to_str:N \l__additionalinformation_content_tl
+        }
+      }
+  }
+  {}
+
+\ExplSyntaxOff
+
+\else
+
+%%% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%%% Else LaTeX < 2025/06/01: write to to the xsim work directory
+%%% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+% Define a property for additional informations
+\DeclareExerciseProperty{additionalinformationfilename}
+
+% Store additional information code in the exercise metadata
+\NewDocumentEnvironment{additionalinformation}{}
+  {
+    % Store the current exercise type and ID
+    \edef\ExerciseType{\csname g_xsim_exercise_type_tl\endcsname}
+    \edef\ExerciseID{\csname g_xsim_exercise_id_tl\endcsname}
+
+    % Store the file containing the code as a property of the exercise
+    \edef\additionalinformationfilename{xsim-files-\jobname/\jobname-\ExerciseType-\ExerciseID-additional-solution.tex}
+    \edef\setexerciseproperty{\noexpand\SetExerciseProperty{additionalinformationfilename}{\additionalinformationfilename}}
+    \setexerciseproperty
+    \XSIMfilewritestart{\additionalinformationfilename}%
+  }
+  {
+    \XSIMfilewritestop
+  }
+
+%%% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%%% End if LaTeX >= 2025/06/01
+%%% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+\fi
+
+%%% ----------------------------------------------------------------
+%%% Attach links to solution and additional information
+%%% ----------------------------------------------------------------
+\xsimsetup{
+  exercise/post-hook = {%
+    \edef\solref{sol:\GetExerciseProperty{id}}%
+    \noindent\textbf{Go to:} {\itshape\linktoxsimenv{\solref}{solution}}.%
+  },
+  solution/post-hook = {%
+    \edef\addref{add:\GetExerciseProperty{id}}%
+    \noindent\textbf{Go to:} {\itshape\linktoxsimenv{\addref}{additional information}}.%
+  }
+}
+
+%%% ----------------------------------------------------------------
+%%% Solution printing by section and subsection
+%%% ----------------------------------------------------------------
+
+% Declare max number of chapters, sections, and subsections
+\newcounter{chap}
+\newcounter{sec}
+\newcounter{subsec}
+\newcount\maxchap
+\newcount\maxsec
+\newcount\maxsubsec
+\maxchap=1
+\maxsec=100
+\maxsubsec=100
+
+% Count how many additional information environment have been printed, in order to have an anchor for the links.
+% Note that it is done here, rather than in the actual additionalinformation environments, because the
+% content is actually displayed in this part of the code.
+\newcounter{printedadditionalinformation}
+
+% Print solutions grouped by section and subsection
+\newcommand{\PrintExercisePropertySectionBySection}[1]{%
+  \setcounter{chap}{1}%
+  \whileboolexpr{ test {\ifnumless{\value{chap}}{\numexpr\maxchap+1\relax}} }{%
+    \setcounter{sec}{1}%
+    \whileboolexpr{ test {\ifnumless{\value{sec}}{\numexpr\maxsec+1\relax}} }{%
+      \edef\secref{sec:\arabic{chap}.\arabic{sec}}%
+      \labelExists{\secref}{%
+        \section{\linktosection{\secref}}%
+        \setcounter{subsec}{1}%
+        \whileboolexpr{ test {\ifnumless{\value{subsec}}{\numexpr\maxsubsec+1\relax}} }{%
+          \edef\subsecref{sec:\arabic{chap}.\arabic{sec}.\arabic{subsec}}%
+          \labelExists{\subsecref}{%
+            \subsection{\linktosection{\subsecref}}%
+            \ForEachUsedExerciseByType{%
+              \IfExercisePrintT{##1}{##2} {%
+                \ifnum\ExercisePropertyGet{##1}{##2}{chapter-value}=\value{chap}%
+                  \ifnum\ExercisePropertyGet{##1}{##2}{section-value}=\value{sec}%
+                    \ifnum\ExercisePropertyGet{##1}{##2}{subsection-value}=\value{subsec}%
+                      \stepcounter{pynotebook}% increment counter of tex-notebook package
+                      \IfStrEq{#1}{solution}{%
+                        \GetExercisePropertyTF{hassolution}{%
+                          \XSIMprint{solution}{exercise}{##2}%
+                        }{%
+                          \PackageError{exercise-book}{Missing solution}{Solution is missing for ##1 ##2}%
+                        }%
+                      }{%
+                        \IfStrEq{#1}{additionalinformation}{%
+                          \refstepcounter{printedadditionalinformation}%
+                          \phantomsection%
+                          \label{add:##2}%
+                          \solutionHeading{##2}%
+                          \ifLaTeXTwentyFive%
+                            \GetExercisePropertyTF{additionalinformation}{%
+                              ####1%
+                            }{%
+                              \PackageError{exercise-book}{Missing additional information}{additional information is missing for ##1 ##2}%
+                            }%
+                          \else%
+                            \GetExercisePropertyTF{additionalinformationfilename}{%
+                              \input{####1}%
+                            }{%
+                              \PackageError{exercise-book}{Missing additional information}{additional information is missing for ##1 ##2}%
+                            }%
+                          \fi%
+                        }{%
+                          \PackageError{exercise-book}{Unknown solution type '#1'}{Expected 'solution' or 'additionalinformation'}%
+                        }%
+                      }%
+                    \fi%
+                  \fi%
+                \fi%
+              }%
+            }%
+            \stepcounter{subsec}%
+          }{%
+            \setcounter{subsec}{\numexpr\maxsubsec+1\relax}%
+          }%
+        }%
+        \stepcounter{sec}%
+      }{%
+        \setcounter{sec}{\numexpr\maxsec+1\relax}%
+      }%
+    }%
+    \stepcounter{chap}%
+  }%
+}
+
+%%% ----------------------------------------------------------------
+%%% Validation checks for properties
+%%% ----------------------------------------------------------------
+
+\newcommand{\AssertPropertyInAllExercises}[1]{%
+  \IfStrEq{#1}{solution}{%
+    \ForEachUsedExerciseByType{%
+      \GetExercisePropertyTF{hassolution}{}{%
+        \PackageError{exercise-book}{Exercise ##2 has no solution}{}
+      }%
+    }%
+  }{%
+    \IfStrEq{#1}{additionalinformation}{%
+      \ForEachUsedExerciseByType{%
+        \ifLaTeXTwentyFive%
+          \GetExercisePropertyTF{additionalinformation}{}{%
+            \PackageError{exercise-book}{Exercise ##2 has no additional information}{}
+          }%
+        \else%
+          \GetExercisePropertyTF{additionalinformationfilename}{}{%
+            \PackageError{exercise-book}{Exercise ##2 has no additional information}{}
+          }%
+        \fi%
+      }%
+    }{%
+      \PackageError{exercise-book}{Unknown solution type '#1'}{Expected 'solution' or 'additionalinformation'}%
+    }%
+  }%
+}
+

@@ -1,0 +1,19 @@
+#!/bin/bash
+
+FILE="packages/if-latex-twentyfive.sty"
+
+# Get the last line of the file
+last_line=$(git show ":$FILE" | tail -n 1)
+
+# Ensure that the last line ends with %, i.e. the package contains
+# % \LaTeXTwentyFivefalse
+# instead of a temporary modification
+# \LaTeXTwentyFivefalse
+# to locally test the case of old texlive versions.
+if [[ ! "$last_line" =~ ^% ]]; then
+  echo "ERROR: you are trying to commit $FILE with last line which does not start with a % character."
+  echo "You probably temporarily forced an old latex version: please undo the change before committing."
+  exit 1
+fi
+
+exit 0

@@ -44,7 +44,8 @@ if ( !$main_tex_file || source_contains_pythontex($main_tex_file) ) {
     $extra_rule_spec{'pythontex'} = [ 'internal', '', 'mypythontex',
         "%Y%R.pytxcode", "%Ypythontex-files-%R/%R.pytxmcr", "%R", 1 ];
 } else {
-    delete $extra_rule_spec{'pythontex'};
+    # Create empty rule for pythontex, as it is not needed
+    $extra_rule_spec{'pythontex'} = ['', '', '', '', '', '', 1];
 }
 
 # --- Custom PythonTeX runner ---

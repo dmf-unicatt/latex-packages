@@ -1,0 +1,41 @@
+name: docker
+
+on:
+  schedule:
+    - cron: "0 0 * * MON"
+  workflow_dispatch:
+
+jobs:
+  test:
+    strategy:
+      matrix:
+        base-image: [debian:12, debian:testing, debian:unstable, debian:experimental]
+      fail-fast: false
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: docker
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create image
+        run: |
+          TAG_NAME="${{ matrix.base-image }}"
+          TAG_NAME="${TAG_NAME//:/-}"
+          docker build --build-arg BASE_IMAGE=${{ matrix.base-image }} -t ghcr.io/dmf-unicatt/latex-packages:latest-${TAG_NAME} .
+      - name: Login to GitHub Container Registry
+        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Publish image to GitHub packages
+        run: |
+          TAG_NAME="${{ matrix.base-image }}"
+          TAG_NAME="${TAG_NAME//:/-}"
+          docker push ghcr.io/dmf-unicatt/latex-packages:latest-${TAG_NAME}
+
+  warn:
+    runs-on: ubuntu-latest
+    if: github.repository == 'dmf-unicatt/latex-packages' && github.ref == 'refs/heads/main' && github.event_name == 'schedule'
+    steps:
+      - name: Warn if scheduled workflow is about to be disabled
+        uses: fem-on-colab/warn-workflow-about-to-be-disabled-action@main
+        with:
+          workflow-filename: docker.yml
+          days-elapsed: 50

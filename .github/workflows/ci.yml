@@ -24,7 +24,9 @@ jobs:
       - name: Show texlive version
         run: dpkg -s texlive-base | grep Version
       - name: Ensure that \LaTeXTwentyFivefalse at the end of packages/if-latex-twentyfive.sty is always commented when committing
-        run: git-hooks/pre-commit
+        run: |
+          git config --global --add safe.directory $PWD
+          git-hooks/pre-commit
       - name: Run unit tests
         run: |
           cd tests

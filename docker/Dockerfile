@@ -13,6 +13,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Update package lists and install required packages, then clean cache
 RUN apt update -y -q && \
+    # Install git
+    apt install -y -qq --no-install-recommends git && \
     # Install texlive
     if [ "${BASE_IMAGE}" = "debian:experimental" ]; then \
         apt install -y -qq -t experimental --no-install-recommends texlive-extra-utils texlive-latex-extra texlive-lang-english; \

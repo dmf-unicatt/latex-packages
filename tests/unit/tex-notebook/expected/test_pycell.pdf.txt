@@ -49,35 +49,56 @@
 
      [1, 2, 3]
      [4, 5, 6]
-    Chapter 2
+     Chapter 2
 
-    Case with strings and
-    spaces
+     Case with strings and
+     spaces
 
-1   x = "one"
-2   y = "two two"
-
-
-
-
-3   z = "three THREE_Three"; n = "FoUr_four quattro_cuatro"
+1    x = "one"
+2    y = "two two"
 
 
 
 
-4   " ".join([x, y, z, n])
+3    z = "three THREE_Three"; n = "FoUr_four quattro_cuatro"
 
 
-    'one two two three THREE_Three FoUr_four quattro_cuatro'
 
 
-5   print(" ".join([x, y]))
-6   print(" ".join([z, n]))
+4    " ".join([x, y, z, n])
+
+     'one two two three THREE_Three FoUr_four quattro_cuatro'
+
+5    print(" ".join([x, y]))
+6    print(" ".join([z, n]))
+
+     one two two
+     three THREE_Three FoUr_four quattro_cuatro
+
+       Once can also print multiline strings
+7    Z = """three
+8    THREE_Three"""
+9    N = """FoUr_four
+10   quattro_cuatro"""
+11   print("\n".join([Z, N]))
+     three
+     THREE_Three
+     FoUr_four
+     quattro_cuatro
 
 
-    one two two
-    three THREE_Three FoUr_four quattro_cuatro
-    Chapter 3 
+12   Z = '''three
+13   THREE_Three'''
+14   N = '''FoUr_four
+15   quattro_cuatro'''
+16   print("\n".join([Z, N]))
+
+
+     three
+     THREE_Three
+     FoUr_four
+     quattro_cuatro
+    Chapter 3
 
     Variable resets
 
@@ -93,7 +114,7 @@
 
         works, but trying to use the variable x from the previous chapter would not
     (see test_pycell_FAIL.tex).
-    Chapter 4 
+    Chapter 4
 
     Figures
 

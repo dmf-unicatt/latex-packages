@@ -23,6 +23,8 @@
 *.toc
 *.vrb
 *.xsim
+.ipynb_checkpoints
+.virtual_documents
 notebooks-*
 pythontex-files-*
 xsim-files-*

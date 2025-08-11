@@ -98,6 +98,35 @@ one two two
 three THREE_Three FoUr_four quattro_cuatro
 \end{pyexpectedoutput}
 
+Once can also print multiline strings
+\begin{pycell}
+Z = """three
+THREE_Three"""
+N = """FoUr_four
+quattro_cuatro"""
+print("\n".join([Z, N]))
+\end{pycell}
+\begin{pyexpectedoutput}
+three
+THREE_Three
+FoUr_four
+quattro_cuatro
+\end{pyexpectedoutput}
+
+\begin{pycell}
+Z = '''three
+THREE_Three'''
+N = '''FoUr_four
+quattro_cuatro'''
+print("\n".join([Z, N]))
+\end{pycell}
+\begin{pyexpectedoutput}
+three
+THREE_Three
+FoUr_four
+quattro_cuatro
+\end{pyexpectedoutput}
+
 \chapter{Variable resets}
 
 You can use \texttt{\textbackslash restartpythontexsession} to control when the python session resets. For instance, here it resets at every chapter, and therefore

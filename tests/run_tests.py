@@ -54,7 +54,8 @@ CLEAN_CMD = ["latexmk", "-C"]
 
 # Configuration: diff
 DIFF_CMD = ["diff", "-u", "-w", "--color=always" if USE_COLOR else "--color=never"]
-NBDIFF_CMD = ["nbdiff", "--color-words" if USE_COLOR else "--no-color"]
+NBDIFF_CMD = [
+    "nbdiff", "--color-words" if USE_COLOR else "--no-color", "--ignore-outputs", "--ignore-metadata", "--ignore-id"]
 
 # Configuration: pytest-like FAIL, XFAIL and PASS
 if USE_COLOR:
@@ -255,8 +256,8 @@ def run_latex_tests(tex_tests: list[str]) -> None:
                             print("Do not add the entire log, only add a few relevant lines")
                             sys.exit(1)
             else:
-                print(f"{FAIL} - No expected output {os.path.join(test_dir, expected_err_txt)}. ")
-                print("Suggestion: search ! in the log file {os.path.join(test_dir, base + '.log')}.")
+                print(f"{FAIL} - No expected output {os.path.join(test_dir, expected_err_txt)} . ")
+                print(f"Suggestion: search ! in the log file {os.path.join(test_dir, base + '.log')} .")
                 sys.exit(1)
         else:
             # Normal tests: expect success
@@ -338,17 +339,16 @@ def run_latex_tests(tex_tests: list[str]) -> None:
                         gen_nb = normalize_notebook(json.load(gen_f))
 
                         if exp_nb != gen_nb:
-                            with tempfile.TemporaryDirectory() as tmpdir:
-                                with (
-                                    open(os.path.join(tmpdir, expected_ipynb), "w", encoding="utf-8") as exp_tmp_f,
-                                    open(os.path.join(tmpdir, generated_ipynb), "w", encoding="utf-8") as gen_tmp_f
-                                ):
-                                    json.dump(exp_nb, exp_tmp_f, indent=2)
-                                    json.dump(gen_nb, gen_tmp_f, indent=2)
-
-                                _, out, err = run_command(NBDIFF_CMD + [expected_ipynb, generated_ipynb], cwd=tmpdir)
-                                failure = f"Notebook {generated_ipynb} differs from expected output:\n" + out + err
-                                failed_ipynbs.append(failure)
+                            _, out, err = run_command(NBDIFF_CMD + [expected_ipynb, generated_ipynb], cwd=test_dir)
+                            out = out.replace(
+                                f"--- {expected_ipynb}", f"--- {os.path.join(test_dir, expected_ipynb)}")
+                            out = out.replace(
+                                f"+++ {generated_ipynb}", f"+++ {os.path.join(test_dir, generated_ipynb)}")
+                            failure = (
+                                f"Notebook {os.path.join(test_dir, generated_ipynb)} differs "
+                                "from the expected output:\n" + out + err
+                            )
+                            failed_ipynbs.append(failure)
 
                 if len(failed_ipynbs) > 0:
                     print(

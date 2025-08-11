@@ -373,6 +373,7 @@ save_cells_as_notebook(all_cells, pytex)
 
 % Used in pytontex wrappers
 \tl_new:N \l__py_user_code_tl
+\tl_new:N \l__py_triple_quotes_tl
 \tl_new:N \l__py_lastline_tl
 \tl_new:N \l__py_readfile_tl
 \tl_new:N \l__py_expected_tl
@@ -444,6 +445,9 @@ save_cells_as_notebook(all_cells, pytex)
 %%% ----------------------------------------------------------------
 %%% Environment: pycode wrapper - runs python code
 %%% ----------------------------------------------------------------
+\msg_new:nnn { py } { both-triple-quotes }
+  { The~user~code~contains~both~triple~double-quotes~"""~and~triple~single-quotes~'''~which~is~not~allowed. }
+
 \NewDocumentEnvironment{pycode_wrapper}{+c}
   {
     % Store the input code in a temporary variable
@@ -452,9 +456,34 @@ save_cells_as_notebook(all_cells, pytex)
     % Replace \obeyedline with real newlines
     \tl_replace_all:Nnn \l__py_user_code_tl {\obeyedline} {^^J}
 
+    % Determine quoting to use
+    \tl_if_in:NnTF \l__py_user_code_tl {"""}
+      {
+        \tl_if_in:NnTF \l__py_user_code_tl {'''}
+          {
+            % contains both """ and '''
+            \msg_error:nnn { py } { both-triple-quotes } { Found both """ and ''' in user code }
+          }
+          {
+            % contains only """
+            \tl_set:Nn \l__py_triple_quotes_tl {'''}
+          }
+      }
+      {
+        \tl_if_in:NnTF \l__py_user_code_tl {'''}
+          {
+            % contains only '''
+            \tl_set:Nn \l__py_triple_quotes_tl {"""}
+          }
+          {
+            % contains none
+            \tl_set:Nn \l__py_triple_quotes_tl {"""}
+          }
+      }
+
     % Build the full python code
-    \tl_put_left:Nn \l__py_user_code_tl {cell_output, cell_figure_path = call_code("""^^J}
-    \tl_put_right:Nn \l__py_user_code_tl {^^J""", all_cells, python_state, pytex)}
+    \tl_put_left:Nn \l__py_user_code_tl {cell_output, cell_figure_path = call_code(r\l__py_triple_quotes_tl^^J}
+    \tl_put_right:Nn \l__py_user_code_tl {^^J\l__py_triple_quotes_tl, all_cells, python_state, pytex)}
 
     % Replace real newlines with custom newline token
     \tl_replace_all:Nnn \l__py_user_code_tl {^^J} {\newline_other_cat}
@@ -575,7 +604,7 @@ if len(all_cells) > 0:
     \exp_args:Nx \scantokens {
       {
         \begin_pycode \newline_other_cat
-        assert~cell_output~==~"""\l__py_expected_tl""", f"""Unexpected~output~{cell_output}~for~cell~{all_cells[-1]}""" \newline_other_cat
+        assert~cell_output~==~"""\l__py_expected_tl""", f"""Unexpected~output~{cell_output}~for~cell~{all_cells[-1]},~was~expecting~\l__py_expected_tl""" \newline_other_cat
         \end_pycode \newline_other_cat
       }
     }

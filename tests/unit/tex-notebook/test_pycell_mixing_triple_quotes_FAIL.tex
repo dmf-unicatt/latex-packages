@@ -1,0 +1,47 @@
+\documentclass{book}
+\usepackage{tests-tex-notebook}
+
+\begin{document}
+
+\chapter{Mixing triple quotes}
+
+Once can print multiline strings defined using either triple single quotes or triple double quotes. The entire code cell is passed to python by wrapping it in a string, which is multiline and uses the other quote type to avoid having to escape quotes internally.
+
+\begin{pycell}
+Z = """three
+THREE_Three"""
+N = """FoUr_four
+quattro_cuatro"""
+print("\n".join([Z, N]))
+\end{pycell}
+\begin{pyexpectedoutput}
+three
+THREE_Three
+FoUr_four
+quattro_cuatro
+\end{pyexpectedoutput}
+
+\begin{pycell}
+Z = '''three
+THREE_Three'''
+N = '''FoUr_four
+quattro_cuatro'''
+print("\n".join([Z, N]))
+\end{pycell}
+\begin{pyexpectedoutput}
+three
+THREE_Three
+FoUr_four
+quattro_cuatro
+\end{pyexpectedoutput}
+
+However, one cannot mix the two, because it would not be possible to quote the code to be passed to python without escaping.
+\begin{pycell}
+Z = """three
+THREE_Three"""
+N = '''FoUr_four
+quattro_cuatro'''
+print("\n".join([Z, N]))
+\end{pycell}
+
+\end{document}

@@ -1,0 +1,196 @@
+     Chapter 1
+
+     Testing the python function
+     call_code
+
+     This file tests the python function call_code, which is defined internally the
+     package.
+         First of all we define a list that will contain all codes we test, and the local
+     variables they define. These objects mimick the internal implementation used
+     in the package, but choosing different variable names in order not to overlap.
+
+1    all_codes = []
+2    local_variables = {}
+
+
+
+
+        Then we run several tests.
+
+3    cell_output, cell_figure_path = call_code(
+4    """
+5    x = 1
+6    y = 2
+7    """,
+8    all_codes, local_variables, pytex)
+9    assert len(all_codes) == 1
+10   assert (
+11       all_codes[0] == """
+12   x = 1
+13   y = 2
+14   """
+15   )
+16   assert cell_output == ""
+17   assert cell_figure_path is None
+18   assert "cell_output" not in local_variables
+19   assert "cell_figure_path" not in local_variables
+20   assert "x" in local_variables
+21   assert "y" in local_variables
+22   assert local_variables["x"] == 1
+23   assert local_variables["y"] == 2
+
+
+
+
+24   cell_output, cell_figure_path = call_code(
+25   """
+26   z = 3; n = 4
+27   """
+28   ,
+29   all_codes, local_variables, pytex)
+30   assert len(all_codes) == 2
+31   assert (
+32       all_codes[0] == """
+33   x = 1
+34   y = 2
+35   """
+36   )
+37   assert (
+38       all_codes[1] == """
+39   z = 3; n = 4
+40   """
+41   )
+42   assert cell_output == ""
+43   assert cell_figure_path is None
+44   assert "cell_output" not in local_variables
+45   assert "cell_figure_path" not in local_variables
+46   assert "x" in local_variables # previous variables were not   \
+         deleted
+47   assert "y" in local_variables
+48   assert "z" in local_variables
+49   assert "n" in local_variables
+50   assert local_variables["x"] == 1
+51   assert local_variables["y"] == 2
+52   assert local_variables["z"] == 3
+53   assert local_variables["n"] == 4
+
+
+
+
+54   cell_output, _ = call_code(
+55   """
+56   print(x + y + z + n)
+57   """
+58   ,
+59   all_codes, local_variables, pytex)
+60   assert cell_output == "10"
+
+
+
+
+61   cell_output, _ = call_code(
+62   """
+63   x + y + z + n
+64   """
+65   ,
+66   all_codes, local_variables, pytex)
+67   assert cell_output == "10"
+
+
+
+
+68   cell_output, _ = call_code(
+69   """
+70   print(x + y + z + n + 1)
+71   x + y + z + n + 2
+72   """
+73   ,
+74   all_codes, local_variables, pytex)
+75   assert cell_output == "11\n12"
+
+
+
+
+76   cell_output, _ = call_code(
+77   """
+78   x = "one"
+79   y = "two two"
+80   """
+81   ,
+82   all_codes, local_variables, pytex)
+83   assert cell_output == ""
+ 84   cell_output, _ = call_code(
+ 85   """
+ 86   z = "three THREE_Three"; n = "FoUr_four quattro_cuatro"
+ 87   """
+ 88   ,
+ 89   all_codes, local_variables, pytex)
+ 90   assert cell_output == ""
+
+
+
+
+ 91   cell_output, _ = call_code(
+ 92   """
+ 93   " ".join([x, y, z, n])
+ 94   """
+ 95   ,
+ 96   all_codes, local_variables, pytex)
+ 97   assert cell_output == "'one two two three THREE_Three     \
+          FoUr_four quattro_cuatro'"
+
+
+
+
+ 98   cell_output, _ = call_code(
+ 99   """
+100   print(" ".join([x, y]))
+101   print(" ".join([z, n]))
+102   """
+103   ,
+104   all_codes, local_variables, pytex)
+105   assert cell_output == "one two two\nthree THREE_Three     \
+          FoUr_four quattro_cuatro"
+
+
+
+
+106   try:
+107       call_code(
+108   """
+109   raise RuntimeError("a runtime error")
+110   """
+111   ,
+112   all_codes, local_variables, pytex)
+113   except RuntimeError as e:
+114       assert str(e) == "a runtime error"
+115   else:
+116       assert False, "This should have failed"
+117   cell_output, cell_figure_path = call_code(
+118   """
+119   import plotly.express as px
+120   fig = px.scatter(x=[1, 2, 3], y=[4, 5, 6])
+121   fig
+122   """
+123   ,
+124   all_codes, local_variables, pytex)
+125   assert cell_output == ""
+126   assert cell_figure_path ==                                                 \
+          "pythontex-files-test_call_code/py_default_0_79.png"
+
+
+
+          Notebooks are automatically produced from this file, but they would not
+      be runnable because they would miss the definition of call_code, which is
+      defined internally by this package. This is not really the point of this test,
+      so we simply mock save_cells_as_notebook, also defined internally by this
+      package, to write a mock notebook instead of the actual one.
+
+127   original_save_cells_as_notebook = save_cells_as_notebook
+128
+
+129   def save_cells_as_notebook(all_cells: list[str], pytex: any)               \
+          -> None:
+130       return original_save_cells_as_notebook(["\n# This                      \
+              notebook was disabled"], pytex)
+

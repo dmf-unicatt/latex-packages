@@ -1,0 +1,4 @@
+! Package py Error: The user code contains both triple double-quotes """ and
+(py)                triple single-quotes ''' which is not allowed.
+
+l.45 \end{pycell}

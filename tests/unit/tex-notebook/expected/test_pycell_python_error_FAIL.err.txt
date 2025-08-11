@@ -1,0 +1,5 @@
+----  Messages for py:default:1  ----
+  RuntimeError: this is an error
+
+----  Messages for py:default:2  ----
+  NameError: name 'a' is not defined

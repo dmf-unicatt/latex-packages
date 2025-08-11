@@ -1,0 +1,9 @@
+----  Messages for py:default:1  ----
+  RuntimeError: Image mismatch between <outputdir>/py_default_1_2.png
+
+----  Messages for py:default:2  ----
+  AssertionError: Missing figure verification for cell
+  import plotly.express as px
+  fig = px.scatter(x=[10, 20, 30], y=[40, 50, 60])
+  fig
+

@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: "0 0 * * TUE"
+  workflow_dispatch:
+
+jobs:
+  test-packages-in-docker:
+    strategy:
+      matrix:
+        tag-name: [debian-12, debian-testing, debian-unstable, debian-experimental]
+      fail-fast: false
+    container: ghcr.io/dmf-unicatt/latex-packages:latest-${{ matrix.tag-name }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Show texlive version
+        run: dpkg -s texlive-base | grep Version
+      - name: Run unit tests
+        run: |
+          cd tests
+          python run_tests.py unit

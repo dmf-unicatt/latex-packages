@@ -1,0 +1,8 @@
+----  Messages for py:default:1  ----
+  AssertionError: Unexpected output 4 for cell
+  2 + 2
+
+----  Messages for py:default:2  ----
+  Traceback (most recent call last):
+  AssertionError: Missing output verification for cell
+  3 + 3

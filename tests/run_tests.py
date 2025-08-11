@@ -1,0 +1,439 @@
+#!/usr/bin/env python3
+import copy
+import glob
+import json
+import os
+import shutil
+import subprocess
+import sys
+import tempfile
+
+# Configuration: colors
+def use_color() -> bool:
+    """
+    Determine if it is safe to enable colored output in the current environment.
+
+    This function enables color only if all the following are true:
+    - The output stream (stdout) is connected to a terminal (TTY), so ANSI codes will be interpreted correctly.
+    - The environment is not a CI environment that disables color, with special handling for GitHub Actions:
+        - Color is disabled on real GitHub Actions runners.
+        - Color is enabled on Nektos Act (local GitHub Actions runner) if the environment variable ACT="true".
+
+    Returns
+    -------
+    bool
+        True if colored output can safely be used (i.e., stdout is a TTY and
+        either not running on GitHub Actions or running on Nektos Act).
+        False otherwise.
+    """
+    # Disable color if stdout is not a terminal (e.g., redirected to a file)
+    if not sys.stdout.isatty():
+        return False
+
+    # Special handling for GitHub Actions environment
+    if os.getenv("GITHUB_ACTIONS"):
+        # Enable color when running Nektos Act
+        if os.getenv("ACT") == "true":
+            return True
+        else:
+            # Disable color on real GitHub Actions runners
+            return False
+
+    # Default to enabling color in all other environments
+    return True
+
+USE_COLOR = use_color()
+
+# Configuration: python
+PYTHON_CMD = [sys.executable]
+
+# Configuration: latex
+LATEXMK_CMD = ["latexmk", "-interaction=nonstopmode"]
+PDFTOTEXT_CMD = ["pdftotext", "-layout"]
+CLEAN_CMD = ["latexmk", "-C"]
+
+# Configuration: diff
+DIFF_CMD = ["diff", "-u", "-w", "--color=always" if USE_COLOR else "--color=never"]
+NBDIFF_CMD = ["nbdiff", "--color-words" if USE_COLOR else "--no-color"]
+
+# Configuration: pytest-like FAIL, XFAIL and PASS
+if USE_COLOR:
+    RED = "\033[1;31m"
+    YELLOW = "\033[1;33m"
+    GREEN = "\033[1;32m"
+    RESET = "\033[0m"
+else:
+    RED = YELLOW = GREEN = RESET = ""
+
+FAIL = f"{RED}FAIL{RESET}"
+XFAIL = f"{YELLOW}XFAIL{RESET}"
+PASS = f"{GREEN}PASS{RESET}"
+
+
+def run_command(command: list[str], cwd: str) -> tuple[int, str, str]:
+    """
+    Run a command as a subprocess in a given working directory.
+
+    Parameters
+    ----------
+    command
+        The command and arguments to run.
+    cwd
+        Working directory to run the command in.
+
+    Returns
+    -------
+    A tuple of (return_code, stdout, stderr).
+    """
+    result = subprocess.run(command, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    return result.returncode, result.stdout.decode(), result.stderr.decode()
+
+
+def check_ordered_subsequence_with_missing(expected_lines: list[str], actual_lines: list[str]) -> bool:
+    """
+    Check if expected_lines appear in actual_lines in order.
+
+    Returns
+    -------
+    A boolean to indicate success or not.
+    """
+    expected_lines = [normalize_text(line)[0] for line in expected_lines if line.strip()]
+    actual_lines = [normalize_text(line)[0] for line in actual_lines if line.strip()]
+
+    expected_idx = 0
+    missing = []
+    for line in actual_lines:
+        if expected_idx >= len(expected_lines):
+            break
+        if expected_lines[expected_idx] in line:
+            expected_idx += 1
+    return (expected_idx == len(expected_lines))
+
+
+def normalize_text(text: str) -> list[str]:
+    """
+    Normalize a block of text for whitespace-insensitive comparisons.
+
+    This function:
+      - Splits the text into lines.
+      - Removes **all** whitespace characters (spaces, tabs, etc.) from each line.
+      - Discards any lines that become empty after whitespace removal.
+
+    Parameters
+    ----------
+    text
+        The input text block.
+
+    Returns
+    -------
+    :
+        List of normalized lines with all whitespace removed and empty lines discarded.
+    """
+    return ["".join(line.split()) for line in text.splitlines() if line.strip()]
+
+
+def normalize_notebook(nb: dict[str, any]) -> dict[str, any]:
+    """
+    Normalize a Jupyter notebook dictionary for robust comparison.
+
+    This function removes fields that are commonly non-deterministic
+    or irrelevant for testing content equality, such as execution counts,
+    cell IDs, and metadata. This allows two notebooks to be compared
+    based on their actual content (e.g. source code and outputs),
+    ignoring differences that arise from execution order or environment.
+
+    Parameters
+    ----------
+    nb
+        A notebook parsed from a .ipynb file using `json.load()`.
+
+    Returns
+    -------
+    dict
+        A new notebook dictionary with irrelevant fields normalized:
+        - Top-level "metadata"
+        - Per-cell "metadata", "id", and "execution_count"
+        - Per-output "metadata" and "execution_count"
+    """
+    nb = copy.deepcopy(nb)
+    if "metadata" in nb:
+        nb["metadata"] = {}
+
+    for cell_id, cell in enumerate(nb.get("cells", [])):
+        cell["id"] = str(cell_id)
+        if "execution_count" in cell:
+            cell["execution_count"] = None
+        if "metadata" in cell:
+            cell["metadata"] = {}
+
+        if "outputs" in cell:
+            for output in cell["outputs"]:
+                if "execution_count" in output:
+                    output["execution_count"] = None
+                if "metadata" in output:
+                    output["metadata"] = {}
+
+    return nb
+
+
+def remove_hidden_files_and_directories(directory: str) -> None:
+    """
+    Recursively delete all hidden files and directories (starting with '.') in a directory.
+
+    Parameters
+    ----------
+    directory
+        Root directory to clean.
+    """
+    for root, dirs, files in os.walk(directory, topdown=True):
+        # Remove hidden directories
+        hidden_dirs = [d for d in dirs if d.startswith(".")]
+        for d in hidden_dirs:
+            full_path = os.path.join(root, d)
+            shutil.rmtree(full_path)
+        # Avoid descending into them
+        dirs[:] = [d for d in dirs if not d.startswith(".")]
+
+        # Remove hidden files
+        for filename in files:
+            if filename.startswith("."):
+                full_path = os.path.join(root, filename)
+                os.remove(full_path)
+
+
+def run_latex_tests(tex_tests: list[str]) -> None:
+    """
+    Run LaTeX tests on given .tex files.
+
+    Exits
+    -----
+    Exits with code 1 on failure.
+    """
+    for tex_file in tex_tests:
+        test_dir = os.path.dirname(tex_file)
+        os.makedirs(os.path.join(test_dir, "expected"), exist_ok=True)
+
+        tex_file = os.path.basename(tex_file)
+        base = tex_file[:-4]
+        pdf_file = base + ".pdf"
+        out_txt = base + ".pdf.txt"
+
+        is_fail_test = base.endswith("FAIL")
+
+        print("Running", os.path.join(test_dir, tex_file), end=" ", flush=True)
+
+        # Clean up
+        run_command(CLEAN_CMD + [tex_file], cwd=test_dir)
+
+        # Compile with latexmk
+        ret, out, err = run_command(LATEXMK_CMD + [tex_file], cwd=test_dir)
+
+        if is_fail_test:
+            # For expected fail tests, compilation should fail or PDF not generated
+            if ret == 0:
+                print(f"{FAIL} - Expected failure but compilation succeeded")
+                sys.exit(1)
+
+            # Compare with expected error
+            expected_err_txt = os.path.join("expected", base + ".err.txt")
+            if os.path.exists(os.path.join(test_dir, expected_err_txt)):
+                with open(os.path.join(test_dir, expected_err_txt), "r", encoding="utf-8") as exp_f:
+                    expected_lines = [line.strip() for line in exp_f if line.strip()]
+                    actual_lines = [*out.splitlines(), *err.splitlines()]
+                    if check_ordered_subsequence_with_missing(expected_lines, actual_lines):
+                        print(f"{XFAIL}")
+                    else:
+                        with tempfile.NamedTemporaryFile("w", encoding="utf-8") as tmpf:
+                            tmpf.write("\n".join(actual_lines))
+                            tmpf.flush()
+                            print(f"{FAIL} - Expected error lines not found (ignoring whitespaces, entire log):")
+                            _, out, err = run_command(
+                                DIFF_CMD + [expected_err_txt, tmpf.name]
+                                + ["-L", os.path.join(test_dir, expected_err_txt), "-L", "full log"],
+                                cwd=test_dir)
+                            print(out + err)
+                            print("Do not add the entire log, only add a few relevant lines")
+                            sys.exit(1)
+            else:
+                print(f"{FAIL} - No expected output {os.path.join(test_dir, expected_err_txt)}. ")
+                print("Suggestion: search ! in the log file {os.path.join(test_dir, base + '.log')}.")
+                sys.exit(1)
+        else:
+            # Normal tests: expect success
+            if ret != 0:
+                print(f"{FAIL} - LaTeX compile error")
+                print(out + err)
+                sys.exit(1)
+
+            # Ensure that PDF file was generated
+            if not os.path.exists(os.path.join(test_dir, pdf_file)):
+                print(f"{FAIL} - PDF not generated")
+                sys.exit(1)
+
+            # Convert PDF to text
+            ret, out, err = run_command(PDFTOTEXT_CMD + [pdf_file, out_txt], cwd=test_dir)
+            if ret != 0:
+                print(f"{FAIL} - pdftotext failed")
+                print(out + err)
+                sys.exit(1)
+
+            # Check for "?? PythonTeX ??" markers in output text
+            with open(os.path.join(test_dir, out_txt), "r", encoding="utf-8") as f:
+                content = f.read()
+                if "?? PythonTeX ??" in content:
+                    print(f"{FAIL} - '?? PythonTeX ??' found in output (unprocessed PythonTeX code)")
+                    sys.exit(1)
+
+            # Compare with expected text
+            expected_txt = os.path.join("expected", base + ".pdf.txt")
+            if os.path.exists(os.path.join(test_dir, expected_txt)):
+                with (
+                    open(os.path.join(test_dir, expected_txt), "r", encoding="utf-8") as exp_f,
+                    open(os.path.join(test_dir, out_txt), "r", encoding="utf-8") as out_f
+                ):
+                    actual = normalize_text(out_f.read().strip())
+                    expected = normalize_text(exp_f.read().strip())
+                    if actual != expected:
+                        print(f"{FAIL} - Output differs (ignoring whitespaces)")
+                        _, out, err = run_command(
+                            DIFF_CMD + [expected_txt, out_txt]
+                            + ["-L", os.path.join(test_dir, expected_txt), "-L", os.path.join(test_dir, out_txt)],
+                            cwd=test_dir)
+                        print(out + err)
+                        sys.exit(1)
+            else:
+                print(f"{FAIL} - No expected output {os.path.join(test_dir, expected_txt)}. ")
+                print("Copied current one for review. ")
+                print(f"Suggestion: git add {os.path.join(test_dir, expected_txt)} after verifying it.")
+                shutil.copy(os.path.join(test_dir, out_txt), os.path.join(test_dir, expected_txt))
+                sys.exit(1)
+
+            # Compare with expected notebooks
+            ipynb_dir = f"notebooks-{base}"
+            if os.path.isdir(os.path.join(test_dir, ipynb_dir)):
+                generated_ipynbs = [
+                    f for f in os.listdir(os.path.join(test_dir, ipynb_dir)) if f.endswith(".ipynb")]
+                expected_ipynbs = [
+                    f"{base}.{generated_ipynb}" for generated_ipynb in generated_ipynbs]
+
+                failed_ipynbs = []
+                for generated_ipynb, expected_ipynb in zip(generated_ipynbs, expected_ipynbs):
+                    generated_ipynb = os.path.join(ipynb_dir, generated_ipynb)
+                    expected_ipynb = os.path.join("expected", expected_ipynb)
+
+                    if not os.path.exists(os.path.join(test_dir, expected_ipynb)):
+                        failure = (
+                            f"No expected notebook {os.path.join(test_dir, expected_ipynb)}. "
+                            f"Copied current one for review. "
+                            f"Suggestion: git add {os.path.join(test_dir, expected_ipynb)} after verifying it.")
+                        failed_ipynbs.append(failure)
+                        shutil.copy(os.path.join(test_dir, generated_ipynb), os.path.join(test_dir, expected_ipynb))
+
+                    # Compare contents
+                    with (
+                        open(os.path.join(test_dir, expected_ipynb), "r", encoding="utf-8") as exp_f,
+                        open(os.path.join(test_dir, generated_ipynb), "r", encoding="utf-8") as gen_f,
+                    ):
+                        exp_nb = normalize_notebook(json.load(exp_f))
+                        gen_nb = normalize_notebook(json.load(gen_f))
+
+                        if exp_nb != gen_nb:
+                            with tempfile.TemporaryDirectory() as tmpdir:
+                                with (
+                                    open(os.path.join(tmpdir, expected_ipynb), "w", encoding="utf-8") as exp_tmp_f,
+                                    open(os.path.join(tmpdir, generated_ipynb), "w", encoding="utf-8") as gen_tmp_f
+                                ):
+                                    json.dump(exp_nb, exp_tmp_f, indent=2)
+                                    json.dump(gen_nb, gen_tmp_f, indent=2)
+
+                                _, out, err = run_command(NBDIFF_CMD + [expected_ipynb, generated_ipynb], cwd=tmpdir)
+                                failure = f"Notebook {generated_ipynb} differs from expected output:\n" + out + err
+                                failed_ipynbs.append(failure)
+
+                if len(failed_ipynbs) > 0:
+                    print(
+                        f"{FAIL} - Comparison to expected notebooks failed for the following reasons:\n"
+                        + "\n".join(failed_ipynbs))
+                    sys.exit(1)
+
+                current_expected_ipynbs = [
+                    f for f in os.listdir(os.path.join(test_dir, "expected"))
+                    if f.startswith(f"{base}.") and f.endswith(".ipynb")]
+                expected_ipynbs_set = set(expected_ipynbs)
+                current_expected_ipynbs_set = set(current_expected_ipynbs)
+                missing_expected_ipynbs = expected_ipynbs_set - current_expected_ipynbs_set
+                spurious_expected_ipynbs = current_expected_ipynbs_set - expected_ipynbs_set
+                if missing_expected_ipynbs or spurious_expected_ipynbs:
+                    print(f"{FAIL} - Mismatch between expected and actual notebooks:")
+                    if missing_expected_ipynbs:
+                        print("  Missing expected notebooks:")
+                        for f in missing_expected_ipynbs:
+                            print(f"    - {f}")
+                    if spurious_expected_ipynbs:
+                        print("  Spurious expected notebooks (no corresponding .ipynb):")
+                        for f in spurious_expected_ipynbs:
+                            print(f"    - {f}")
+                    sys.exit(1)
+
+                # Run pytest in the ipynb_dir
+                ret, out, err = run_command(["pytest", "--nbval"], cwd=os.path.join(test_dir, ipynb_dir))
+                if ret != 0:
+                    print(f"{FAIL} - pytest failed running notebooks in pythontex directory")
+                    print(out + err)
+                    sys.exit(1)
+
+                # Clean up hidden files produced by nbval, otherwise latexmk will not be able to clean
+                # the notebook directory
+                remove_hidden_files_and_directories(os.path.join(test_dir, ipynb_dir))
+
+            # If arrived here without existing it means that the test passed
+            print(f"{PASS}")
+
+        # Clean up
+        run_command(CLEAN_CMD + [tex_file], cwd=test_dir)
+
+
+def main() -> None:
+    """
+    Run LaTeX tests filtered by command line arguments.
+
+    If no arguments are given, all ``test_*.tex`` files in the current
+    directory and its subdirectories are discovered and tested.
+
+    If arguments are given, each can be:
+      - A path to a single ``.tex`` file (tested directly).
+      - A path to a directory, in which case all matching ``test_*.tex`` files
+        inside it (recursively) will be discovered and tested.
+
+    Exits
+    -----
+    Exits with code 1 if a specified file or directory does not exist, or if any test fails.
+    """
+    args = sys.argv[1:]
+    tex_tests = []
+
+    if args:
+        for path in args:
+            if os.path.isfile(path) and path.endswith(".tex"):
+                # Single .tex file provided
+                tex_tests.append(path)
+
+            elif os.path.isdir(path):
+                # Directory provided: search recursively for test_*.tex files
+                tex_tests.extend(
+                    sorted(glob.glob(os.path.join(path, "**", "test_*.tex"), recursive=True))
+                )
+
+            else:
+                print(f"File or directory not found or unsupported: {path}")
+                sys.exit(1)
+    else:
+        # Autodiscovery: search recursively in current directory
+        tex_tests = sorted(glob.glob("**/test_*.tex", recursive=True))
+
+    if tex_tests:
+        run_latex_tests(tex_tests)
+
+
+if __name__ == "__main__":
+    main()

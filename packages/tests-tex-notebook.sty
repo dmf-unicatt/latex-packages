@@ -1,0 +1,27 @@
+\RequirePackage{tests-common}
+\typeout{FOUND common}
+\RequirePackage{tex-notebook}
+
+% Add a command to mock a failure. Used when pythontex is not available and thus cannot trigger a failure
+\makeatletter
+\newread\failfile
+
+\newcommand{\printfailfilelinebyline}[1]{%
+  \openin\failfile=#1\relax
+  \ifeof\failfile
+    \errmessage{File `#1' not found!}%
+  \else
+    \loop
+      \read\failfile to \failline
+      \ifeof\failfile
+        \let\repeatloop=\relax
+      \else
+        \typeout{\failline}%
+        \let\repeatloop=\repeat
+      \fi
+    \repeatloop
+    \closein\failfile
+    \errmessage{Mocked a image verification failure}
+  \fi
+}
+\makeatother

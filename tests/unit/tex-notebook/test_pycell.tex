@@ -1,0 +1,142 @@
+\documentclass{book}
+\usepackage{tests-tex-notebook}
+
+\ifPythonTeXLoaded
+\restartpythontexsession{\thechapter}
+\makeatletter
+\@addtoreset{linenum}{chapter}
+\makeatother
+\else
+\usepackage{etoolbox}
+\pretocmd{\chapter}{\stepcounter{lastpynotebook}}{}{}
+\fi
+
+\begin{document}
+
+\chapter{Case with numbers}
+
+\begin{pycell}
+x = 1
+y = 2
+\end{pycell}
+
+\begin{pycell}
+z = 3; n = 4
+\end{pycell}
+
+\begin{pycell}
+l = 6
+m = 7
+\end{pycell}
+
+
+We can print a linear combination of the provided number from a pycell:
+
+\begin{itemize}
+\item directly
+\begin{pycell}
+print(x + y + z + n - l - m)
+\end{pycell}
+\begin{pyexpectedoutput}
+-3
+\end{pyexpectedoutput}
+\item implicitly
+\begin{pycell}
+x + y + z + n - l - m
+\end{pycell}
+\begin{pyexpectedoutput}
+-3
+\end{pyexpectedoutput}
+\item in both ways (with duplicated output)
+\begin{pycell}
+print(x + y + z + n - l - m + 1)
+x + y + z + n - l - m + 2
+\end{pycell}
+\begin{pyexpectedoutput}
+-2
+-1
+\end{pyexpectedoutput}
+\end{itemize}
+
+One can also print lists of numbers
+\begin{pycell}
+x = [1, 2, 3]
+y = [4, 5, 6]
+print(f"{x}")
+print(f"{y}")
+\end{pycell}
+\begin{pyexpectedoutput}
+[1, 2, 3]
+[4, 5, 6]
+\end{pyexpectedoutput}
+
+
+\chapter{Case with strings and spaces}
+
+\begin{pycell}
+x = "one"
+y = "two two"
+\end{pycell}
+
+\begin{pycell}
+z = "three THREE_Three"; n = "FoUr_four quattro_cuatro"
+\end{pycell}
+
+\begin{pycell}
+" ".join([x, y, z, n])
+\end{pycell}
+\begin{pyexpectedoutput}
+'one two two three THREE_Three FoUr_four quattro_cuatro'
+\end{pyexpectedoutput}
+
+\begin{pycell}
+print(" ".join([x, y]))
+print(" ".join([z, n]))
+\end{pycell}
+\begin{pyexpectedoutput}
+one two two
+three THREE_Three FoUr_four quattro_cuatro
+\end{pyexpectedoutput}
+
+\chapter{Variable resets}
+
+You can use \texttt{\textbackslash restartpythontexsession} to control when the python session resets. For instance, here it resets at every chapter, and therefore
+
+\begin{pycell}
+a = 1
+b = "this is a string"
+print(a, b)
+\end{pycell}
+\begin{pyexpectedoutput}
+1 this is a string
+\end{pyexpectedoutput}
+
+works, but trying to use the variable \texttt{x} from the previous chapter would not (see \texttt{test\_pycell\_FAIL.tex}).
+
+\chapter{Figures}
+
+You can have plotly figures in the code cells. By outputting the figure in the last line of the code cell it will be automatically added to the document.
+
+\begin{pycell}
+import plotly.express as px
+fig = px.scatter(x=[1, 2, 3], y=[4, 5, 6])
+fig
+\end{pycell}
+\pyexpectedfigure{images/scatter_123_456.png}
+
+A figure appears also when other text outputs are present
+\begin{pycell}
+x = [10, 20, 30]
+y = [40, 50, 60]
+print(f"x = {x}")
+print(f"y = {y}")
+fig = px.scatter(x=x, y=y)
+fig
+\end{pycell}
+\begin{pyexpectedoutput}
+x = [10, 20, 30]
+y = [40, 50, 60]
+\end{pyexpectedoutput}
+\pyexpectedfigure{images/scatter_102030_405060.png}
+
+\end{document}

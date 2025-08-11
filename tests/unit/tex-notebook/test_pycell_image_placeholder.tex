@@ -1,0 +1,28 @@
+\documentclass{book}
+\usepackage{tests-tex-notebook}
+
+\ifPythonTeXLoaded
+\pythontexcustomc[begin]{py}{pytex.include_images = False}
+\else
+\RenewDocumentCommand{\pyexpectedfigure}{m}{\detokenize{#1}}
+\fi
+
+\begin{document}
+
+\chapter{Figures - for testing}
+
+Image are included by the default in the generated PDF. However, this does not work well when testing, because \texttt{pdftotext} doesn't recognize the image as text. Here we disable the actual image inclusion and replace it with the image path (as placeholder) to verify the correctness of the code.
+
+\begin{pycell}
+import plotly.express as px
+fig = px.scatter(x=[1, 2, 3], y=[4, 5, 6])
+fig
+\end{pycell}
+\ifPythonTeXLoaded
+\pyexpectedfigure{images/scatter_123_456.png}
+\else
+% Mock the path that pythontex would have returned
+\pyexpectedfigure{pythontex-files-test_pycell_image_placeholder/py_default_0_2.png}
+\fi
+
+\end{document}

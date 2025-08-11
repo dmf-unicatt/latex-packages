@@ -1,0 +1,41 @@
+\documentclass{book}
+\usepackage{tests-tex-notebook}
+
+\ifPythonTeXLoaded
+\restartpythontexsession{\thechapter}
+\fi
+
+\begin{document}
+
+\chapter{Case with output mismatch}
+
+LaTeX compilation will fail if the python code does not return the expected output.
+
+\begin{pycell}
+2 + 2
+\end{pycell}
+\begin{pyexpectedoutput}
+3
+\end{pyexpectedoutput}
+
+\chapter{Cases without expected output}
+
+Setting the expected output is not mandatory if the cell doesn't produce any output.
+
+\begin{pycell}
+a = 5
+\end{pycell}
+
+However, forgetting to declare the expected output for a cell that returns some output will result in a compilation error.
+\begin{pycell}
+3 + 3
+\end{pycell}
+
+\ifPythonTeXLoaded
+% nothing else to be done
+\else
+% Mock failure in output verification, since pythontex is not running
+\printfailfilelinebyline{\jobname.expected_stderr.txt}
+\fi
+
+\end{document}

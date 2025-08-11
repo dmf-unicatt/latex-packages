@@ -1,0 +1,15 @@
+    Chapter 1
+
+    Figures - for testing
+
+    Image are included by the default in the generated PDF. However, this does
+    not work well when testing, because pdftotext doesn’t recognize the image as
+    text. Here we disable the actual image inclusion and replace it with the image
+    path (as placeholder) to verify the correctness of the code.
+
+1   import plotly.express as px
+2   fig = px.scatter(x=[1, 2, 3], y=[4, 5, 6])
+3   fig
+
+     pythontex-files-test_pycell_image_placeholder/py_default_0_2.png
+

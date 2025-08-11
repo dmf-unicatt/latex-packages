@@ -1,0 +1,19 @@
+%%% ================================================================
+%%%                     DETERMINE LATEX VERSION
+%%% ================================================================
+
+% Determine if LaTeX >= 2025/06/01 is being used. This version
+% introduced the possibility to define environment with "+c" specification
+% that collects the body of an environment in a verbatim-like way
+% (see LATEX News, Issue 41, June 2025)
+\newif\ifLaTeXTwentyFive
+
+% Set boolean based on format version
+\IfFormatAtLeastTF{2025/06/01}{%
+  \LaTeXTwentyFivetrue%
+}{%
+  \LaTeXTwentyFivefalse%
+}
+
+% Temporarily force old latex by uncommenting the following line
+% \LaTeXTwentyFivefalse

@@ -1,0 +1,45 @@
+\documentclass{book}
+\usepackage{tests-tex-notebook}
+
+\ifPythonTeXLoaded
+\restartpythontexsession{\thechapter}
+\fi
+
+\begin{document}
+
+\chapter{Case with explicit error}
+
+\begin{pycell}
+raise RuntimeError("this is an error")
+\end{pycell}
+
+Define a variable that will be cleared out before we move to the next chapter
+
+\begin{pycell}
+a = 1
+\end{pycell}
+
+\begin{pycell}
+print(a)
+\end{pycell}
+
+This correctly prints the value of variable.
+
+\chapter{Variable resets}
+
+You can use \texttt{\textbackslash restartpythontexsession} to control when the python session resets. For instance, here it resets at every chapter, and therefore
+
+\begin{pycell}
+a
+\end{pycell}
+
+fails with a \texttt{NameError}.
+
+\ifPythonTeXLoaded
+% nothing else to be done
+\else
+% Mock failure in python execution, since pythontex is not running
+\printfailfilelinebyline{\jobname.expected_stderr.txt}
+\fi
+
+\end{document}

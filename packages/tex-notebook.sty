@@ -1,0 +1,686 @@
+%%% ================================================================
+%%%                     DETERMINE LATEX VERSION
+%%% ================================================================
+
+% Load auxiliary package to determine latex version
+\RequirePackage{if-latex-twentyfive}
+
+%%% ================================================================
+%%%                     REQUIRED PACKAGES
+%%% ================================================================
+
+% To color output text
+\RequirePackage{xcolor}
+
+% To include output images
+\RequirePackage{graphicx}
+
+% The pythontex package is optional
+\newif\ifPythonTeXLoaded
+
+% For LaTeX < 2025/06/01 pythontex will never be used, because it would
+% be wrapped in environments that use the new "+c" specification.
+% A listing via the listings package will be generated instead.
+% For LaTeX >= 2025/06/01 pythontex will be used if available.
+\ifLaTeXTwentyFive
+  \IfFileExists{pythontex.sty}{
+    % To run python codes, and show the corresponding listings
+    \RequirePackage{pythontex}
+    % Declare that pythontex was loaded
+    \PythonTeXLoadedtrue
+  }{
+    % To define new verbatim environments
+    \RequirePackage{fancyvrb}
+    % To show python code listings
+    \RequirePackage{listings}
+    % Declare that pythontex was not loaded
+    \PythonTeXLoadedfalse
+  }
+\else
+  % To define new verbatim environments
+  \RequirePackage{fancyvrb}
+  % To show python code listings
+  \RequirePackage{listings}
+  % Declare that pythontex was not loaded
+  \PythonTeXLoadedfalse
+\fi
+
+%%% ================================================================
+%%%                     INTEGRATION WITH PYTHONTEX
+%%% ================================================================
+
+%%% ----------------------------------------------------------------
+%%% This is the main counter for the package. Consecutive cell
+%%% blocks will be considered part of the same code (for instance,
+%%% a notebook) until the value of this counter is increased
+%%% ----------------------------------------------------------------
+\newcounter{pynotebook}
+
+%%% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%%% If pythontex is available and LaTeX >= 2025/06/01:
+%%% wrap pythontex in environments with +c specification
+%%% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+\ifPythonTeXLoaded
+
+%%% ----------------------------------------------------------------
+%%% Line counter declaration. Note that the counter will start
+%%% from 0, and that we will add the offset 1 (to make it start
+%%% from 1) while showing the code with pyverbatim.
+%%% ----------------------------------------------------------------
+
+\newcounter{linenum}
+
+%%% ----------------------------------------------------------------
+%%% Reset the line counter (to zero) every time the pynotebook
+%%% counter is increased
+%%% ----------------------------------------------------------------
+
+\makeatletter
+\@addtoreset{linenum}{pynotebook}
+\makeatother
+
+%%% ----------------------------------------------------------------
+%%% Restart the pythontex session every time the pynotebook
+%%% counter is increased
+%%% ----------------------------------------------------------------
+
+\restartpythontexsession{\thepynotebook}
+
+%%% ----------------------------------------------------------------
+%%% Attach jobname to the pytex object on session creation.
+%%% (Note: easier to do it in a standalone call to avoid having
+%%%  to deal with expansion of latex variables in a more complicated
+%%%  initialization code)
+%%% ----------------------------------------------------------------
+
+\edef\attachjobnametopythontex{%
+    \noexpand\pythontexcustomc[begin]{py}{if not hasattr(pytex, "jobname"): pytex.jobname = "\jobname"}%
+}
+\attachjobnametopythontex
+\let\attachjobnametopythontex\relax
+
+%%% ----------------------------------------------------------------
+%%% Initialize common functions used in pythontex environments
+%%% ----------------------------------------------------------------
+
+% Function call_code: execute a block of Python code, store the code in the provided list, and return the output
+\begin{pythontexcustomcode}[begin]{py}
+def call_code(code: str, all_codes: list[str], python_state: dict[str, any], pytex: any) -> tuple[str, str | None]:
+    """
+    Execute a block of Python code, store the code in the provided list, and return the output.
+
+    The output is tuple formed by a string of the text output (possibly the empty string),
+    and the path of the file where the plotly image was saved (possibly None if no plot was produced).
+
+    Parameters
+    ----------
+    code
+        A multiline string of Python code to execute.
+    all_codes
+        A list to which the current code block is appended (for tracking or logging).
+    python_state
+        A dictionary containing global variables.
+    pytex
+        The PythonTeXUtils object.
+
+    Returns
+    -------
+    cell_output
+        The output of the executed code. Returns an empty string if no output was produced.
+    cell_figure_path
+        The path of the file where the plotly image was saved. Returns None if no plot was produced.
+    """
+    import contextlib
+    import io
+    import os
+
+    # Append current code
+    all_codes.append(code)
+
+    # Split by line, and caputer implicit output on the last line
+    lines = code.splitlines()
+    if (
+        len(lines) > 0 and                          # The code is not empty
+        len(lines[-1].strip()) > 0 and              # The last line is not just whitespace
+        not lines[-1].startswith((" ", "\t")) and   # The last line is not indented
+        not lines[-1].startswith("#") and           # The last line is not a comment
+        not any(bad in lines[-1] for bad in ("=", "print", "raise"))  # The last line would implicitly print
+    ):
+        lines[-1] = "_last_line_output = " + lines[-1]
+        lines[-1] = "_last_line_output = " + lines[-1]
+
+    # Execute the code
+    output_buffer = io.StringIO()
+    cell_figure = None
+    with contextlib.redirect_stdout(output_buffer):
+        exec("\n".join(lines), python_state)
+        if "_last_line_output" in python_state:
+            last_line_output = python_state["_last_line_output"]
+            if last_line_output is not None:
+                # Detect if last_line_output is a plotly figure by duck typing
+                if hasattr(last_line_output, "write_image"):
+                    cell_figure = last_line_output
+                else:
+                    # Normal repr print for last_line_output
+                    print(repr(last_line_output))
+            python_state.pop("_last_line_output", None)
+
+    # Convert the text output to a string
+    cell_output = output_buffer.getvalue().strip()
+
+    # Convert the plotly figure to a PIL image
+    if cell_figure is not None:
+        cell_figure.update_layout(margin=dict(l=5, r=5, t=5, b=5))
+        cell_figure_path = os.path.join(f"pythontex-files-{pytex.jobname}", f"{pytex.id}_{pytex.instance}.png")
+        cell_figure.write_image(cell_figure_path, width=600, height=400, scale=2)
+    else:
+        cell_figure_path = None
+
+    return cell_output, cell_figure_path
+\end{pythontexcustomcode}
+
+% Function compare_images: compare two images using perceptual hashing and raise an error if they differ beyond a threshold
+\begin{pythontexcustomcode}[begin]{py}
+def compare_images(actual: str, expected: str, threshold: int = 5) -> None:
+    """
+    Compare two images using perceptual hashing and raise an error if they differ beyond a threshold.
+
+    If the expected image does not exist, copies the actual image to the expected path.
+    This assumes the test is run for the first time and sets the baseline image.
+
+    The comparison uses a perceptual hash (phash) to allow minor visual differences up to the
+    specified threshold. If the hash difference exceeds the threshold, the images are considered different.
+
+    Parameters
+    ----------
+    actual : str
+        Path to the actual image file generated by the test.
+    expected : str
+        Path to the expected (baseline) image file to compare against.
+    threshold : int, optional
+        Maximum allowed Hamming distance between image hashes before considering images different.
+        Defaults to 5.
+
+    Raises
+    ------
+    RuntimeError
+        If the perceptual hash difference between images exceeds the threshold.
+    """
+    import os
+    import shutil
+
+    import imagehash
+    import PIL.Image
+
+    if not os.path.exists(expected):
+        # Copy actual image to expected location as baseline
+        shutil.copy(actual, expected)
+
+    img1 = PIL.Image.open(actual).convert("RGB")
+    img2 = PIL.Image.open(expected).convert("RGB")
+
+    hash1 = imagehash.phash(img1)
+    hash2 = imagehash.phash(img2)
+
+    if abs(hash1 - hash2) > threshold:
+        raise RuntimeError(
+            f"Image mismatch between {actual} and {expected} (hash difference {abs(hash1 - hash2)} > {threshold})")
+\end{pythontexcustomcode}
+
+% Function latex_escape.py: escape special LaTeX characters in a string, suitable for inclusion inside \texttt{}.
+\begin{pythontexcustomcode}[begin]{py}
+def latex_escape(string: str) -> str:
+    r"""
+    Escape special LaTeX characters in a string, suitable for inclusion inside \texttt{}.
+
+    Parameters
+    ----------
+    string
+        Input string to escape.
+
+    Returns
+    -------
+    :
+        The input string with LaTeX special characters escaped, wrapped in \texttt{}.
+    """
+    replacements = {
+        "\\": r"\textbackslash{}",
+        "_": r"\_",
+        "#": r"\#",
+        "%": r"\%",
+        "&": r"\&",
+        "$": r"\$",  # add a $ as a comment to restore a good code highlighting when modifying tex-notebook.sty
+        "{": r"\{",
+        "}": r"\}",
+        "^": r"\^{}",
+        "~": r"\~{}",
+    }
+    # Replace backslash first to avoid double escaping
+    string = string.replace("\\", replacements["\\"])
+    for char, replacement in replacements.items():
+        if char == "\\":
+            continue
+        string = string.replace(char, replacement)
+    return string
+\end{pythontexcustomcode}
+
+% Function latex_include_graphics: generate LaTeX code to include a centered image using \includegraphics
+\begin{pythontexcustomcode}[begin]{py}
+def latex_include_graphics(path: str, pytex: any) -> str:
+    r"""
+    Generate LaTeX code to include a centered image using \includegraphics.
+
+    Parameters
+    ----------
+    path
+        Path to the image file to include in the LaTeX document.
+    pytex
+        The PythonTeXUtils object to optionally disable inclusion of the image.
+
+    Returns
+    -------
+    :
+        A LaTeX string that wraps the image in a center environment and includes it
+        at 75% of the line width using \includegraphics.
+    """
+    if pytex.include_images:
+        return r"""\
+        \begin{center}
+          \includegraphics[width=\linewidth]{""" + path + r"""}
+        \end{center}"""
+    else:
+        return latex_escape(path)
+\end{pythontexcustomcode}
+
+% Function save_cells_as_notebook: convert a list of code cell strings into a Jupyter Notebook file
+\begin{pythontexcustomcode}[begin]{py}
+def save_cells_as_notebook(all_cells: list[str], pytex: any) -> None:
+    """
+    Convert a list of code cell strings into a Jupyter Notebook file.
+
+    Parameters
+    ----------
+    all_cells : list of str
+        Code cells as strings. Each cell must start with an empty line from pycode_wrapper.
+    pytex
+        The PythonTeXUtils object, used to determine the notebook filename.
+    """
+    import os
+    import nbformat
+
+    # Create a new empty notebook
+    nb = nbformat.v4.new_notebook()
+    nb_cells = []
+
+    for cell in all_cells:
+        lines = cell.splitlines()
+        if lines:
+            # pycode_wrapper adds an empty first line; enforce and remove it
+            assert lines[0] == "", "First line must be empty (added by pycode_wrapper)"
+            lines = lines[1:]
+        # Add processed code cell to the notebook
+        nb_cells.append(nbformat.v4.new_code_cell("\n".join(lines)))
+
+    nb["cells"] = nb_cells
+
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(pytex.notebook_filename), exist_ok=True)
+
+    # Build notebook path and write the file
+    with open(pytex.notebook_filename, "w", encoding="utf-8") as f:
+        nbformat.write(nb, f)
+\end{pythontexcustomcode}
+
+%%% ----------------------------------------------------------------
+%%% Automatically declare global variables
+%%% ----------------------------------------------------------------
+
+\begin{pythontexcustomcode}[begin]{py}
+import os
+
+# Import current pythontex file
+import __main__
+
+# Declare a global variable to store all cells that will be
+# added to the .py and .ipynb outputs
+all_cells = []
+python_state = __main__.__dict__
+
+# Add a hook to pytex object to disable inclusion of images.
+# If True, the image gets included. If False, its path (as text) is
+# included instead. The case False is only used when testing the library.
+pytex.include_images = True
+
+# Set the default notebook output filename. Downstream packages can personalize it further.
+pytex.notebook_filename = os.path.join(f"notebooks-{pytex.jobname}", f"{pytex.id}.ipynb")
+\end{pythontexcustomcode}
+
+%%% ----------------------------------------------------------------
+%%% Automatically write collected cells to a notebook at the end
+%%% of the pythontex session
+%%% ----------------------------------------------------------------
+
+\begin{pythontexcustomcode}[end]{py}
+save_cells_as_notebook(all_cells, pytex)
+\end{pythontexcustomcode}
+
+%%% ----------------------------------------------------------------
+%%% Variable declarations
+%%% ----------------------------------------------------------------
+
+\ExplSyntaxOn
+
+% Used in pytontex wrappers
+\tl_new:N \l__py_user_code_tl
+\tl_new:N \l__py_lastline_tl
+\tl_new:N \l__py_readfile_tl
+\tl_new:N \l__py_expected_tl
+\seq_new:N \l__py_lines_seq
+\int_new:N \l__py_linecount_int
+
+%%% ----------------------------------------------------------------
+%%% Define a newline token with catcode 12 ("other")
+%%% ----------------------------------------------------------------
+\tl_set:Nx \newline_other_cat { \char_generate:nn {`\^^M} {12} }
+
+%%% ----------------------------------------------------------------
+%%% Helper: Set a token list with multi-line verbatim input
+%%% ----------------------------------------------------------------
+\NewDocumentCommand \setverbatim {m +v}
+  {
+    \tl_set:Nn #1 {#2}
+  }
+
+%%% ----------------------------------------------------------------
+%%% Verbatim wrappers for the pycode and pyverbatim environment
+%%% (Note: do not try to write the { on a new line, code will break)
+%%% ----------------------------------------------------------------
+\setverbatim \begin_pycode {\begin{pycode}}
+\setverbatim \end_pycode {\end{pycode}}
+\setverbatim \begin_pyverbatim {\begin{pyverbatim}[][numbers=left,firstnumber=\numexpr\value{linenum}+1\relax,breaklines=true,breaksymbolleft={~},breaksymbolright={\textbackslash}]}
+\setverbatim \end_pyverbatim {\end{pyverbatim}}
+
+%%% ----------------------------------------------------------------
+%%% Environment: pyverbatim wrapper - prints python code verbatim
+%%% ----------------------------------------------------------------
+\NewDocumentEnvironment{pyverbatim_wrapper}{+c}
+  {
+    % Store the input code in a temporary variable
+    \tl_set:Nn \l__py_user_code_tl {#1}
+
+    % Replace \obeyedline with custom newline token
+    \tl_replace_all:Nnn \l__py_user_code_tl {\obeyedline} {\newline_other_cat}
+
+    % Split code into lines by newline token
+    \seq_set_split:NnV \l__py_lines_seq \newline_other_cat \l__py_user_code_tl
+
+    % Count the number of lines
+    \int_set:Nn \l__py_linecount_int { \seq_count:N \l__py_lines_seq }
+
+    % Extract the last line for checking if it's blank
+    \seq_map_inline:Nn \l__py_lines_seq
+      { \tl_set:Nn \l__py_lastline_tl {##1} }
+
+    % If the last line is blank, subtract 1 from the count
+    \tl_if_blank:nTF { \tl_to_str:N \l__py_lastline_tl }
+      { \int_decr:N \l__py_linecount_int }
+      { }
+
+    % Send the code to pythontex's pyverbatim environment
+    \exp_args:Nx \scantokens {
+      {
+        \begin_pyverbatim \newline_other_cat
+        \l__py_user_code_tl \newline_other_cat
+        \end_pyverbatim \newline_other_cat
+      }
+    }
+
+    % Increment the global line number counter
+    \addtocounter{linenum}{\l__py_linecount_int}
+  }
+  {}
+
+%%% ----------------------------------------------------------------
+%%% Environment: pycode wrapper - runs python code
+%%% ----------------------------------------------------------------
+\NewDocumentEnvironment{pycode_wrapper}{+c}
+  {
+    % Store the input code in a temporary variable
+    \tl_set:Nn \l__py_user_code_tl {#1}
+
+    % Replace \obeyedline with real newlines
+    \tl_replace_all:Nnn \l__py_user_code_tl {\obeyedline} {^^J}
+
+    % Build the full python code
+    \tl_put_left:Nn \l__py_user_code_tl {cell_output, cell_figure_path = call_code("""^^J}
+    \tl_put_right:Nn \l__py_user_code_tl {^^J""", all_cells, python_state, pytex)}
+
+    % Replace real newlines with custom newline token
+    \tl_replace_all:Nnn \l__py_user_code_tl {^^J} {\newline_other_cat}
+
+    % Send the code to pythontex's pycode environment
+    \exp_args:Nx \scantokens {
+      {
+        \begin_pycode \newline_other_cat
+        \l__py_user_code_tl \newline_other_cat
+        \end_pycode \newline_other_cat
+      }
+    }
+
+    % Display the cell output
+    \exp_args:Nx \scantokens {
+      {
+        \begin_pycode \newline_other_cat
+        print("{\\color{gray}\\itshape\\begin{verbatim}" + cell_output + "\\end{verbatim}}", end="") \newline_other_cat
+        \end_pycode \newline_other_cat
+      }
+    }%
+
+    % Display the cell figure, if it was produced
+    \exp_args:Nx \scantokens {
+      {
+        \begin_pycode \newline_other_cat
+        if~cell_figure_path~is~not~None: \newline_other_cat
+        \space print(latex_include_graphics(cell_figure_path, pytex)) \newline_other_cat
+        \end_pycode \newline_other_cat
+      }
+    }
+  }
+  {}
+
+%%% ----------------------------------------------------------------
+%%% Verbatim wrappers for the pycode and pyverbatim wrapper envs
+%%% ----------------------------------------------------------------
+\setverbatim \begin_pycode_wrapper {\begin{pycode_wrapper}}
+\setverbatim \end_pycode_wrapper {\end{pycode_wrapper}}
+\setverbatim \begin_pyverbatim_wrapper {\begin{pyverbatim_wrapper}}
+\setverbatim \end_pyverbatim_wrapper {\end{pyverbatim_wrapper}}
+
+%%% ----------------------------------------------------------------
+%%% Environment: pycell - runs python code and prints verbatim
+%%% with line numbers
+%%% ----------------------------------------------------------------
+\NewDocumentEnvironment{pycell}{+c}
+  {
+    % Ensure that output verification has been caried out for the previous cell
+    \pyc{assert~"cell_output"~not~in~python_state, f"""Missing~output~verification~for~cell~{all_cells[-1]}"""}
+
+    % Ensure that figure verification has been caried out for the previous cell
+    \pyc{assert~"cell_figure_path"~not~in~python_state, f"""Missing~figure~verification~for~cell~{all_cells[-1]}"""}
+
+    % Store the input code in a temporary variable
+    \tl_set:Nn \l__py_user_code_tl {#1}
+
+    % Replace \obeyedline with custom newline token
+    \tl_replace_all:Nnn \l__py_user_code_tl {\obeyedline} {\newline_other_cat}
+
+    % Pass to pyverbatim wrapper
+    \exp_args:Nx \scantokens {
+      {
+        \begin_pyverbatim_wrapper \newline_other_cat
+        \l__py_user_code_tl \newline_other_cat
+        \end_pyverbatim_wrapper \newline_other_cat
+      }
+    }
+
+    % Pass the pycode wrapper
+    \exp_args:Nx \scantokens {
+      {
+        \begin_pycode_wrapper \newline_other_cat
+        \l__py_user_code_tl \newline_other_cat
+        \end_pycode_wrapper \newline_other_cat
+      }
+    }
+
+    % Clean up the cell_output variable if empty, otherwise leave it available for output verification
+    \pyc{if~cell_output~==~"":~del~cell_output}
+
+    % Clean up the cell_figure_path variable if None, otherwise leave it available for figure verification
+    \pyc{if~cell_figure_path~is~None:~del~cell_figure_path}
+  }
+  {}
+
+%%% ----------------------------------------------------------------
+%%% Repeat the checks in pycell for the very last cell
+%%% ----------------------------------------------------------------
+
+\ExplSyntaxOff
+
+\begin{pythontexcustomcode}[end]{py}
+if len(all_cells) > 0:
+    # Ensure that output verification has been caried out for the last cell
+    assert "cell_output" not in python_state, f"""Missing output verification for cell {all_cells[-1]}"""
+
+    # Ensure that figure verification has been caried out for the last cell
+    assert "cell_figure_path" not in python_state, f"""Missing figure verification for cell {all_cells[-1]}"""
+\end{pythontexcustomcode}
+
+\ExplSyntaxOn
+
+%%% ----------------------------------------------------------------
+%%% Environment: pyexpectedoutput - compares text output of
+%%% the previous pycell to an expected one
+%%% ----------------------------------------------------------------
+
+\NewDocumentEnvironment{pyexpectedoutput}{+c}
+  {
+    % Store the expected output in a temporary variable
+    \tl_set:Nn \l__py_expected_tl {#1}
+
+    % Replace \obeyedline with real newlines
+    \tl_replace_all:Nnn \l__py_expected_tl {\obeyedline} {^^J}
+
+    % Compare against the actual output
+    \exp_args:Nx \scantokens {
+      {
+        \begin_pycode \newline_other_cat
+        assert~cell_output~==~"""\l__py_expected_tl""", f"""Unexpected~output~{cell_output}~for~cell~{all_cells[-1]}""" \newline_other_cat
+        \end_pycode \newline_other_cat
+      }
+    }
+
+    % Clean up the cell_output variable to signal that output verification was carried out
+    \pyc{del~cell_output}
+  }
+  {}
+
+%%% ----------------------------------------------------------------
+%%% Command: pyexpectedfigure - compares figure output of
+%%% the previous pycell to an expected one
+%%% ----------------------------------------------------------------
+
+\NewDocumentCommand{\pyexpectedfigure}{m}
+  {
+    % Store the expect figure path in a temporary variable
+    \tl_set:Nn \l__py_expected_tl {#1}
+
+    % Compare against the actual figure
+    \exp_args:Nx \scantokens {
+      {
+        \begin_pycode \newline_other_cat
+        compare_images(cell_figure_path,~"\l__py_expected_tl") \newline_other_cat
+        \end_pycode \newline_other_cat
+      }
+    }
+
+    % Clean up the cell_figure_path variable to signal that figure verification was carried out
+    \pyc{del~cell_figure_path}
+  }
+
+\ExplSyntaxOff
+
+%%% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%%% If pythontex is not available or LaTeX < 2025/06/01:
+%%% do not run python codes, simply report the expected outputs
+%%% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+\else
+
+%%% ----------------------------------------------------------------
+%%% Environment: pycell - prints verbatim with line numbers
+%%% ----------------------------------------------------------------
+
+% Colors and listings style
+\definecolor{pygKeyword}{RGB}{0,0,255}        % blue
+\definecolor{pygBuiltin}{RGB}{204,120,50}     % orange-ish
+\definecolor{pygComment}{RGB}{150,150,150}    % gray
+\definecolor{pygString}{RGB}{163,21,21}       % dark red
+
+\lstdefinestyle{pygstyle}{
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\color{pygKeyword}\bfseries,
+    commentstyle=\color{pygComment}\itshape,
+    stringstyle=\color{pygString},
+    identifierstyle=\color{black},
+    emphstyle=\color{pygBuiltin},
+    showstringspaces=false,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=10pt,
+    tabsize=4,
+    breaklines=true,
+    language=Python,
+    morekeywords={self, None, True, False, async, await}
+}
+
+% Counter to reset the line number at every increase of the pynotebook counter
+\newcounter{lastpynotebook}
+
+% Use an environment from the listings package to print the code
+\lstnewenvironment{pycell}
+  {
+    \ifnum\value{pynotebook}=\value{lastpynotebook}
+      \lstset{style=pygstyle, firstnumber=last}%
+    \else
+      \lstset{style=pygstyle, firstnumber=1}%
+      \setcounter{lastpynotebook}{\value{pynotebook}}%
+    \fi
+  }
+  {}
+
+%%% ----------------------------------------------------------------
+%%% Environment: pyexpectedoutput - print the exepcted output
+%%% (since pythontex is not running and we can't compare it
+%%%  to the actual one)
+%%% ----------------------------------------------------------------
+
+\DefineVerbatimEnvironment{pyexpectedoutput}%
+  {Verbatim}{formatcom=\color{gray}\itshape\ttfamily}
+
+%%% ----------------------------------------------------------------
+%%% Environment: pyexpectedoutput - print the exepcted figure
+%%% (since pythontex is not running and we can't compare it
+%%%  to the actual one)
+%%% ----------------------------------------------------------------
+
+\NewDocumentCommand{\pyexpectedfigure}{m}
+  {\begin{center}%
+    \includegraphics[width=\linewidth]{#1}%
+  \end{center}}
+
+%%% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+%%% End if pythontex is available and LaTeX >= 2025/06/01
+%%% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+\fi

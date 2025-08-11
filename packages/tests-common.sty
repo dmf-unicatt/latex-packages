@@ -1,0 +1,8 @@
+% Remove all headers and footers for cleaner text conversion
+\makeatletter
+\let\ps@plain\ps@empty
+\makeatother
+\pagestyle{empty}
+
+% Prevent blank pages between chapters
+\let\cleardoublepage\clearpage

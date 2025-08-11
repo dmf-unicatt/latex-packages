@@ -1,0 +1,121 @@
+    Chapter 1
+
+    Case with numbers
+
+1   x = 1
+2   y = 2
+
+
+
+
+3   z = 3; n = 4
+
+
+
+
+4   l = 6
+5   m = 7
+
+
+
+
+         We can print a linear combination of the provided number from a pycell:
+
+      • directly
+     6     print(x + y + z + n - l - m)
+
+           -3
+
+      • implicitly
+     7     x + y + z + n - l - m
+
+           -3
+       • in both ways (with duplicated output)
+      8     print(x + y + z + n - l - m + 1)
+      9     x + y + z + n - l - m + 2
+
+
+            -2
+            -1
+
+
+          One can also print lists of numbers
+
+10   x = [1, 2, 3]
+11   y = [4, 5, 6]
+12   print(f"{x}")
+13   print(f"{y}")
+
+
+     [1, 2, 3]
+     [4, 5, 6]
+    Chapter 2
+
+    Case with strings and
+    spaces
+
+1   x = "one"
+2   y = "two two"
+
+
+
+
+3   z = "three THREE_Three"; n = "FoUr_four quattro_cuatro"
+
+
+
+
+4   " ".join([x, y, z, n])
+
+
+    'one two two three THREE_Three FoUr_four quattro_cuatro'
+
+
+5   print(" ".join([x, y]))
+6   print(" ".join([z, n]))
+
+
+    one two two
+    three THREE_Three FoUr_four quattro_cuatro
+    Chapter 3 
+
+    Variable resets
+
+    You can use \restartpythontexsession to control when the python session
+    resets. For instance, here it resets at every chapter, and therefore
+
+1   a = 1
+2   b = "this is a string"
+3   print(a, b)
+
+
+    1 this is a string
+
+        works, but trying to use the variable x from the previous chapter would not
+    (see test_pycell_FAIL.tex).
+    Chapter 4 
+
+    Figures
+
+    You can have plotly figures in the code cells. By outputting the figure in the
+    last line of the code cell it will be automatically added to the document.
+
+1   import plotly.express as px
+2   fig = px.scatter(x=[1, 2, 3], y=[4, 5, 6])
+3   fig
+
+
+
+
+       A figure appears also when other text outputs are present
+4   x = [10, 20, 30]
+5   y = [40, 50, 60]
+6   print(f"x = {x}")
+7   print(f"y = {y}")
+8   fig = px.scatter(x=x, y=y)
+9   fig
+
+
+    x = [10, 20, 30]
+    y = [40, 50, 60]
+

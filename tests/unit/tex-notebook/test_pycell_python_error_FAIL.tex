@@ -39,7 +39,7 @@ fails with a \texttt{NameError}.
 % nothing else to be done
 \else
 % Mock failure in python execution, since pythontex is not running
-\printfailfilelinebyline{\jobname.expected_stderr.txt}
+\printfailfilelinebyline{expected/\jobname.err.txt}
 \fi
 
 \end{document}

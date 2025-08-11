@@ -37,7 +37,7 @@ fig
 % nothing else to be done
 \else
 % Mock failure in image verification, since pythontex is not running
-\printfailfilelinebyline{\jobname.expected_stderr.txt}
+\printfailfilelinebyline{expected/\jobname.err.txt}
 \fi
 
 \end{document}

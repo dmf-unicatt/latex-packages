@@ -63,7 +63,7 @@ assert cell_output == ""
 assert cell_figure_path is None
 assert "cell_output" not in local_variables
 assert "cell_figure_path" not in local_variables
-assert "x" in local_variables  # previous variables were not deleted
+assert "x" in local_variables  # previous variables are kept
 assert "y" in local_variables
 assert "z" in local_variables
 assert "n" in local_variables
@@ -132,7 +132,9 @@ cell_output, _ = call_code(
 """
 ,
 all_codes, local_variables, pytex)
-assert cell_output == "'one two two three THREE_Three FoUr_four quattro_cuatro'"
+assert cell_output == (
+    "'one two two three THREE_Three FoUr_four quattro_cuatro'"
+)
 \end{pycell}
 
 \begin{pycell}
@@ -143,7 +145,9 @@ print(" ".join([z, n]))
 """
 ,
 all_codes, local_variables, pytex)
-assert cell_output == "one two two\nthree THREE_Three FoUr_four quattro_cuatro"
+assert cell_output == (
+    "one two two\nthree THREE_Three FoUr_four quattro_cuatro"
+)
 \end{pycell}
 
 \begin{pycell}
@@ -170,7 +174,9 @@ fig
 ,
 all_codes, local_variables, pytex)
 assert cell_output == ""
-assert cell_figure_path == "pythontex-files-test_call_code/py_default_0_79.png"
+assert cell_figure_path == (
+    "pythontex-files-test_call_code/py_default_0_79.png"
+)
 \end{pycell}
 
 Notebooks are automatically produced from this file, but they would not be runnable because they would miss the definition of \texttt{call\_code}, which is defined internally by this package. This is not really the point of this test, so we simply mock \texttt{save\_cells\_as\_notebook}, also defined internally by this package, to write a mock notebook instead of the actual one.
@@ -178,8 +184,12 @@ Notebooks are automatically produced from this file, but they would not be runna
 \begin{pycell}
 original_save_cells_as_notebook = save_cells_as_notebook
 
-def save_cells_as_notebook(all_cells: list[str], pytex: any) -> None:
-    return original_save_cells_as_notebook(["\n# This notebook was disabled"], pytex)
+def save_cells_as_notebook(
+    all_cells: list[str], pytex: any
+) -> None:
+    return original_save_cells_as_notebook(
+        ["\n# This notebook was disabled"], pytex
+    )
 \end{pycell}
 
 \end{document}

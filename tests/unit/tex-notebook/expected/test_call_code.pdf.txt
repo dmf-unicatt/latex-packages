@@ -64,8 +64,7 @@
 43   assert cell_figure_path is None
 44   assert "cell_output" not in local_variables
 45   assert "cell_figure_path" not in local_variables
-46   assert "x" in local_variables # previous variables were not   \
-         deleted
+46   assert "x" in local_variables # previous variables are kept
 47   assert "y" in local_variables
 48   assert "z" in local_variables
 49   assert "n" in local_variables
@@ -79,8 +78,8 @@
 
 54   cell_output, _ = call_code(
 55   """
-56   print(x + y + z + n)
-57   """
+56   print(x + y + z + n)
+57   """
 58   ,
 59   all_codes, local_variables, pytex)
 60   assert cell_output == "10"
@@ -136,47 +135,51 @@
  94   """
  95   ,
  96   all_codes, local_variables, pytex)
- 97   assert cell_output == "'one two two three THREE_Three     \
-          FoUr_four quattro_cuatro'"
+ 97   assert cell_output == (
+ 98       "'one two two three THREE_Three FoUr_four quattro_cuatro'"
+ 99   )
 
 
 
 
- 98   cell_output, _ = call_code(
- 99   """
-100   print(" ".join([x, y]))
-101   print(" ".join([z, n]))
-102   """
-103   ,
-104   all_codes, local_variables, pytex)
-105   assert cell_output == "one two two\nthree THREE_Three     \
-          FoUr_four quattro_cuatro"
+100   cell_output, _ = call_code(
+101   """
+102   print(" ".join([x, y]))
+103   print(" ".join([z, n]))
+104   """
+105   ,
+106   all_codes, local_variables, pytex)
+107   assert cell_output == (
+108       "one two two\nthree THREE_Three FoUr_four quattro_cuatro"
+109   )
 
 
 
 
-106   try:
-107       call_code(
-108   """
-109   raise RuntimeError("a runtime error")
-110   """
-111   ,
-112   all_codes, local_variables, pytex)
-113   except RuntimeError as e:
-114       assert str(e) == "a runtime error"
-115   else:
-116       assert False, "This should have failed"
-117   cell_output, cell_figure_path = call_code(
-118   """
-119   import plotly.express as px
-120   fig = px.scatter(x=[1, 2, 3], y=[4, 5, 6])
-121   fig
+110   try:
+111       call_code(
+112   """
+113   raise RuntimeError("a runtime error")
+114   """
+115   ,
+116   all_codes, local_variables, pytex)
+117   except RuntimeError as e:
+118       assert str(e) == "a runtime error"
+119   else:
+120       assert False, "This should have failed"
+121   cell_output, cell_figure_path = call_code(
 122   """
-123   ,
-124   all_codes, local_variables, pytex)
-125   assert cell_output == ""
-126   assert cell_figure_path ==                                                 \
-          "pythontex-files-test_call_code/py_default_0_79.png"
+123   import plotly.express as px
+124   fig = px.scatter(x=[1, 2, 3], y=[4, 5, 6])
+125   fig
+126   """
+127   ,
+128   all_codes, local_variables, pytex)
+129   assert cell_output == ""
+130   assert cell_figure_path == (
+131       "pythontex-files-test_call_code/py_default_0_79.png"
+132   )
+
 
 
 
@@ -186,11 +189,13 @@
       so we simply mock save_cells_as_notebook, also defined internally by this
       package, to write a mock notebook instead of the actual one.
 
-127   original_save_cells_as_notebook = save_cells_as_notebook
-128
+133   original_save_cells_as_notebook = save_cells_as_notebook
+134
 
-129   def save_cells_as_notebook(all_cells: list[str], pytex: any)               \
-          -> None:
-130       return original_save_cells_as_notebook(["\n# This                      \
-              notebook was disabled"], pytex)
+135   def save_cells_as_notebook(
+136       all_cells: list[str], pytex: any
+137   ) -> None:
+138       return original_save_cells_as_notebook(
+139           ["\n# This notebook was disabled"], pytex
+140       )
 

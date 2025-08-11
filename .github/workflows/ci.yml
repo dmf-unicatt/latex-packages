@@ -27,3 +27,19 @@ jobs:
         run: |
           cd tests
           python run_tests.py unit
+
+  test-packages-in-act:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install act
+        run: |
+          curl -s https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash
+      - name: Setup act config
+        run: |
+          echo "-P ubuntu-latest=medium" > .actrc
+      - name: Run tests under act
+        run: |
+          export PATH=$PWD/bin:$PATH
+          cd tests
+          bash run_tests_act.sh

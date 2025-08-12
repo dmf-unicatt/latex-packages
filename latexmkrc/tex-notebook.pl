@@ -1,7 +1,7 @@
 # --- Clean up PythonTeX generated files and dirs ---
 $clean_ext .= " pythontex-files-%R/* pythontex-files-%R";
 $clean_ext .= " pythontex-files-%R/scripts/* pythontex-files-%R/scripts";
-$clean_ext .= " notebooks-%R/* notebooks-%R";
+$clean_full_ext .= " notebooks-%R/* notebooks-%R";
 push @generated_exts, 'pytxcode';
 
 # --- PythonTeX command ---

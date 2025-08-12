@@ -1,5 +1,5 @@
 \documentclass{book}
-\usepackage{tests-exercise-book}
+\usepackage[academicyear=2025]{tests-exercise-book}
 
 \begin{document}
 
@@ -25,7 +25,7 @@ Open python and type 2 + 2
 
 \subsection{A subsection}
 
-\begin{exercise}[examdate={January 15, 2020}, examproblemnumber={1}, examproblemid={2020_01_15_01}]
+\begin{exercise}[examdate={January 15, 2020}, examproblemnumber={1}, examproblemid={2020-01-15-01}]
   What is \(3 + 3\)?
 \end{exercise}
 
@@ -40,43 +40,43 @@ Open python and type 3 + 3
 \subsection{Another subsection}
 
 \begin{exercise}
-  What is \(13 + 3\)?
+  What is \(4 + 4\)?
 \end{exercise}
 
 \begin{solution}
-  \(13 + 3 = 16\)
+  \(4 + 4 = 8\)
 \end{solution}
 
 \begin{additionalinformation}
-Open python and type 13 + 3
+Open python and type 4 + 4
 \end{additionalinformation}
 
 \begin{exercise}
-  What is \(13 + 3\)?
+  What is \(5 + 5\)?
 \end{exercise}
 
 \begin{solution}
-16 it seems
+10 it seems
 \end{solution}
 
 \begin{additionalinformation}
-Open python and type 13 + 3 (again)
+Open python and type 5 + 5
 \end{additionalinformation}
 
-\subsection{A fourth subsection}
+\subsection{A third subsection}
 
-\begin{exercise}[examdate={January 16, 2020}, examproblemnumber={1}, examproblemid={2020_01_16_01}]
-  What is \(13 + 13\)? I wish I knew, but this exercise will never show up because it will be replaced by another one.
+\begin{exercise}[examdate={January 16, 2020}, examproblemnumber={1}, examproblemid={2020-01-16-01}, replacedbyexamproblemid={2021-01-16-01}, replacementsinceacademicyear={2025/2026}]
+  What is \(6 + 6\)? I wish I knew, but this exercise will never show up because it will be replaced by the exercise from 2021.
 \end{exercise}
 
 \begin{solution}
-  \(13 + 13 = 26\)
+  \(6 + 6 = 12\)
 
 Still, this formula will never be shown because it is in the solution of an exercise with will be replaced.
 \end{solution}
 
 \begin{additionalinformation}
-Open python and type 13 + 13.
+Open python and type 6 + 6.
 
 Still, this text will never be shown because it is in the solution of an exercise with will be replaced.
 \end{additionalinformation}
@@ -93,16 +93,80 @@ This solution will not show up because its exercise has \texttt{print=false}.
 This additional information will not show up because its exercise has \texttt{print=false}.
 \end{additionalinformation}
 
-\begin{exercise}[examdate={January 16, 2021}, examproblemnumber={1}, examproblemid={2021_01_16_01}, replaces={2020_01_16_01}]
-  What is \(23 + 3\)? This replaced the exercise of the previous year, which was asking about \(13 + 3\): look in the source code to find it.
+\begin{exercise}[examdate={January 16, 2021}, examproblemnumber={1}, examproblemid={2021-01-16-01}]
+  What is \(7 + 7\)? This replaced the exercise from 2020, which was asking about \(6 + 6\): look in the source code to find it.
 \end{exercise}
 
 \begin{solution}
-  \(23 + 3 = 26\).
+  \(7 + 7 = 14\).
 \end{solution}
 
 \begin{additionalinformation}
-Open python and type 23 + 3
+Open python and type 7 + 7
+\end{additionalinformation}
+
+\begin{exercise}[examdate={January 16, 2022}, examproblemnumber={1}, examproblemid={2022-01-16-01}]
+  What is \(8 + 8\)? This will replace the exercise from 2023, which will ask about \(9 + 9\): look in the source code to find it.
+\end{exercise}
+
+\begin{solution}
+  \(8 + 8 = 16\).
+\end{solution}
+
+\begin{additionalinformation}
+Open python and type 8 + 8
+\end{additionalinformation}
+
+\begin{exercise}[examdate={January 16, 2023}, examproblemnumber={1}, examproblemid={2023-01-16-01}, replacedbyexamproblemid={2022-01-16-01}, replacementsinceacademicyear={2025/2026}]
+  What is \(9 + 9\)? I wish I knew, but this exercise will never show up because it has been replaced by the exercise from 2022.
+\end{exercise}
+
+\begin{solution}
+  \(9 + 9 = 18\)
+
+Still, this formula will never be shown because it is in the solution of an exercise with will be replaced.
+\end{solution}
+
+\begin{additionalinformation}
+Open python and type 9 + 9.
+
+Still, this text will never be shown because it is in the solution of an exercise with will be replaced.
+\end{additionalinformation}
+
+\begin{exercise}[examdate={January 16, 2024}, examproblemnumber={1}, examproblemid={2024-01-16-01}, replacedbyexamproblemid={2023-01-16-01}, replacementsinceacademicyear={2026/2027}]
+  What is \(10 + 10\)? This exercise was supposed to be replaced by the exercise from 2025, but such replacement will not happen until 2026.
+\end{exercise}
+
+\begin{solution}
+  \(10 + 10 = 20\).
+\end{solution}
+
+\begin{additionalinformation}
+Open python and type 10 + 10
+\end{additionalinformation}
+
+\begin{exercise}[examdate={January 16, 2025}, examproblemnumber={1}, examproblemid={2025-01-16-01}, replacedbyexamproblemid={2026-01-16-01}, replacementsinceacademicyear={2026/2027}]
+  What is \(11 + 11\)? This exercise will be replaced by the exercise from 2026, but such replacement will happen only in 2026.
+\end{exercise}
+
+\begin{solution}
+  \(11 + 11 = 22\).
+\end{solution}
+
+\begin{additionalinformation}
+Open python and type 11 + 11
+\end{additionalinformation}
+
+\begin{exercise}[examdate={January 16, 2026}, examproblemnumber={1}, examproblemid={2026-01-16-01}]
+  What is \(12 + 12\)? I wish I knew, but this exercise will never show up because it is not available until academic year becomes 2026.
+\end{exercise}
+
+\begin{solution}
+  \(12 + 12 = 24\).
+\end{solution}
+
+\begin{additionalinformation}
+Open python and type 12 + 12
 \end{additionalinformation}
 
 \chapter{Solutions}
@@ -113,4 +177,6 @@ Open python and type 23 + 3
 \AssertPropertyInAllExercises{additionalinformation}
 \PrintExercisePropertySectionBySection{additionalinformation}
 
+% Must be the very last line of the file
+\SaveReplacements
 \end{document}

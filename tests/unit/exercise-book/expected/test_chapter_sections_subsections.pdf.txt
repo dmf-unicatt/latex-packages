@@ -1,17 +1,36 @@
-Chapter A
+  chap:1
 
-Exercises
 
-1     First section
-1.1   First subsection
 
-2     Second section
-2.1   A subsection
-2.2   Another subsection
-Chapter B
 
-Solutions
-Chapter C
+            Chapter A
 
-Additional information
+            Exercises
+
+            1     First section
+  sec:1.1
+            1.1   First subsection
+sec:1.1.1
+            2     Second section
+  sec:1.2
+            2.1   A subsection
+sec:1.2.1
+            2.2   Another subsection
+sec:1.2.2
+chap:2
+
+
+
+
+         Chapter B
+
+         Solutions
+chap:3
+
+
+
+
+         Chapter C
+
+         Additional information
 

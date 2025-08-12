@@ -314,6 +314,10 @@ def save_cells_as_notebook(all_cells: list[str], pytex: any) -> None:
     import os
     import nbformat
 
+    # Do not create a notebook if the list is empty
+    if len(all_cells) == 0:
+        return
+
     # Create a new empty notebook
     nb = nbformat.v4.new_notebook()
     nb_cells = []

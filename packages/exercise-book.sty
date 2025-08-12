@@ -27,6 +27,30 @@
 \RequirePackage{tex-notebook}
 
 %%% ================================================================
+%%%                           PACKAGE OPTIONS
+%%% ================================================================
+
+\ExplSyntaxOn
+
+% Define keys and default values
+\keys_define:nn { exercise-book }
+  {
+    academicyear .tl_set:N = \l_exercise_book_academic_year_tl,
+    academicyear .initial:n = {0},
+  }
+
+% Set default values
+\keys_set:nn { exercise-book } { academicyear = 0 }
+
+% Process unknown package options as key-values
+\DeclareOption*{
+  \keys_set:nn { exercise-book } { \CurrentOption }
+}
+\ProcessOptions\relax
+
+\ExplSyntaxOff
+
+%%% ================================================================
 %%%                     BASE DOCUMENT CONFIGURATION
 %%% ================================================================
 
@@ -142,21 +166,12 @@
 }
 
 %%% ----------------------------------------------------------------
-%%% Customize header style
+%%% Counter for printed exercises
 %%% ----------------------------------------------------------------
 
-% Define a property for the exam date, exam problem name and examproblemid
-\DeclareExerciseProperty{examdate}
-\DeclareExerciseProperty{examproblemnumber}
-\DeclareExerciseProperty{examproblemid}
-
-% Define booleans to store property presence
-\newif\ifhasSubtitle
-\newif\ifhasExamDate
-\newif\ifhasExamProblemNumber
-\newif\ifhasExamProblemId
-
-% Count how many exercises have been printed, in order to have a continuous numbering
+% Count how many exercises have been printed, in order to have a continuous numbering.
+% Indeed, if an exercise is hidden (e.g. by passing print=False), xsim by default would still count it,
+% resulting in a gap in the numbering.
 \newcounter{printedexercises}
 
 % Store the printed exercises counter as an exercise property
@@ -170,19 +185,24 @@
  }
 \ExplSyntaxOff
 
-% Add a pre-hook to increment the printed exercise counters only if the exercise will actually be printed
-\xsimsetup{
-  exercise/pre-hook = {%
-    \IfExercisePrintT{\ExerciseType}{\ExerciseID}{%
-      \stepcounter{pynotebook}% increment counter of tex-notebook package
-      \stepcounter{printedexercises}%
-      \expanded{\SetExerciseProperty{printedcounter}{\number\value{printedexercises}}}%
-    }
-  },
-}
+%%% ----------------------------------------------------------------
+%%% Custom properties related to exams
+%%% ----------------------------------------------------------------
 
-% Custom exercise heading using paragraph style
-\newcommand{\exerciseHeading}[1]{%
+% Define a property for the exam date, exam problem name and examproblemid
+\DeclareExerciseProperty{examdate}
+\DeclareExerciseProperty{examproblemnumber}
+\DeclareExerciseProperty{examproblemid}
+
+% Define booleans to store property presence
+\newif\ifhasSubtitle
+\newif\ifhasExamDate
+\newif\ifhasExamProblemNumber
+\newif\ifhasExamProblemId
+
+% Check consistency of the exam arguments: they are mutually exclusive with subtitle,
+% and if provided then all three must be given.
+\newcommand{\checkExamArguments}{%
   \GetExercisePropertyTF{subtitle}{\hasSubtitletrue}{\hasSubtitlefalse}%
   \GetExercisePropertyTF{examdate}{\hasExamDatetrue}{\hasExamDatefalse}%
   \GetExercisePropertyTF{examproblemnumber}{\hasExamProblemNumbertrue}{\hasExamProblemNumberfalse}%
@@ -223,7 +243,14 @@
     % Must have examdate and examproblemnumber
     \PackageError{exercise-book}{Missing examdate and examproblemnumber}{Must have 'examdate' and 'examproblemnumber' if 'examproblemid' is provided}%
   \fi\fi\fi\fi%
-  % Increment counter and print heading
+}
+
+%%% ----------------------------------------------------------------
+%%% Custom heading for exercise and solution
+%%% ----------------------------------------------------------------
+
+% Custom exercise heading using paragraph style
+\newcommand{\exerciseHeading}[1]{%
   \paragraph{%
     Exercise~\theprintedexercises\normalfont%
     \ifhasSubtitle
@@ -261,25 +288,261 @@
 }
 
 %%% ----------------------------------------------------------------
-%%% Attach subsection value property to each exercise and
-%%% labels to each exercise and solution
-%%% (done with a begin-hook: must be done altogether as there can
-%%%  only be a single begin-hook)
+%%% Definition of a subsection property
 %%% ----------------------------------------------------------------
 
 % Store subsection number in exercise metadata
 \DeclareExerciseProperty{subsection-value}
 
-% Automatically attach subsection to each exercise and label to each exercise and solution
+%%% ----------------------------------------------------------------
+%%% Definition of properties about replacements
+%%% ----------------------------------------------------------------
+
+% An exercise can replace one or more other exercises, which will be set to print=false and hidden
+\DeclareExerciseProperty{replacedbyexamproblemid}
+\DeclareExerciseProperty{replacementsinceacademicyear}
+
+%%% ----------------------------------------------------------------
+%%% Begin hooks for exercise and solution
+%%% ----------------------------------------------------------------
+
+% Add a begin-hook to exercise to:
+% 1. assert consistency of exam properties
+% and, only if exercise is printed:
+% 2. increment the printed exercise counter
+% 3. attach subsection value
+% 4. attach label(s)
+% 5. attach notebook name
 \xsimsetup{
-  exercise/begin-hook = {%
-    \expanded{\SetExerciseProperty{subsection-value}{\number\value{subsection}}}%
-    \label{ex:\ExerciseID}%
-  },
-  solution/begin-hook = {%
-    \label{sol:\ExerciseID}%
-  }
+  exercise/begin-hook = {
+    % PART 1: assert consistency of exam properties
+    \checkExamArguments{}%
+
+    \IfExercisePrintT{\ExerciseType}{\ExerciseID}{
+      % PART 2: increment the printed exercise counter
+      \stepcounter{pynotebook}% increment counter of tex-notebook package
+      \stepcounter{printedexercises}%
+      \expanded{\SetExerciseProperty{printedcounter}{\number\value{printedexercises}}}%
+      %
+      % PART 3: attach subsection value
+      \expanded{\SetExerciseProperty{subsection-value}{\number\value{subsection}}}%
+      %
+      % PART 4: attach label(s)
+      \label{ex:\ExerciseID}%
+      \GetExercisePropertyT{examproblemid}{%
+        \label{ex:\GetExerciseProperty{examproblemid}}%
+      }%
+      %
+      % PART 5: attach notebook name to pythontex
+      \ifPythonTeXLoaded
+      \edef\attachnotebooknametopythontex{\pyc{pytex.notebook_filename = os.path.join(f"notebooks-{pytex.jobname}", f"exercise_\GetExerciseProperty{printedcounter}.ipynb")}}
+      \attachnotebooknametopythontex
+      \fi
+    }%
+  }%
 }
+
+% Automatically attach label and notebook name to solution
+\xsimsetup{
+  solution/begin-hook = {%
+    \IfExercisePrintT{\ExerciseType}{\ExerciseID}{%
+      %
+      \label{sol:\ExerciseID}%
+      \GetExercisePropertyT{examproblemid}{%
+        \label{sol:\GetExerciseProperty{examproblemid}}%
+      }%
+      %
+      \ifPythonTeXLoaded
+      \edef\attachnotebooknametopythontex{\pyc{pytex.notebook_filename = os.path.join(f"notebooks-{pytex.jobname}", f"solution_\GetExerciseProperty{printedcounter}.ipynb")}}
+      \attachnotebooknametopythontex
+      \fi
+    }%
+  }%
+}
+
+%%% ----------------------------------------------------------------
+%%% Apply replacements so that they are used on the next compilation
+%%% ----------------------------------------------------------------
+
+\ExplSyntaxOn
+
+% Property to store whether the exercise was replaced
+\DeclareExerciseProperty{replaced}
+
+% Function to compute academic year from date string
+\seq_new:N \l_acad_year_parts_seq      % For splitting by /
+\seq_new:N \l_date_parts_seq           % For splitting by -
+
+\tl_new:N  \l_year_tl
+\tl_new:N  \l_month_tl
+\tl_new:N  \l_academic_year_tl          % Result token list
+
+\int_new:N \l_year_int
+\int_new:N \l_month_int
+
+\cs_new_protected:Npn \__get_academic_year:n #1
+  {
+    \seq_set_split:Nnn \l_acad_year_parts_seq { / } { #1 }
+    \int_compare:nNnTF { \seq_count:N \l_acad_year_parts_seq } = { 1 }
+      {
+        % Single date case
+        \seq_set_split:Nnn \l_date_parts_seq { - } { #1 }
+        \seq_pop_left:NN \l_date_parts_seq \l_year_tl
+        \seq_pop_left:NN \l_date_parts_seq \l_month_tl
+
+        % Check if tokens are empty or not numeric
+        \tl_if_blank:VTF \l_year_tl
+          { \tl_set:Nn \l_year_tl { 0 } }
+          { }
+        \tl_if_blank:VTF \l_month_tl
+          { \tl_set:Nn \l_month_tl { 0 } }
+          { }
+
+        % Convert tokens to integers safely
+        \int_set:Nn \l_year_int { \tl_to_str:N \l_year_tl }
+        \int_set:Nn \l_month_int { \tl_to_str:N \l_month_tl }
+
+        \int_compare:nNnTF { \l_month_int } < { 10 }
+          {
+            \tl_set:Nx \l_academic_year_tl { \int_eval:n { \l_year_int - 1 } }
+          }
+          {
+            \tl_set:Nx \l_academic_year_tl { \l_year_int }
+          }
+      }
+      {
+        % Range case
+        \seq_pop_left:NN \l_acad_year_parts_seq \l_year_tl
+        \tl_set_eq:NN \l_academic_year_tl \l_year_tl
+      }
+  }
+
+% Do the replacement
+\tl_new:N \l_tmp_examproblemid_tl
+\tl_new:N \l_tmp_replacedbyexamproblemid_tl
+\tl_new:N \l_tmp_replacementsinceacademicyear_tl
+\tl_new:N \l_academic_year_examproblemid_tl
+\tl_new:N \l_academic_year_replacedbyexamproblemid_tl
+\tl_new:N \l_academic_year_replacementsinceacademicyear_tl
+
+\newcommand{\SaveReplacements}
+  {
+    \ForEachUsedExerciseByType
+      {
+        % Fetch examproblemid
+        \tl_set:Nx \l_tmp_examproblemid_tl
+          { \GetExerciseProperty{examproblemid} }
+        \tl_if_blank:VF \l_tmp_examproblemid_tl
+          {
+            % Compute academic year for examproblemid
+            \exp_args:No \__get_academic_year:n { \l_tmp_examproblemid_tl }
+            \tl_set_eq:NN \l_academic_year_examproblemid_tl \l_academic_year_tl
+
+            % Hide exercises of the current and future academic years
+            \int_compare:nT
+              {
+                \int_eval:n { \tl_to_str:N \l_academic_year_examproblemid_tl }
+                >=
+                \int_eval:n { \tl_to_str:N \l_exercise_book_academic_year_tl }
+              }
+              {
+                \tl_set:Nx \l_mymsg_tl
+                  {
+                      Current~academic~year~is~\l_exercise_book_academic_year_tl.
+                      Hiding~exercise~\l_tmp_examproblemid_tl \space
+                      (academic~year~begin~\l_academic_year_examproblemid_tl) \space
+                      because~is~from~an~exam~of~the~current~academic~year~or~a~future~academic~year.
+                  }
+                \typeout { \tl_use:N \l_mymsg_tl }
+                \SetExerciseProperty{print}{false}
+              }
+
+            % Do replacements
+            \GetExercisePropertyTF { replacedbyexamproblemid }
+              {
+                \GetExercisePropertyTF { replacementsinceacademicyear }
+                  {
+                    % Fetch replacedbyexamproblemid
+                    \tl_set:Nx \l_tmp_replacedbyexamproblemid_tl
+                      { \GetExerciseProperty{replacedbyexamproblemid} }
+                    \tl_if_blank:VT \l_tmp_replacedbyexamproblemid_tl
+                      {
+                        \PackageError{exercise-book}{Empty~replacedbyexamproblemid~for~\l_tmp_examproblemid_tl}{Empty~replacedbyexamproblemid~for~\l_tmp_examproblemid_tl}
+                      }
+
+                    % Fetch replacementsinceacademicyear
+                    \tl_set:Nx \l_tmp_replacementsinceacademicyear_tl
+                      { \GetExerciseProperty{replacementsinceacademicyear} }
+                    \tl_if_blank:VT \l_tmp_replacementsinceacademicyear_tl
+                      {
+                        \PackageError{exercise-book}{Empty~replacementsinceacademicyear~for~\l_tmp_examproblemid_tl}{Empty~replacementsinceacademicyear~for~\l_tmp_examproblemid_tl}
+                      }
+
+                    % Compute academic year for replacedbyexamproblemid
+                    \exp_args:No \__get_academic_year:n { \l_tmp_replacedbyexamproblemid_tl }
+                    \tl_set_eq:NN \l_academic_year_replacedbyexamproblemid_tl \l_academic_year_tl
+
+                    % Compute academic year for replacementsinceacademicyear
+                    \exp_args:No \__get_academic_year:n { \l_tmp_replacementsinceacademicyear_tl }
+                    \tl_set_eq:NN \l_academic_year_replacementsinceacademicyear_tl \l_academic_year_tl
+
+                    % Summarize for debug
+                    \tl_set:Nx \l_mymsg_tl
+                      {
+                        Current~academic~year~is~\l_exercise_book_academic_year_tl.
+                        Examining~exercise~\l_tmp_examproblemid_tl \space
+                        (academic~year~begin~\l_academic_year_examproblemid_tl) \space
+                        which~may~be~replaced~by~exercise~\l_tmp_replacedbyexamproblemid_tl \space
+                        (academic~year~begin~\l_academic_year_replacedbyexamproblemid_tl) \space
+                        since~academic~year~\l_tmp_replacementsinceacademicyear_tl \space
+                        (academic~year~begin~\l_academic_year_replacementsinceacademicyear_tl). \space
+                      }
+                    \typeout { \tl_use:N \l_mymsg_tl }
+
+                    % Do replacement if the academicyear package argument is >= than replacementsinceacademicyear
+                    \int_compare:nTF
+                      {
+                        \int_eval:n { \tl_to_str:N \l_exercise_book_academic_year_tl }
+                        >=
+                        \int_eval:n { \tl_to_str:N \l_academic_year_replacementsinceacademicyear_tl }
+                      }
+                      {
+                        \tl_set:Nx \l_mymsg_tl
+                          {
+                            \space\space\space\space Replacing~exercise~\l_tmp_examproblemid_tl \space
+                            with~exercise~\l_tmp_replacedbyexamproblemid_tl.
+                          }
+                        \typeout { \tl_use:N \l_mymsg_tl }
+                        \SetExerciseProperty{print}{false}
+                      }
+                      {
+                        \tl_set:Nx \l_mymsg_tl
+                          {
+                            \space\space\space\space Not~replacing~exercise~\l_tmp_examproblemid_tl \space
+                            with~exercise~\l_tmp_replacedbyexamproblemid_tl \space
+                            because~current~academic~year~is~\l_exercise_book_academic_year_tl, \space
+                            but~we~need~to~wait~till~academic~year~\l_academic_year_replacementsinceacademicyear_tl \space
+                            to~make~the~replacement.
+                          }
+                        \typeout { \tl_use:N \l_mymsg_tl }
+                      }
+                  }
+                  {
+                    \PackageError{exercise-book}{Missing~replacementsinceacademicyear}{Missing~replacementsinceacademicyear}
+                  }
+              }
+              {
+                \GetExercisePropertyTF { replacementsinceacademicyear }
+                  {
+                    \PackageError{exercise-book}{Extra~replacementsinceacademicyear}{Extra~replacementsinceacademicyear}
+                  }
+              }
+          }
+      }
+  }
+
+\ExplSyntaxOff
+
 
 %%% ----------------------------------------------------------------
 %%% Property and environment to add additional information
@@ -418,6 +681,13 @@
                           \refstepcounter{printedadditionalinformation}%
                           \phantomsection%
                           \label{add:##2}%
+                          \GetExercisePropertyT{examproblemid}{%
+                            \label{add:\GetExerciseProperty{examproblemid}}%
+                          }%
+                          \ifPythonTeXLoaded
+                          \edef\attachnotebooknametopythontex{\pyc{pytex.notebook_filename = os.path.join(f"notebooks-{pytex.jobname}", f"additional_information_\GetExerciseProperty{printedcounter}.ipynb")}}
+                          \attachnotebooknametopythontex
+                          \fi
                           \solutionHeading{##2}%
                           \ifLaTeXTwentyFive%
                             \GetExercisePropertyTF{additionalinformation}{%
@@ -484,4 +754,3 @@
     }%
   }%
 }
-

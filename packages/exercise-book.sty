@@ -44,7 +44,8 @@
 
 % Process unknown package options as key-values
 \DeclareOption*{
-  \keys_set:nn { exercise-book } { \CurrentOption }
+  \edef\temp{\noexpand\keys_set:nn { exercise-book } { \CurrentOption }}
+  \temp
 }
 \ProcessOptions\relax
 

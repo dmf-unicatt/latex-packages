@@ -14,9 +14,8 @@
 \RequirePackage{showkeys}
 
 % Force hyperref to print the link target, so that it is visible when converting to text file
-\let\oldlinktoxsimenv\linktoxsimenv
-\DeclareRobustCommand{\linktoxsimenv}[2]{%
-  \oldlinktoxsimenv{#1}{#2}\footnote{Links to label #1, counter value \ref*{#1}}%
+\RenewDocumentCommand{\linktoxsimenv}{m m}{%
+  \hyperref[#1]{#2}\footnote{Links to label #1, counter value \ref*{#1}}%
 }
 \RenewDocumentCommand{\linktosection}{m}{%
   \nameref{#1}\footnote{Links to label #1, counter value \ref*{#1}}%

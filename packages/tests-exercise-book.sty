@@ -14,18 +14,17 @@
 \RequirePackage{showkeys}
 
 % Force hyperref to print the link target, so that it is visible when converting to text file
-\RequirePackage{sidenotes}
 \RenewDocumentCommand{\linktoxsimenv}{m m}{%
-  \hyperref[#1]{#2}\sidenote{\footnotesize Links to label #1, counter value \ref*{#1}}%
+  \hyperref[#1]{#2}\textsuperscript{\footnotesize\normalfont(Links to label #1, counter value \ref*{#1})}%
 }
 \RenewDocumentCommand{\linktosection}{m}{%
-  \nameref{#1}\sidenote{\footnotesize Links to label #1, counter value \ref*{#1}}%
+  \nameref{#1}\textsuperscript{\footnotesize\normalfont(Links to label #1, counter value \ref*{#1})}%
 }
 \let\oldcref\cref
 \RenewDocumentCommand{\cref}{m}{%
-  \oldcref{#1}\sidenote{\footnotesize Links to label #1, counter value \ref*{#1}}%
+  \oldcref{#1}\textsuperscript{\footnotesize\normalfont(Links to label #1, counter value \ref*{#1})}%
 }
 \let\oldCref\Cref
 \RenewDocumentCommand{\Cref}{m}{%
-  \oldCref{#1}\sidenote{\footnotesize Links to label #1, counter value \ref*{#1}}%
+  \oldCref{#1}\textsuperscript{\footnotesize\normalfont(Links to label #1, counter value \ref*{#1})}%
 }

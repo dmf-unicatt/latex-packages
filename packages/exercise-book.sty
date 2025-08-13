@@ -23,6 +23,15 @@
 % To link exercises and solutions
 \RequirePackage{hyperref}
 
+% Not required here, but used in the main document. These are put here because otherwise
+% the cleveref package import, which is required here, would fail with
+% ! Package cleveref Error: cleveref must be loaded after amsmath!.
+\RequirePackage{amsmath}
+\RequirePackage{amssymb}
+
+% To use \cref in the main document, with custom names for the exercise environments
+\RequirePackage[nameinlink]{cleveref}
+
 % Load the tex-notebook package from this same repository for the pycell environment
 \RequirePackage{tex-notebook}
 
@@ -307,6 +316,19 @@
 %%% Begin hooks for exercise and solution
 %%% ----------------------------------------------------------------
 
+% Define a mapping from exercise and solution labels to the the printed counter of the exercise.
+% Will be used with \cref, and requires at least two compilations.
+\makeatletter
+\newcommand{\LabelToExercisePrintedCounter}[1]{%
+  \immediate\write\@auxout{%
+    \noexpand\expandafter
+    \gdef\noexpand\csname exercisebook@printedcounter@#1\endcsname{%
+      \GetExerciseProperty{printedcounter}%
+    }%
+  }%
+}
+\makeatother
+
 % Add a begin-hook to exercise to:
 % 1. assert consistency of exam properties
 % and, only if exercise is printed:
@@ -330,8 +352,11 @@
       %
       % PART 4: attach label(s)
       \label{ex:\ExerciseID}%
+      \LabelToExercisePrintedCounter{ex:\ExerciseID}%
       \GetExercisePropertyT{examproblemid}{%
-        \label{ex:\GetExerciseProperty{examproblemid}}%
+        \edef\ExerciseExamProblemID{\GetExerciseProperty{examproblemid}}%
+        \label{ex:\ExerciseExamProblemID}%
+        \LabelToExercisePrintedCounter{ex:\ExerciseExamProblemID}%
       }%
       %
       % PART 5: attach notebook name to pythontex
@@ -349,8 +374,11 @@
     \IfExercisePrintT{\ExerciseType}{\ExerciseID}{%
       %
       \label{sol:\ExerciseID}%
+      \LabelToExercisePrintedCounter{sol:\ExerciseID}%
       \GetExercisePropertyT{examproblemid}{%
-        \label{sol:\GetExerciseProperty{examproblemid}}%
+        \edef\ExerciseExamProblemID{\GetExerciseProperty{examproblemid}}%
+        \label{sol:\ExerciseExamProblemID}%
+        \LabelToExercisePrintedCounter{sol:\ExerciseExamProblemID}%
       }%
       %
       \ifPythonTeXLoaded
@@ -657,8 +685,11 @@
 \newenvironment{additionalinformationinternal}[1]{
   \refstepcounter{printedadditionalinformation}%
   \label{add:#1}%
+  \LabelToExercisePrintedCounter{add:#1}%
   \GetExercisePropertyT{examproblemid}{%
-    \label{add:\GetExerciseProperty{examproblemid}}%
+    \edef\ExerciseExamProblemID{\GetExerciseProperty{examproblemid}}%
+    \label{add:\ExerciseExamProblemID}%
+    \LabelToExercisePrintedCounter{add:\ExerciseExamProblemID}%
   }%
   \solutionHeading{#1}%
 }{\par}
@@ -764,3 +795,46 @@
     }%
   }%
 }
+
+%%% ----------------------------------------------------------------
+%%% Cleveref configuration
+%%% ----------------------------------------------------------------
+
+\makeatletter
+% Helper function to override default cref commands
+\newcommand{\exercisebook@crefoverride}[2]{%
+  \def\labelname{#1}%
+  % Define the text prefix to be used in the link if label is ex:, sol:, or add:,
+  % leave it empty otherwise
+  \IfBeginWith{\labelname}{ex:}{\def\prefixtext{Exercise~}}{%
+    \IfBeginWith{\labelname}{sol:}{\def\prefixtext{the solution of Exercise~}}{%
+      \IfBeginWith{\labelname}{add:}{\def\prefixtext{the additional information for Exercise~}}{%
+        % fallback for other labels
+        \let\prefixtext\relax
+      }%
+    }%
+  }%
+  % Fall back to standard cref if the text prefix is empty; if it's not empty, create a link with hyperref.
+  \ifx\prefixtext\relax
+    #2{#1}\relax
+  \else
+    \expandafter\ifx\csname exercisebook@printedcounter@#1\endcsname\relax
+      \PackageWarning{exercise-book}{No printed counter stored for label `#1`}{}%
+      \hyperref[#1]{\prefixtext\textbf{??}}%
+    \else
+      \expandafter\let\expandafter\currentprintedcounter\csname exercisebook@printedcounter@#1\endcsname
+      \ifx\currentprintedcounter\@empty
+        \PackageError{exercise-book}{Macro for label `#1` is empty}{The printed counter macro contains no value}%
+      \else
+        \hyperref[#1]{\prefixtext\currentprintedcounter}%
+      \fi
+    \fi
+  \fi
+}
+
+% Redefine \cref and \Cref
+\let\exercisebook@oldcref\cref
+\let\exercisebook@oldCref\Cref
+\renewcommand{\cref}[1]{\exercisebook@crefoverride{#1}{\exercisebook@oldcref}}
+\renewcommand{\Cref}[1]{\exercisebook@crefoverride{#1}{\exercisebook@oldCref}}
+\makeatother

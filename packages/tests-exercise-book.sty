@@ -20,3 +20,11 @@
 \RenewDocumentCommand{\linktosection}{m}{%
   \nameref{#1}\footnote{Links to label #1, counter value \ref*{#1}}%
 }
+\let\oldcref\cref
+\RenewDocumentCommand{\cref}{m}{%
+  \oldcref{#1}\footnote{Links to label #1, counter value \ref*{#1}}%
+}
+\let\oldCref\Cref
+\RenewDocumentCommand{\Cref}{m}{%
+  \oldCref{#1}\footnote{Links to label #1, counter value \ref*{#1}}%
+}

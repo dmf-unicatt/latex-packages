@@ -1,346 +1,380 @@
-  chap:1
+          chap:1
 
 
 
 
-            Chapter A
+                   Chapter A
 
-            Exercises
+                   Exercises
 
-            1      First section
-  sec:1.1
-            1.1      First subsection
-sec:1.1.1
-     ex:1
-            Exercise 1 (Simple Addition). What is 2 + 2?
-              Please answer.
-            Go to: solution1 .
-
-
-            2      Second section
-  sec:1.2
-            2.1      A subsection
-sec:1.2.1
-     ex:2
-            Exercise 2. What is 3 + 3?
-            Go to: solution2 .
-
-            2.2      Another subsection
-sec:1.2.2
-     ex:3
-            Exercise 3. What is 4 + 4?
-            Go to: solution3 .
-     ex:4
-            Exercise 4.        Discuss this code
-
-       1    5 + 5
+                   1      First section
+         sec:1.1
+                   1.1      First subsection
+       sec:1.1.1
+            ex:1
+                   Exercise 1 (Simple Addition). What is 2 + 2?
+                     Please answer.
+                   Go to: solution1 .
 
 
-            10
+                   2      Second section
+         sec:1.2
+                   2.1      A subsection
+ex:2020-01-14-01
+       sec:1.2.1
+            ex:2
+                   Exercise 2 (January 14, 2020). What is 3 + 3?
+                   Go to: solution2 .
 
-            Go to: solution4 .
-                1 Links to label sol:1, counter value 13
-                2 Links to label sol:2, counter value 14
-                3 Links to label sol:3, counter value 15
-                4 Links to label sol:4, counter value 16
-                   2.3     A third subsection
+                   2.2      Another subsection
+       sec:1.2.2
+            ex:3
+                   Exercise 3. What is 4 + 4?
+                     This exercise is really similar to Exercise 13 .
+                   Go to: solution4 .
+ex:2020-01-15-01
+            ex:4
+                   Exercise 4 (January 15, 2020). Discuss this code
+
+              1    5 + 5
+
+
+                   10
+                       1 Links to label sol:1, counter value 13
+                       2 Links to label sol:2, counter value 14
+                       3 Links to label ex:1, counter value 1
+                       4 Links to label sol:3, counter value 15
+                     This exercise is very different from Exercise 25 .
+                   Go to: solution6 .
+
+
+                   2.3     A third subsection
 ex:2021-01-16-01
        sec:1.2.3
             ex:7
                    Exercise 5 (January 16, 2021). What is 7 + 7? This replaced the exercise
                    from 2020, which was asking about 6 + 6: look in the source code to find it.
                       Sample code
+
               1    7 + 7
+
 
                    14
 
-                   Go to: solution5 .
+                   Go to: solution7 .
 ex:2022-01-16-01
             ex:8
                    Exercise 6 (January 16, 2022). What is 8 + 8? This will replace the exercise
                    from 2023, which will ask about 9 + 9: look in the source code to find it.
                       Sample code
+
               1    8 + 8
+
 
                    16
 
-                   Go to: solution6 .
+                   Go to: solution8 .
 ex:2024-01-16-01
            ex:10
-                   Exercise 7 (January 16, 2024). What is 10+10? This exercise was supposed
-                   to be replaced by the exercise from 2025, but such replacement will not happen
-                   until 2026.
-                       Sample code
+                   Exercise 7 (January 16, 2024). What is 10 + 10? This exercise was sup-
+                   posed to be replaced by the exercise from 2025, namely Exercise 89 , but such
+                   replacement will not happen until 2026.
+                      Sample code
+
               1    10 + 10
+
 
                    20
 
-                   Go to: solution7 .
-ex:2025-01-16-01
+                   Go to: solution10 .
+                     5 Links to label ex:2020-01-14-01, counter value 2
+                     6 Links to label sol:4, counter value 16
+                     7 Links to label sol:7, counter value 17
+                     8 Links to label sol:8, counter value 18
+                     9 Links to label ex:2025-01-16-01, counter value 11
+                    10 Links to label sol:10, counter value 19
+ex:2025-01-16-01
            ex:11
                    Exercise 8 (January 16, 2025). What is 11 + 11? This exercise will be
                    replaced by the exercise from 2026, but such replacement will happen only in
-                   2026.
-                      Sample code
+                   2026. Unfortunately I can’t show usage of \cref{ex:2026-01-16-01} here,
+                   because that exercise does not exist yet, but look into the source code to find
+                   it.
+                       Sample code
               1    11 + 11
 
                    22
 
-                   Go to: solution8 .
-                     5 Links to label sol:7, counter value 17
-                     6 Links to label sol:8, counter value 18
-                     7 Links to label sol:10, counter value 19
-                     8 Links to label sol:11, counter value 20
-  chap:2
+                   Go to: solution11 .
 
 
 
 
-            Chapter B
-
-            Solutions
-
-            1 First section1
-  sec:2.1
-            1.1      First subsection2
-sec:2.1.1
-    sol:1
-            Exercise 13 . Using LaTex I know that
-              2+2=4
-            Go to: additional information4 .
+                    11 Links to label sol:11, counter value 20
+          chap:2
 
 
-            2 Second section5
-  sec:2.2
-            2.1      A subsection6
-sec:2.2.1
-    sol:2
-            Exercise 27 . 3 + 3 = 6
-              Want to try with python?
-
-       1    3 + 3
 
 
-            6
+                    Chapter B
 
-            Go to: additional information8 .
+                    Solutions
 
-                1 Links to label sec:1.1, counter value 1
-                2 Links to label sec:1.1.1, counter value 1.1
-                3 Links to label ex:1, counter value 1
-                4 Links to label add:1, counter value 1
-                5 Links to label sec:1.2, counter value 2
-                6 Links to label sec:1.2.1, counter value 2.1
-                7 Links to label ex:2, counter value 2
-                8 Links to label add:2, counter value 2
+                    1      First section1
+          sec:2.1
+                    1.1      First subsection2
+       sec:2.1.1
+           sol:1
+                    Exercise 13 . Using LaTex I know that
+                      2+2=4
+                    Go to: additional information4 .
+
+
+                    2      Second section5
+          sec:2.2
+                    2.1      A subsection6
+sol:2020-01-14-01
+        sec:2.2.1
+            sol:2
+                    Exercise 27 . 3 + 3 = 6
+                      Want to try with python?
+
+               1    3 + 3
+
+
+                    6
+
+                    Go to: additional information8 .
+
+                        1 Links to label sec:1.1, counter value 1
+                        2 Links to label sec:1.1.1, counter value 1.1
+                        3 Links to label ex:1, counter value 1
+                        4 Links to label add:1, counter value 1
+                        5 Links to label sec:1.2, counter value 2
+                        6 Links to label sec:1.2.1, counter value 2.1
+                        7 Links to label ex:2, counter value 2
+                        8 Links to label add:2, counter value 2
                     2.2    Another subsection9
         sec:2.2.2
             sol:3
                     Exercise 310 . 4 + 4 = 8
-                    Go to: additional information11 .
+                      This solution is really similar to the solution of Exercise 111 .
+                    Go to: additional information12 .
+sol:2020-01-15-01
             sol:4
-                    Exercise 412 . It’s the sum of two numbers, and prints 10.
-                    Go to: additional information13 .
+                    Exercise 413 . It’s the sum of two numbers, and prints 10.
+                      This solution is more verbose than the solution of Exercise 214 .
+                    Go to: additional information15 .
 
-                    2.3    A third subsection14
+                    2.3    A third subsection16
 sol:2021-01-16-01
         sec:2.2.3
             sol:7
-                    Exercise 515 . 7 + 7 = 14.
-                    Go to: additional information16 .
+                    Exercise 517 . 7 + 7 = 14.
+                    Go to: additional information18 .
 sol:2022-01-16-01
             sol:8
-                    Exercise 617 . 8 + 8 = 16.
-                    Go to: additional information18 .
+                    Exercise 619 . 8 + 8 = 16.
+                    Go to: additional information20 .
 sol:2024-01-16-01
            sol:10
-                    Exercise 719 . 10 + 10 = 20.
-                    Go to: additional information20 .
+                    Exercise 721 . 10 + 10 = 20.
+                      The solution that will replace this one is the solution of Exercise 822 .
+                    Go to: additional information23 .
 sol:2025-01-16-01
            sol:11
-                    Exercise 821 . 11 + 11 = 22.
-                    Go to: additional information22 .
+                    Exercise 824 . 11 + 11 = 22.
+                       Unfortunately I can’t show usage of \cref{sol:2026-01-16-01} here, be-
+                    cause that points to the solution of an exercise that does not exist yet.
+                    Go to: additional information25 .
 
 
 
 
                       9 Links to label sec:1.2.2, counter value 2.2
                      10 Links to label ex:3, counter value 3
-                     11 Links to label add:3, counter value 3
-                     12 Links to label ex:4, counter value 4
-                     13 Links to label add:4, counter value 4
-                     14 Links to label sec:1.2.3, counter value 2.3
-                     15 Links to label ex:7, counter value 7
-                     16 Links to label add:7, counter value 5
-                     17 Links to label ex:8, counter value 8
-                     18 Links to label add:8, counter value 6
-                     19 Links to label ex:10, counter value 10
-                     20 Links to label add:10, counter value 7
-                     21 Links to label ex:11, counter value 11
-                     22 Links to label add:11, counter value 8
-  chap:3
+                     11 Links to label sol:1, counter value 13
+                     12 Links to label add:3, counter value 3
+                     13 Links to label ex:4, counter value 4
+                     14 Links to label sol:2020-01-14-01, counter value 14
+                     15 Links to label add:4, counter value 4
+                     16 Links to label sec:1.2.3, counter value 2.3
+                     17 Links to label ex:7, counter value 7
+                     18 Links to label add:7, counter value 5
+                     19 Links to label ex:8, counter value 8
+                     20 Links to label add:8, counter value 6
+                     21 Links to label ex:10, counter value 10
+                     22 Links to label sol:2025-01-16-01, counter value 20
+                     23 Links to label add:10, counter value 7
+                     24 Links to label ex:11, counter value 11
+                     25 Links to label add:11, counter value 8
+          chap:3
 
 
 
 
-            Chapter C
+                    Chapter C
 
-            Additional information
+                    Additional information
 
-            1 First section1
-  sec:3.1
-            1.1      First subsection2
-sec:3.1.1
-    add:1
-            Exercise 13 .       Open python and do the following:
+                    1      First section1
+          sec:3.1
+                    1.1      First subsection2
+       sec:3.1.1
+           add:1
+                    Exercise 13 .       Open python and do the following:
 
-       1    2 + 2
-
-
-            4
-
-            Go back to: solution4 .
+               1    2 + 2
 
 
-            2 Second section5
-  sec:3.2
-            2.1      A subsection6
-sec:3.2.1
-    add:2
-            Exercise 27 .       You can proceed as before, say
-       1    3 + 3
+                    4
 
-            6
+                    Go back to: solution4 .
 
 
+                    2      Second section5
+          sec:3.2
+                    2.1      A subsection6
+add:2020-01-14-01
+        sec:3.2.1
+            add:2
+                    Exercise 27 .       You can proceed as before, say
+
+               1    3 + 3
 
 
-                1 Links to label sec:1.1, counter value 1
-                2 Links to label sec:1.1.1, counter value 1.1
-                3 Links to label ex:1, counter value 1
-                4 Links to label sol:1, counter value 13
-                5 Links to label sec:1.2, counter value 2
-                6 Links to label sec:1.2.1, counter value 2.1
-                7 Links to label ex:2, counter value 2
-                  Still, there is also a more elaborated solution with variables:
+                    6
 
-       2    a = 3
-       3    b = 3
-       4    a + b
-
-
-            6
-
-              The results are obviously the same.
-            Go back to: solution8 .
-
-            2.2       Another subsection9
-sec:3.2.2
-    add:3
-            Exercise 310 .        A more elaborated solution with functions:
-
-       1    def my_sum(a, b):
-       2        return a + b
-       3
-
-       4    print(my_sum(4, 4))
+                         Still, there is also a more elaborated solution with variables:
+                        1 Links to label sec:1.1, counter value 1
+                        2 Links to label sec:1.1.1, counter value 1.1
+                        3 Links to label ex:1, counter value 1
+                        4 Links to label sol:1, counter value 13
+                        5 Links to label sec:1.2, counter value 2
+                        6 Links to label sec:1.2.1, counter value 2.1
+                        7 Links to label ex:2, counter value 2
+               2    a = 3
+               3    b = 3
+               4    a + b
 
 
-            8
+                    6
 
-    add:4   Go back to: solution11 .
+                      The results are obviously the same.
+                    Go back to: solution8 .
 
-            Exercise 412 .        A more elaborated solution with a plot. Store the numbers in
-            a list.
+                    2.2       Another subsection9
+        sec:3.2.2
+            add:3
+                    Exercise 310 .        A more elaborated solution with functions:
 
-       1    numbers = [5, 5]
+               1    def my_sum(a, b):
+               2        return a + b
+               3
 
-
-
-
-                  Then plot their cumulative sum.
-
-       2    import plotly.express as px
-       3    fig = px.scatter(
-       4        x=[1, 2],
-       5        y=[numbers[0], numbers[0] + numbers[1]]
-       6    )
-       7    fig
+               4    print(my_sum(4, 4))
 
 
+                    8
 
-                 8 Links to label sol:2, counter value 14
-                 9 Links to label sec:1.2.2, counter value 2.2
-                10 Links to label ex:3, counter value 3
-                11 Links to label sol:3, counter value 15
-                12 Links to label ex:4, counter value 4
-                         You can plot again the figure if you want.
+                        This additional information is very different to the additional information
+                    for Exercise 111 .
+add:2020-01-15-01
+            add:4   Go back to: solution12 .
 
-               8    print(sum(numbers))
-               9    fig
+                    Exercise 413 .        A more elaborated solution with a plot. Store the numbers in
+                    a list.
 
-
-                    10
+               1    numbers = [5, 5]
 
 
 
 
-                    Go back to: solution13 .
+                          Then plot their cumulative sum.
+
+               2    import plotly.express as px
+               3    fig = px.scatter(
+               4        x=[1, 2],
+               5        y=[numbers[0], numbers[0] + numbers[1]]
+               6    )
+               7    fig
+
+                         8 Links to label sol:2, counter value 14
+                         9 Links to label sec:1.2.2, counter value 2.2
+                        10 Links to label ex:3, counter value 3
+                        11 Links to label add:1, counter value 1
+                        12 Links to label sol:3, counter value 15
+                        13 Links to label ex:4, counter value 4
+         You can plot again the figure if you want.
 
 
-                    2.3     A third subsection14
+
+
+8   print(sum(numbers))
+9   fig
+
+
+
+
+    10
+                        This additional information is very different from the additional information
+                    for Exercise 214 .
+                    Go back to: solution15 .
+
+                    2.3    A third subsection16
 add:2021-01-16-01
         sec:3.2.3
             add:7
-                    Exercise 515 .     Open python and do the following:
-
+                    Exercise 517 .     Open python and do the following:
                1    print("7 + 7 is", 7 + 7)
 
-
                     7 + 7 is 14
-
 add:2022-01-16-01
-            add:8   Go back to: solution16 .
-                     13 Links to label sol:4, counter value 16
-                     14 Links to label sec:1.2.3, counter value 2.3
-                     15 Links to label ex:7, counter value 7
-                     16 Links to label sol:7, counter value 17
-                    Exercise 617 .     Open python and do the following:
+            add:8   Go back to: solution18 .
 
+                    Exercise 619 .     Open python and do the following:
                1    print("8 + 8 is", 8 + 8)
 
-
                     8 + 8 is 16
-
 add:2024-01-16-01
-           add:10   Go back to: solution18 .
-
-                    Exercise 719 .     Open python and do the following:
+           add:10   Go back to: solution20 .
+                     14 Links to label add:2020-01-14-01, counter value 2
+                     15 Links to label sol:4, counter value 16
+                     16 Links to label sec:1.2.3, counter value 2.3
+                     17 Links to label ex:7, counter value 7
+                     18 Links to label sol:7, counter value 17
+                     19 Links to label ex:8, counter value 8
+                     20 Links to label sol:8, counter value 18
+                    Exercise 721 .     Open python and do the following:
 
                1    print("10 + 10 is", 10 + 10)
 
 
                     10 + 10 is 20
 
+                      The additional information that will replace this one is the additional infor-
+                    mation for Exercise 822 .
 add:2025-01-16-01
-           add:11   Go back to: solution20 .
+           add:11   Go back to: solution23 .
 
-                    Exercise 821 .     Open python and do the following:
+                    Exercise 824 .     Open python and do the following:
 
                1    print("11 + 11 is", 11 + 11)
 
 
                     11 + 11 is 22
 
-                    Go back to: solution22 .
+                        Unfortunately I can’t show usage of \cref{sol:2026-01-16-01} here, be-
+                    cause that points to the additional information of an exercise that does not exist
+                    yet.
+                    Go back to: solution25 .
 
 
 
 
-                     17 Links to label ex:8, counter value 8
-                     18 Links to label sol:8, counter value 18
-                     19 Links to label ex:10, counter value 10
-                     20 Links to label sol:10, counter value 19
-                     21 Links to label ex:11, counter value 11
-                     22 Links to label sol:11, counter value 20
+                     21 Links to label ex:10, counter value 10
+                     22 Links to label add:2025-01-16-01, counter value 8
+                     23 Links to label sol:10, counter value 19
+                     24 Links to label ex:11, counter value 11
+                     25 Links to label sol:11, counter value 20
 

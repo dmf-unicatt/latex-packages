@@ -23,6 +23,7 @@ jobs:
           - tag-name: ubuntu-24.04
           - tag-name: ubuntu-24.10
           - tag-name: ubuntu-25.04
+          - tag-name: debian-13
           - tag-name: debian-testing
           - tag-name: debian-unstable
           - tag-name: debian-experimental

@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+from __future__ import annotations
+
 import copy
 import glob
 import json
@@ -62,13 +64,16 @@ if USE_COLOR:
     RED = "\033[1;31m"
     YELLOW = "\033[1;33m"
     GREEN = "\033[1;32m"
+    BOLD_BLACK = "\033[1;30m"
     RESET = "\033[0m"
 else:
-    RED = YELLOW = GREEN = RESET = ""
+    RED = YELLOW = GREEN = RESET = BOLD_BLACK = ""
 
 FAIL = f"{RED}FAIL{RESET}"
 XFAIL = f"{YELLOW}XFAIL{RESET}"
+REGOLDED = f"{YELLOW}REGOLDED{RESET}"
 PASS = f"{GREEN}PASS{RESET}"
+SUMMARY = f"{BOLD_BLACK}Test summary{RESET}"
 
 
 def run_command(command: list[str], cwd: str) -> tuple[int, str, str]:
@@ -201,15 +206,195 @@ def remove_hidden_files_and_directories(directory: str) -> None:
                 full_path = os.path.join(root, filename)
                 os.remove(full_path)
 
+class FailureCounter:
+    """
+    Counter for tracking the number of test failures, with a maximum limit.
 
-def run_latex_tests(tex_tests: list[str]) -> None:
+    Attributes
+    ----------
+    count
+        Current failure count.
+    maxfail
+        Maximum allowed failures before exiting the program.
+    """
+    def __init__(self, maxfail: int) -> None:
+        """
+        Initialize a FailureCounter.
+
+        Parameters
+        ----------
+        maxfail
+            Maximum allowed failures before exiting (default is infinity).
+        """
+        self.count = 0
+        self.maxfail = maxfail
+
+    def __iadd__(self, n: int) -> FailureCounter:
+        """
+        Increment the counter by a given number.
+
+        Parameters
+        ----------
+        n
+            Number of failures to add.
+
+        Returns
+        -------
+        :
+            The updated FailureCounter instance.
+
+        Notes
+        -----
+        This method exits the program with status 1 if `count` exceeds `maxfail`.
+        """
+        self.count += n
+        if self.count >= self.maxfail:
+            print(f"Maximum number of failures ({self.maxfail}) reached, stopping.")
+            sys.exit(1)
+        return self
+
+    def __eq__(self, other: int | FailureCounter) -> bool:
+        """
+        Check equality with an integer or another FailureCounter.
+
+        Parameters
+        ----------
+        other
+            Value to compare against.
+
+        Returns
+        -------
+        :
+            True if counts are equal, False otherwise.
+        """
+        if isinstance(other, FailureCounter):
+            return self.count == other.count
+        return self.count == other
+
+    def __lt__(self, other: int | FailureCounter) -> bool:
+        """
+        Less-than comparison with an integer or another FailureCounter.
+
+        Parameters
+        ----------
+        other
+            Value to compare against.
+
+        Returns
+        -------
+        :
+            True if self.count is less than `other`, False otherwise.
+        """
+        if isinstance(other, FailureCounter):
+            return self.count < other.count
+        return self.count < other
+
+    def __le__(self, other: int | FailureCounter) -> bool:
+        """
+        Less-than-or-equal comparison with an integer or another FailureCounter.
+
+        Parameters
+        ----------
+        other
+            Value to compare against.
+
+        Returns
+        -------
+        :
+            True if self.count is less than or equal to `other`, False otherwise.
+        """
+        if isinstance(other, FailureCounter):
+            return self.count <= other.count
+        return self.count <= other
+
+    def __gt__(self, other: int | FailureCounter) -> bool:
+        """
+        Greater-than comparison with an integer or another FailureCounter.
+
+        Parameters
+        ----------
+        other
+            Value to compare against.
+
+        Returns
+        -------
+        :
+            True if self.count is greater than `other`, False otherwise.
+        """
+        if isinstance(other, FailureCounter):
+            return self.count > other.count
+        return self.count > other
+
+    def __ge__(self, other: int | FailureCounter) -> bool:
+        """
+        Greater-than-or-equal comparison with an integer or another FailureCounter.
+
+        Parameters
+        ----------
+        other
+            Value to compare against.
+
+        Returns
+        -------
+        :
+            True if self.count is greater than or equal to `other`, False otherwise.
+        """
+        if isinstance(other, FailureCounter):
+            return self.count >= other.count
+        return self.count >= other
+
+    def __int__(self) -> int:
+        """
+        Get integer representation of the failure count.
+
+        Returns
+        -------
+        :
+            Current failure count.
+        """
+        return self.count
+
+    def __str__(self) -> str:
+        """
+        Get string representation of the failure count.
+
+        Returns
+        -------
+        :
+            Current failure count as a string.
+        """
+        return str(self.count)
+
+    def __repr__(self) -> str:
+        """
+        Get representation of the failure count.
+
+        Returns
+        -------
+        :
+            Current failure count as a string.
+        """
+        return str(self.count)
+
+
+def run_latex_tests(tex_tests: list[str], maxfail: int, regold: bool) -> None:
     """
     Run LaTeX tests on given .tex files.
+
+    Parameters
+    ----------
+    tex_tests
+        List of paths to LaTeX test files.
+    maxfail
+        Maximum number of failing tests allowed before stopping.
+    regold
+        If True, automatically overwrite files in the expected directory with new outputs.
 
     Exits
     -----
     Exits with code 1 on failure.
     """
+    failure_counter = FailureCounter(maxfail)
     for tex_file in tex_tests:
         test_dir = os.path.dirname(tex_file)
         os.makedirs(os.path.join(test_dir, "expected"), exist_ok=True)
@@ -233,7 +418,8 @@ def run_latex_tests(tex_tests: list[str]) -> None:
             # For expected fail tests, compilation should fail or PDF not generated
             if ret == 0:
                 print(f"{FAIL} - Expected failure but compilation succeeded")
-                sys.exit(1)
+                failure_counter += 1
+                continue
 
             # Compare with expected error
             expected_err_txt = os.path.join("expected", base + ".err.txt")
@@ -254,36 +440,42 @@ def run_latex_tests(tex_tests: list[str]) -> None:
                                 cwd=test_dir)
                             print(out + err)
                             print("Do not add the entire log, only add a few relevant lines")
-                            sys.exit(1)
+                            failure_counter += 1
+                            continue
             else:
                 print(f"{FAIL} - No expected output {os.path.join(test_dir, expected_err_txt)} . ")
                 print(f"Suggestion: search ! in the log file {os.path.join(test_dir, base + '.log')} .")
-                sys.exit(1)
+                failure_counter += 1
+                continue
         else:
             # Normal tests: expect success
             if ret != 0:
                 print(f"{FAIL} - LaTeX compile error")
                 print(out + err)
-                sys.exit(1)
+                failure_counter += 1
+                continue
 
             # Ensure that PDF file was generated
             if not os.path.exists(os.path.join(test_dir, pdf_file)):
                 print(f"{FAIL} - PDF not generated")
-                sys.exit(1)
+                failure_counter += 1
+                continue
 
             # Convert PDF to text
             ret, out, err = run_command(PDFTOTEXT_CMD + [pdf_file, out_txt], cwd=test_dir)
             if ret != 0:
                 print(f"{FAIL} - pdftotext failed")
                 print(out + err)
-                sys.exit(1)
+                failure_counter += 1
+                continue
 
             # Check for "?? PythonTeX ??" markers in output text
             with open(os.path.join(test_dir, out_txt), "r", encoding="utf-8") as f:
                 content = f.read()
                 if "?? PythonTeX ??" in content:
                     print(f"{FAIL} - '?? PythonTeX ??' found in output (unprocessed PythonTeX code)")
-                    sys.exit(1)
+                    failure_counter += 1
+                    continue
 
             # Compare with expected text
             expected_txt = os.path.join("expected", base + ".pdf.txt")
@@ -295,19 +487,24 @@ def run_latex_tests(tex_tests: list[str]) -> None:
                     actual = normalize_text(out_f.read().strip())
                     expected = normalize_text(exp_f.read().strip())
                     if actual != expected:
-                        print(f"{FAIL} - Output differs (ignoring whitespaces)")
                         _, out, err = run_command(
                             DIFF_CMD + [expected_txt, out_txt]
                             + ["-L", os.path.join(test_dir, expected_txt), "-L", os.path.join(test_dir, out_txt)],
                             cwd=test_dir)
-                        print(out + err)
-                        sys.exit(1)
+                        print(f"{FAIL if not regold else REGOLDED} - Output differs (ignoring whitespaces)")
+                        if not regold:
+                            print(out + err)
+                        else:
+                            shutil.copy(os.path.join(test_dir, out_txt), os.path.join(test_dir, expected_txt))
+                        failure_counter += 1
+                        continue
             else:
-                print(f"{FAIL} - No expected output {os.path.join(test_dir, expected_txt)}. ")
+                print(f"{FAIL if not regold else REGOLDED} - No expected output {os.path.join(test_dir, expected_txt)}. ")
                 print("Copied current one for review. ")
                 print(f"Suggestion: git add {os.path.join(test_dir, expected_txt)} after verifying it.")
                 shutil.copy(os.path.join(test_dir, out_txt), os.path.join(test_dir, expected_txt))
-                sys.exit(1)
+                failure_counter += 1
+                continue
 
             # Compare with expected notebooks
             ipynb_dir = f"notebooks-{base}"
@@ -349,12 +546,18 @@ def run_latex_tests(tex_tests: list[str]) -> None:
                                 "from the expected output:\n" + out + err
                             )
                             failed_ipynbs.append(failure)
+                            if regold:
+                                shutil.copy(os.path.join(test_dir, generated_ipynb), os.path.join(test_dir, expected_ipynb))
 
                 if len(failed_ipynbs) > 0:
-                    print(
-                        f"{FAIL} - Comparison to expected notebooks failed for the following reasons:\n"
-                        + "\n".join(failed_ipynbs))
-                    sys.exit(1)
+                    if not regold:
+                        print(
+                            f"{FAIL} - Comparison to expected notebooks failed for the following reasons:\n"
+                            + "\n".join(failed_ipynbs))
+                    else:
+                        print(f"{REGOLDED} - Comparison to expected notebooks failed")
+                    failure_counter += 1
+                    continue
 
                 current_expected_ipynbs = [
                     f for f in os.listdir(os.path.join(test_dir, "expected"))
@@ -373,14 +576,16 @@ def run_latex_tests(tex_tests: list[str]) -> None:
                         print("  Spurious expected notebooks (no corresponding .ipynb):")
                         for f in spurious_expected_ipynbs:
                             print(f"    - {f}")
-                    sys.exit(1)
+                    failure_counter += 1
+                    continue
 
                 # Run pytest in the ipynb_dir
                 ret, out, err = run_command(["pytest", "--nbval"], cwd=os.path.join(test_dir, ipynb_dir))
                 if ret != 0:
                     print(f"{FAIL} - pytest failed running notebooks in pythontex directory")
                     print(out + err)
-                    sys.exit(1)
+                    failure_counter += 1
+                    continue
 
                 # Clean up hidden files produced by nbval, otherwise latexmk will not be able to clean
                 # the notebook directory
@@ -391,6 +596,13 @@ def run_latex_tests(tex_tests: list[str]) -> None:
 
         # Clean up
         run_command(CLEAN_CMD + [tex_file], cwd=test_dir)
+
+    # Print test summary
+    if failure_counter > 0:
+        print(f"{SUMMARY}: {FAIL} with {failure_counter} failures")
+        sys.exit(1)
+    else:
+        print(f"{SUMMARY}: {PASS}")
 
 
 def is_in_xsim_files_dir(path: str) -> bool:
@@ -428,21 +640,37 @@ def main() -> None:
     Exits with code 1 if a specified file or directory does not exist, or if any test fails.
     """
     args = sys.argv[1:]
-    tex_tests = []
 
+    # Determine if maxfail or regold were provided
+    maxfail = sys.maxsize
+    regold = False
+    new_args = []
+    for arg in args:
+        if arg.startswith("--maxfail="):
+            try:
+                maxfail = int(arg.split("=")[1])
+            except ValueError:
+                print(f"Invalid value for --maxfail: {arg}")
+                sys.exit(1)
+        elif arg == "--regold":
+            regold = True
+        else:
+            new_args.append(arg)
+    args = new_args
+
+    # Determine which tests to run
+    tex_tests = []
     if args:
         for path in args:
             if os.path.isfile(path) and path.endswith(".tex"):
                 # Single .tex file provided
                 tex_tests.append(path)
-
             elif os.path.isdir(path):
                 # Directory provided: search recursively for test_*.tex files
                 found_files = sorted(glob.glob(os.path.join(path, "**", "test_*.tex"), recursive=True))
                 # Filter out files in xsim-files directories
                 filtered_files = [f for f in found_files if not is_in_xsim_files_dir(f)]
                 tex_tests.extend(filtered_files)
-
             else:
                 print(f"File or directory not found or unsupported: {path}")
                 sys.exit(1)
@@ -452,7 +680,7 @@ def main() -> None:
         tex_tests = [f for f in found_files if not is_in_xsim_files_dir(f)]
 
     if tex_tests:
-        run_latex_tests(tex_tests)
+        run_latex_tests(tex_tests, maxfail, regold)
 
 
 if __name__ == "__main__":

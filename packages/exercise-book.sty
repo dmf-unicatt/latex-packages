@@ -651,6 +651,18 @@
 % content is actually displayed in this part of the code.
 \newcounter{printedadditionalinformation}
 
+% An internal environment that steps the printedadditionalinformation counter and adds label.
+% Will be used by the next \PrintExercisePropertySectionBySection, and must never be written
+% explicitly by end users.
+\newenvironment{additionalinformationinternal}[1]{
+  \refstepcounter{printedadditionalinformation}%
+  \label{add:#1}%
+  \GetExercisePropertyT{examproblemid}{%
+    \label{add:\GetExerciseProperty{examproblemid}}%
+  }%
+  \solutionHeading{#1}%
+}{}
+
 % Print solutions grouped by section and subsection
 \newcommand{\PrintExercisePropertySectionBySection}[1]{%
   \setcounter{chap}{1}%
@@ -679,17 +691,11 @@
                         }%
                       }{%
                         \IfStrEq{#1}{additionalinformation}{%
-                          \refstepcounter{printedadditionalinformation}%
-                          \phantomsection%
-                          \label{add:##2}%
-                          \GetExercisePropertyT{examproblemid}{%
-                            \label{add:\GetExerciseProperty{examproblemid}}%
-                          }%
+                          \begin{additionalinformationinternal}{##2}
                           \ifPythonTeXLoaded
                           \edef\attachnotebooknametopythontex{\pyc{pytex.notebook_filename = os.path.join(f"notebooks-{pytex.jobname}", f"additional_information_\GetExerciseProperty{printedcounter}.ipynb")}}
                           \attachnotebooknametopythontex
                           \fi
-                          \solutionHeading{##2}%
                           \ifLaTeXTwentyFive%
                             \GetExercisePropertyTF{additionalinformation}{%
                               ####1%
@@ -703,6 +709,7 @@
                               \PackageError{exercise-book}{Missing additional information}{additional information is missing for ##1 ##2}%
                             }%
                           \fi%
+                          \end{additionalinformationinternal}
                         }{%
                           \PackageError{exercise-book}{Unknown solution type '#1'}{Expected 'solution' or 'additionalinformation'}%
                         }%

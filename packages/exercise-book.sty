@@ -661,7 +661,7 @@
     \label{add:\GetExerciseProperty{examproblemid}}%
   }%
   \solutionHeading{#1}%
-}{}
+}{\par}
 
 % Print solutions grouped by section and subsection
 \newcommand{\PrintExercisePropertySectionBySection}[1]{%
@@ -710,6 +710,8 @@
                             }%
                           \fi%
                           \end{additionalinformationinternal}
+                          \edef\solref{sol:\GetExerciseProperty{id}}%
+                          \noindent\textbf{Go back to:} {\itshape\linktoxsimenv{\solref}{solution}}.%
                         }{%
                           \PackageError{exercise-book}{Unknown solution type '#1'}{Expected 'solution' or 'additionalinformation'}%
                         }%

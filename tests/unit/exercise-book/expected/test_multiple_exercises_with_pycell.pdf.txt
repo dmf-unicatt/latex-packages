@@ -193,37 +193,51 @@ sol:2025-01-16-01
 sec:3.1.1
     add:1
             Exercise 13 .       Open python and do the following:
+
        1    2 + 2
+
 
             4
 
+            Go back to: solution4 .
 
-            2 Second section4
+
+            2 Second section5
   sec:3.2
-            2.1      A subsection5
+            2.1      A subsection6
 sec:3.2.1
     add:2
-            Exercise 26 .       You can proceed as before, say
+            Exercise 27 .       You can proceed as before, say
        1    3 + 3
 
             6
-                 Still, there is also a more elaborated solution with variables:
+
+
+
+
+                1 Links to label sec:1.1, counter value 1
+                2 Links to label sec:1.1.1, counter value 1.1
+                3 Links to label ex:1, counter value 1
+                4 Links to label sol:1, counter value 13
+                5 Links to label sec:1.2, counter value 2
+                6 Links to label sec:1.2.1, counter value 2.1
+                7 Links to label ex:2, counter value 2
+                  Still, there is also a more elaborated solution with variables:
+
        2    a = 3
        3    b = 3
        4    a + b
 
+
             6
-                1 Links to label sec:1.1, counter value 1
-                2 Links to label sec:1.1.1, counter value 1.1
-                3 Links to label ex:1, counter value 1
-                4 Links to label sec:1.2, counter value 2
-                5 Links to label sec:1.2.1, counter value 2.1
-                6 Links to label ex:2, counter value 2
-            2.2      Another subsection7
+
+              The results are obviously the same.
+            Go back to: solution8 .
+
+            2.2       Another subsection9
 sec:3.2.2
     add:3
-            Exercise 38 .       A more elaborated solution with functions:
-
+            Exercise 310 .        A more elaborated solution with functions:
 
        1    def my_sum(a, b):
        2        return a + b
@@ -232,24 +246,19 @@ sec:3.2.2
        4    print(my_sum(4, 4))
 
 
-
-
             8
-    add:4
 
+    add:4   Go back to: solution11 .
 
-
-            Exercise 49 .       A more elaborated solution with a plot. Store the numbers in a
-            list.
-
+            Exercise 412 .        A more elaborated solution with a plot. Store the numbers in
+            a list.
 
        1    numbers = [5, 5]
 
 
 
 
-                 Then plot their cumulative sum.
-
+                  Then plot their cumulative sum.
 
        2    import plotly.express as px
        3    fig = px.scatter(
@@ -260,10 +269,11 @@ sec:3.2.2
 
 
 
-
-                7 Links to label sec:1.2.2, counter value 2.2
-                8 Links to label ex:3, counter value 3
-                9 Links to label ex:4, counter value 4
+                 8 Links to label sol:2, counter value 14
+                 9 Links to label sec:1.2.2, counter value 2.2
+                10 Links to label ex:3, counter value 3
+                11 Links to label sol:3, counter value 15
+                12 Links to label ex:4, counter value 4
                          You can plot again the figure if you want.
 
                8    print(sum(numbers))
@@ -275,49 +285,62 @@ sec:3.2.2
 
 
 
-                    2.3     A third subsection10
+                    Go back to: solution13 .
+
+
+                    2.3     A third subsection14
 add:2021-01-16-01
         sec:3.2.3
             add:7
-                    Exercise 511 .     Open python and do the following:
+                    Exercise 515 .     Open python and do the following:
 
                1    print("7 + 7 is", 7 + 7)
 
 
                     7 + 7 is 14
-add:2022-01-16-01
-            add:8
 
-                    Exercise 612 .     Open python and do the following:
+add:2022-01-16-01
+            add:8   Go back to: solution16 .
+                     13 Links to label sol:4, counter value 16
+                     14 Links to label sec:1.2.3, counter value 2.3
+                     15 Links to label ex:7, counter value 7
+                     16 Links to label sol:7, counter value 17
+                    Exercise 617 .     Open python and do the following:
 
                1    print("8 + 8 is", 8 + 8)
 
 
                     8 + 8 is 16
+
 add:2024-01-16-01
-           add:10
-                     10 Links to label sec:1.2.3, counter value 2.3
-                     11 Links to label ex:7, counter value 7
-                     12 Links to label ex:8, counter value 8
-                    Exercise 713 .     Open python and do the following:
+           add:10   Go back to: solution18 .
+
+                    Exercise 719 .     Open python and do the following:
 
                1    print("10 + 10 is", 10 + 10)
 
 
                     10 + 10 is 20
-add:2025-01-16-01
-           add:11
 
-                    Exercise 814 .     Open python and do the following:
+add:2025-01-16-01
+           add:11   Go back to: solution20 .
+
+                    Exercise 821 .     Open python and do the following:
 
                1    print("11 + 11 is", 11 + 11)
 
 
                     11 + 11 is 22
 
+                    Go back to: solution22 .
 
 
 
-                     13 Links to label ex:10, counter value 10
-                     14 Links to label ex:11, counter value 11
+
+                     17 Links to label ex:8, counter value 8
+                     18 Links to label sol:8, counter value 18
+                     19 Links to label ex:10, counter value 10
+                     20 Links to label sol:10, counter value 19
+                     21 Links to label ex:11, counter value 11
+                     22 Links to label sol:11, counter value 20
 

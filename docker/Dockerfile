@@ -50,7 +50,7 @@ RUN luaotfload-tool -u
 
 # Install required Python packages via pip with no cache
 RUN export PIP_BREAK_SYSTEM_PACKAGES=1 && \
-    python3 -m pip install --no-cache-dir ImageHash nbdime nbval pandas pillow && \
+    python3 -m pip install --no-cache-dir ImageHash nbdime nbval pandas pillow sympy && \
     if command -v chromium >/dev/null 2>&1; then \
         python3 -m pip install --no-cache-dir kaleido plotly; \
     else \

@@ -613,7 +613,7 @@ if len(all_cells) > 0:
     \exp_args:Nx \scantokens {
       {
         \begin_pycode \newline_other_cat
-        assert~cell_output~==~"""\l__py_expected_tl""", f"""Unexpected~output~{cell_output}~for~cell~{all_cells[-1]},~was~expecting~\l__py_expected_tl""" \newline_other_cat
+        assert~cell_output~==~"""\l__py_expected_tl""", f"""Unexpected~output~{cell_output}~for~cell~{all_cells[-1]},~was~expecting~""" + """\l__py_expected_tl""" \newline_other_cat
         \end_pycode \newline_other_cat
       }
     }

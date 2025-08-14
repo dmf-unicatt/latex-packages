@@ -1,8 +1,16 @@
 ----  Messages for py:default:1  ----
   AssertionError: Unexpected output 4 for cell
   2 + 2
+  , was expecting 3
 
 ----  Messages for py:default:2  ----
+  AssertionError: Unexpected output {a: 1} for cell
+  import sympy
+  a = sympy.symbols("a")
+  {a: 1}
+  , was expecting {b: 2}
+
+----  Messages for py:default:3  ----
   Traceback (most recent call last):
   AssertionError: Missing output verification for cell
   3 + 3

@@ -3,15 +3,28 @@
 
 \begin{document}
 
-\chapter{Case with output mismatch}
+\chapter{Case with output mismatch (simple)}
 
 LaTeX compilation will fail if the python code does not return the expected output.
+
+\section{Simple case}
 
 \begin{pycell}
 2 + 2
 \end{pycell}
 \begin{pyexpectedoutput}
 3
+\end{pyexpectedoutput}
+
+\chapter{Case with output mismatch (using sympy)}
+
+\begin{pycell}
+import sympy
+a = sympy.symbols("a")
+{a: 1}
+\end{pycell}
+\begin{pyexpectedoutput}
+{b: 2}
 \end{pyexpectedoutput}
 
 \chapter{Cases without expected output}

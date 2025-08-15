@@ -13,18 +13,83 @@
 % Show labels for debugging
 \RequirePackage{showkeys}
 
-% Force hyperref to print the link target, so that it is visible when converting to text file
+%%% ----------------------------------------------------------------
+%%% Add footnotes with details about the links
+%%% ----------------------------------------------------------------
+
+% Configure enotez
+\RequirePackage{enotez}
+\NewDocumentCommand{\superscriptwithbrackets}{m}{%
+  \textsuperscript{[#1]}%
+}
+\setenotez{
+  backref = true,
+  split = chapter,
+  list-name = Link details,
+  mark-cs = \superscriptwithbrackets
+}
+
+\ExplSyntaxOn
+
+% Variables used in \linknote_build_endnote:n
+\clist_new:N \l_linknote_labels_clist
+\int_new:N \l_linknote_total_labels_int
+\int_new:N \l_linknote_index_int
+\tl_new:N \l_linknote_description_tl
+
+% Multi-label link notes using expl3
+% #1 = comma-separated list of labels
+\cs_new_protected:Npn \linknote_build_endnote:n #1
+ {
+   % Split the labels into clist
+   \clist_set:Nn \l_linknote_labels_clist {#1}
+
+   % Count total labels
+   \int_set:Nn \l_linknote_total_labels_int { \clist_count:N \l_linknote_labels_clist }
+
+   % Build textual description
+   \tl_clear:N \l_linknote_description_tl
+   \int_zero:N \l_linknote_index_int
+   \clist_map_inline:Nn \l_linknote_labels_clist
+    {
+      \int_incr:N \l_linknote_index_int
+      \tl_put_right:Nx \l_linknote_description_tl { ##1~(counter~value~\ref*{##1}) }
+
+      \int_compare:nNnTF { \l_linknote_index_int } = { \l_linknote_total_labels_int - 1 }
+        { \tl_put_right:Nn \l_linknote_description_tl { ~and~ } }
+        {
+          \int_compare:nNnTF { \l_linknote_index_int } < \l_linknote_total_labels_int
+            { \tl_put_right:Nn \l_linknote_description_tl { ,~ } }
+            { }
+        }
+    }
+
+   % Store the endnote
+   \exp_args:NV \endnote \l_linknote_description_tl
+ }
+
+% User-level commands
+\makeatletter
+\NewCommandCopy\testsexercisebook@oldlinktoxsimenv\linktoxsimenv
 \RenewDocumentCommand{\linktoxsimenv}{m m}{%
-  \hyperref[#1]{#2}\textsuperscript{\footnotesize\normalfont(Links to label #1, counter value \ref*{#1})}%
+  \testsexercisebook@oldlinktoxsimenv{#1}{#2}\linknote_build_endnote:n{#1}%
 }
+\NewCommandCopy\testsexercisebook@oldlinktosection\linktosection
 \RenewDocumentCommand{\linktosection}{m}{%
-  \nameref{#1}\textsuperscript{\footnotesize\normalfont(Links to label #1, counter value \ref*{#1})}%
+  \testsexercisebook@oldlinktosection{#1}\linknote_build_endnote:n{#1}%
 }
-\let\oldcref\cref
+\NewCommandCopy\testsexercisebook@oldcref\cref
 \RenewDocumentCommand{\cref}{m}{%
-  \oldcref{#1}\textsuperscript{\footnotesize\normalfont(Links to label #1, counter value \ref*{#1})}%
+  \testsexercisebook@oldcref{#1}\linknote_build_endnote:n{#1}%
 }
-\let\oldCref\Cref
+\NewCommandCopy\testsexercisebook@oldCref\Cref
 \RenewDocumentCommand{\Cref}{m}{%
-  \oldCref{#1}\textsuperscript{\footnotesize\normalfont(Links to label #1, counter value \ref*{#1})}%
+  \testsexercisebook@oldCref{#1}\linknote_build_endnote:n{#1}%
+}
+\makeatother
+\ExplSyntaxOff
+
+% Automatically print link notes at the end of the document
+\AtEndDocument{%
+  \printendnotes
 }

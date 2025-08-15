@@ -95,23 +95,22 @@
 \renewcommand{\thesection}{\arabic{section}}
 
 % Automatically label sections and subsections
-\let\oldsection\section
-\let\oldsubsection\subsection
-
 \makeatletter
+\NewCommandCopy\exercisebook@oldsection\section
+\NewCommandCopy\exercisebook@oldsubsection\subsection
 \RenewDocumentCommand{\section}{sm}{
   \IfBooleanTF{#1}
-    { \oldsection*{#2} }
+    { \exercisebook@oldsection*{#2} }
     {
-      \oldsection{#2}
+      \exercisebook@oldsection{#2}
       \label{sec:\arabic{chapter}.\arabic{section}}
     }
 }
 \RenewDocumentCommand{\subsection}{sm}{
   \IfBooleanTF{#1}
-    { \oldsubsection*{#2} }
+    { \exercisebook@oldsubsection*{#2} }
     {
-      \oldsubsection{#2}
+      \exercisebook@oldsubsection{#2}
       \label{sec:\arabic{chapter}.\arabic{section}.\arabic{subsection}}
     }
 }
@@ -801,40 +800,94 @@
 %%% ----------------------------------------------------------------
 
 \makeatletter
+% Helper to print a single label with prefix and safeguards
+% #1 = label, #2 = prefix text to use (can be empty)
+\newcommand{\exercisebook@printlabel}[2]{%
+  \expandafter\ifx\csname exercisebook@printedcounter@#1\endcsname\relax
+    \PackageWarning{exercise-book}{No printed counter stored for label `#1`}{}%
+    \hyperref[#1]{#2\textbf{??}}%
+  \else
+    \expandafter\let\expandafter\currentprintedcounter\csname exercisebook@printedcounter@#1\endcsname
+    \ifx\currentprintedcounter\@empty
+      \PackageError{exercise-book}{Macro for label `#1` is empty}{The printed counter macro contains no value}%
+    \else
+      \hyperref[#1]{#2\currentprintedcounter}%
+    \fi
+  \fi
+}
+
 % Helper function to override default cref commands
 \newcommand{\exercisebook@crefoverride}[2]{%
-  \def\labelname{#1}%
-  % Define the text prefix to be used in the link if label is ex:, sol:, or add:,
-  % leave it empty otherwise
-  \IfBeginWith{\labelname}{ex:}{\def\prefixtext{Exercise~}}{%
-    \IfBeginWith{\labelname}{sol:}{\def\prefixtext{the solution of Exercise~}}{%
-      \IfBeginWith{\labelname}{add:}{\def\prefixtext{the additional information for Exercise~}}{%
-        % fallback for other labels
-        \let\prefixtext\relax
-      }%
-    }%
+  % Get first label (whole arg if no comma)%
+  \IfSubStr{#1}{,}{%
+    \StrBefore{#1}{,}[\firstlabel]%
+  }{%
+    \edef\firstlabel{#1}%
   }%
-  % Fall back to standard cref if the text prefix is empty; if it's not empty, create a link with hyperref.
-  \ifx\prefixtext\relax
-    #2{#1}\relax
+  % Decide if we handle it (ex:/sol:/add:)%
+  \def\singulartext{}\def\pluraltext{}\def\currentprefix{}%
+  \ifboolexpr{ test {\IfBeginWith{\firstlabel}{ex:}} }{%
+    \def\singulartext{Exercise~}\def\pluraltext{Exercises~}\def\currentprefix{ex:}%
+  }{%
+  \ifboolexpr{ test {\IfBeginWith{\firstlabel}{sol:}} }{%
+    \def\singulartext{the solution of Exercise~}\def\pluraltext{the solutions of Exercises~}\def\currentprefix{sol:}%
+  }{%
+  \ifboolexpr{ test {\IfBeginWith{\firstlabel}{add:}} }{%
+    \def\singulartext{the additional information for Exercise~}\def\pluraltext{the additional information for Exercises~}\def\currentprefix{add:}%
+  }{}%
+  }}%
+  % If not special, pass through untouched to original \cref/\Cref and stop%
+  \ifx\currentprefix\@empty
+    #2{#1}\ignorespaces%
   \else
-    \expandafter\ifx\csname exercisebook@printedcounter@#1\endcsname\relax
-      \PackageWarning{exercise-book}{No printed counter stored for label `#1`}{}%
-      \hyperref[#1]{\prefixtext\textbf{??}}%
-    \else
-      \expandafter\let\expandafter\currentprintedcounter\csname exercisebook@printedcounter@#1\endcsname
-      \ifx\currentprintedcounter\@empty
-        \PackageError{exercise-book}{Macro for label `#1` is empty}{The printed counter macro contains no value}%
+    % Build flat comma-separated list without a leading comma, and count labels%
+    \def\labelcount{0}%
+    \def\labelslist{}%
+    \edef\remaininglabels{#1}%
+    \loop
+      \StrCut{\remaininglabels}{,}{\thislabel}{\remaininglabels}%
+      \IfBeginWith{\thislabel}{\currentprefix}{}{%
+        \PackageError{exercise-book}{All labels must have the same prefix}{Label `\thislabel' does not match prefix `\currentprefix'.}%
+      }%
+      \ifnum\labelcount=0 %
+        \edef\labelslist{\thislabel}%
       \else
-        \hyperref[#1]{\prefixtext\currentprintedcounter}%
+        \edef\labelslist{\labelslist,\thislabel}%
       \fi
+      \edef\labelcount{\the\numexpr\labelcount+1\relax}%
+    \ifx\remaininglabels\@empty
+    \else
+    \repeat
+    % Choose singular/plural prefix text%
+    \ifnum\labelcount>1 \edef\prefixtext{\pluraltext}\else \edef\prefixtext{\singulartext}\fi
+    % First label with prefix%
+    \IfSubStr{\labelslist}{,}{%
+      \StrBefore{\labelslist}{,}[\firstlabel]%
+    }{%
+      \edef\firstlabel{\labelslist}%
+    }%
+    \exercisebook@printlabel{\firstlabel}{\prefixtext}%
+    % Remaining labels (only if any)%
+    \def\restlabels{\labelslist}%
+    \StrCut{\restlabels}{,}{\dummy}{\restlabels}%
+    \ifx\restlabels\@empty\else
+      \newcount\idx \idx=0 %
+      \loop
+        \StrCut{\restlabels}{,}{\thislabel}{\restlabels}%
+        \advance\idx by 1\relax
+        \ifnum\idx=\numexpr\labelcount-1\relax \def\delim{~and~}\else \def\delim{,~}\fi
+        \delim\exercisebook@printlabel{\thislabel}{}%
+      \ifx\restlabels\@empty
+      \else
+      \repeat
     \fi
   \fi
 }
 
 % Redefine \cref and \Cref
-\let\exercisebook@oldcref\cref
-\let\exercisebook@oldCref\Cref
-\renewcommand{\cref}[1]{\exercisebook@crefoverride{#1}{\exercisebook@oldcref}}
-\renewcommand{\Cref}[1]{\exercisebook@crefoverride{#1}{\exercisebook@oldCref}}
+\makeatletter
+\NewCommandCopy\exercisebook@oldcref\cref
+\NewCommandCopy\exercisebook@oldCref\Cref
+\RenewDocumentCommand{\cref}{m}{\exercisebook@crefoverride{#1}{\exercisebook@oldcref}}
+\RenewDocumentCommand{\Cref}{m}{\exercisebook@crefoverride{#1}{\exercisebook@oldCref}}
 \makeatother

@@ -9,11 +9,11 @@
 
             1     First section
   sec:1.1
-            1.1    First subsection
+            1.1   First subsection
 sec:1.1.1
      ex:1
             Exercise 1 (Simple Addition). What is 2 + 2?
-            Go to: solution(Links to label sol:1, counter value 2) .
+            Go to: solution[1] .
   chap:2
 
 
@@ -23,13 +23,13 @@ sec:1.1.1
 
             Solutions
 
-            1 First section(Links to label sec:1.1, counter value 1)
+            1 First section[2]
   sec:2.1
-            1.1    First subsection(Links to label sec:1.1.1, counter value 1.1)
+            1.1   First subsection[3]
 sec:2.1.1
     sol:1
-            Exercise 1(Links to label ex:1, counter value 1) . 2 + 2 = 4
-            Go to: additional information(Links to label add:1, counter value 1) .
+            Exercise 1[4] . 2 + 2 = 4
+            Go to: additional information[5] .
   chap:3
 
 
@@ -39,11 +39,37 @@ sec:2.1.1
 
             Additional information
 
-            1 First section(Links to label sec:1.1, counter value 1)
+            1 First section[6]
   sec:3.1
-            1.1   First subsection(Links to label sec:1.1.1, counter value 1.1)
+            1.1   First subsection[7]
 sec:3.1.1
     add:1
-            Exercise 1(Links to label ex:1, counter value 1) . Open python and type 2 + 2
-            Go back to: solution(Links to label sol:1, counter value 2) .
+            Exercise 1[8] . Open python and type 2 + 2
+            Go back to: solution[9] .
+  Link details
+
+  Notes for chapter A
+1. sol:1 (counter value 2)
+
+
+
+  Notes for chapter B
+2. sec:1.1 (counter value 1)
+
+3. sec:1.1.1 (counter value 1.1)
+
+4. ex:1 (counter value 1)
+
+5. add:1 (counter value 1)
+
+
+
+  Notes for chapter C
+6. sec:1.1 (counter value 1)
+
+7. sec:1.1.1 (counter value 1.1)
+
+8. ex:1 (counter value 1)
+
+9. sol:1 (counter value 2)
 

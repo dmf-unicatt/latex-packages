@@ -330,6 +330,7 @@ def save_cells_as_notebook(all_cells: list[tuple[str, str]], pytex: any) -> None
     nb = nbformat.v4.new_notebook()
     nb_cells = []
 
+    counter = {"code": 0, "markdown": 0}
     for (type, content) in all_cells:
         if type == "code":
             lines = content.splitlines()
@@ -344,6 +345,8 @@ def save_cells_as_notebook(all_cells: list[tuple[str, str]], pytex: any) -> None
         else:
             raise ValueError("Invalid cell")
 
+        cell.id = f"{type}_cell_{counter[type]}"
+        counter[type] += 1
         nb_cells.append(cell)
 
     nb["cells"] = nb_cells

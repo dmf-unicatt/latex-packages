@@ -165,8 +165,7 @@ def normalize_notebook(nb: dict[str, any]) -> dict[str, any]:
     if "metadata" in nb:
         nb["metadata"] = {}
 
-    for cell_id, cell in enumerate(nb.get("cells", [])):
-        cell["id"] = str(cell_id)
+    for cell in nb.get("cells", []):
         if "execution_count" in cell:
             cell["execution_count"] = None
         if "metadata" in cell:

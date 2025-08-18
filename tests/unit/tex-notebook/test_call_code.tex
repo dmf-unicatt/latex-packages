@@ -24,8 +24,10 @@ y = 2
 """,
 all_codes, local_variables, pytex)
 assert len(all_codes) == 1
+assert len(all_codes[0]) == 2
+assert all_codes[0][0] == "code"
 assert (
-    all_codes[0] == """
+    all_codes[0][1] == """
 x = 1
 y = 2
 """
@@ -48,14 +50,18 @@ z = 3; n = 4
 ,
 all_codes, local_variables, pytex)
 assert len(all_codes) == 2
+assert len(all_codes[0]) == 2
+assert all_codes[0][0] == "code"
 assert (
-    all_codes[0] == """
+    all_codes[0][1] == """
 x = 1
 y = 2
 """
 )
+assert len(all_codes[1]) == 2
+assert all_codes[1][0] == "code"
 assert (
-    all_codes[1] == """
+    all_codes[1][1] == """
 z = 3; n = 4
 """
 )
@@ -185,10 +191,13 @@ Notebooks are automatically produced from this file, but they would not be runna
 original_save_cells_as_notebook = save_cells_as_notebook
 
 def save_cells_as_notebook(
-    all_cells: list[str], pytex: any
+    all_cells: list[tuple[str, str]], pytex: any
 ) -> None:
     return original_save_cells_as_notebook(
-        ["\n# This notebook was disabled"], pytex
+        [
+            ("markdown", "This notebook was disabled"),
+            ("code", "\nprint('This notebook was disabled')")
+        ], pytex
     )
 \end{pycell}
 

@@ -24,161 +24,167 @@
 7    """,
 8    all_codes, local_variables, pytex)
 9    assert len(all_codes) == 1
-10   assert (
-11       all_codes[0] == """
-12   x = 1
-13   y = 2
-14   """
-15   )
-16   assert cell_output == ""
-17   assert cell_figure_path is None
-18   assert "cell_output" not in local_variables
-19   assert "cell_figure_path" not in local_variables
-20   assert "x" in local_variables
-21   assert "y" in local_variables
-22   assert local_variables["x"] == 1
-23   assert local_variables["y"] == 2
+10   assert len(all_codes[0]) == 2
+11   assert all_codes[0][0] == "code"
+12   assert (
+13       all_codes[0][1] == """
+14   x = 1
+15   y = 2
+16   """
+17   )
+18   assert cell_output == ""
+19   assert cell_figure_path is None
+20   assert "cell_output" not in local_variables
+21   assert "cell_figure_path" not in local_variables
+22   assert "x" in local_variables
+23   assert "y" in local_variables
+24   assert local_variables["x"] == 1
+25   assert local_variables["y"] == 2
 
 
 
 
-24   cell_output, cell_figure_path = call_code(
-25   """
-26   z = 3; n = 4
+26   cell_output, cell_figure_path = call_code(
 27   """
-28   ,
-29   all_codes, local_variables, pytex)
-30   assert len(all_codes) == 2
-31   assert (
-32       all_codes[0] == """
-33   x = 1
-34   y = 2
-35   """
-36   )
-37   assert (
-38       all_codes[1] == """
-39   z = 3; n = 4
-40   """
-41   )
-42   assert cell_output == ""
-43   assert cell_figure_path is None
-44   assert "cell_output" not in local_variables
-45   assert "cell_figure_path" not in local_variables
-46   assert "x" in local_variables # previous variables are kept
-47   assert "y" in local_variables
-48   assert "z" in local_variables
-49   assert "n" in local_variables
-50   assert local_variables["x"] == 1
-51   assert local_variables["y"] == 2
-52   assert local_variables["z"] == 3
-53   assert local_variables["n"] == 4
+28   z = 3; n = 4
+29   """
+30   ,
+31   all_codes, local_variables, pytex)
+32   assert len(all_codes) == 2
+33   assert len(all_codes[0]) == 2
+34   assert all_codes[0][0] == "code"
+35   assert (
+36       all_codes[0][1] == """
+37   x = 1
+38   y = 2
+39   """
+40   )
+41   assert len(all_codes[1]) == 2
+42   assert all_codes[1][0] == "code"
+43   assert (
+44       all_codes[1][1] == """
+45   z = 3; n = 4
+46   """
+47   )
+48   assert cell_output == ""
+49   assert cell_figure_path is None
+50   assert "cell_output" not in local_variables
+51   assert "cell_figure_path" not in local_variables
+52   assert "x" in local_variables # previous variables are kept
+53   assert "y" in local_variables
+54   assert "z" in local_variables
+55   assert "n" in local_variables
+56   assert local_variables["x"] == 1
+57   assert local_variables["y"] == 2
+58   assert local_variables["z"] == 3
+59   assert local_variables["n"] == 4
+60   cell_output, _ = call_code(
+61   """
+62   print(x + y + z + n)
+63   """
+64   ,
+65   all_codes, local_variables, pytex)
+66   assert cell_output == "10"
 
 
 
 
-54   cell_output, _ = call_code(
-55   """
-56   print(x + y + z + n)
-57   """
-58   ,
-59   all_codes, local_variables, pytex)
-60   assert cell_output == "10"
+67   cell_output, _ = call_code(
+68   """
+69   x + y + z + n
+70   """
+71   ,
+72   all_codes, local_variables, pytex)
+73   assert cell_output == "10"
 
 
 
 
-61   cell_output, _ = call_code(
-62   """
-63   x + y + z + n
-64   """
-65   ,
-66   all_codes, local_variables, pytex)
-67   assert cell_output == "10"
+74   cell_output, _ = call_code(
+75   """
+76   print(x + y + z + n + 1)
+77   x + y + z + n + 2
+78   """
+79   ,
+80   all_codes, local_variables, pytex)
+81   assert cell_output == "11\n12"
 
 
 
 
-68   cell_output, _ = call_code(
-69   """
-70   print(x + y + z + n + 1)
-71   x + y + z + n + 2
-72   """
-73   ,
-74   all_codes, local_variables, pytex)
-75   assert cell_output == "11\n12"
+82   cell_output, _ = call_code(
+83   """
+84   x = "one"
+85   y = "two two"
+86   """
+87   ,
+88   all_codes, local_variables, pytex)
+89   assert cell_output == ""
+ 90   cell_output, _ = call_code(
+ 91   """
+ 92   z = "three THREE_Three"; n = "FoUr_four quattro_cuatro"
+ 93   """
+ 94   ,
+ 95   all_codes, local_variables, pytex)
+ 96   assert cell_output == ""
 
 
 
 
-76   cell_output, _ = call_code(
-77   """
-78   x = "one"
-79   y = "two two"
-80   """
-81   ,
-82   all_codes, local_variables, pytex)
-83   assert cell_output == ""
- 84   cell_output, _ = call_code(
- 85   """
- 86   z = "three THREE_Three"; n = "FoUr_four quattro_cuatro"
- 87   """
- 88   ,
- 89   all_codes, local_variables, pytex)
- 90   assert cell_output == ""
+ 97   cell_output, _ = call_code(
+ 98   """
+ 99   " ".join([x, y, z, n])
+100   """
+101   ,
+102   all_codes, local_variables, pytex)
+103   assert cell_output == (
+104       "'one two two three THREE_Three FoUr_four quattro_cuatro'"
+105   )
 
 
 
 
- 91   cell_output, _ = call_code(
- 92   """
- 93   " ".join([x, y, z, n])
- 94   """
- 95   ,
- 96   all_codes, local_variables, pytex)
- 97   assert cell_output == (
- 98       "'one two two three THREE_Three FoUr_four quattro_cuatro'"
- 99   )
+106   cell_output, _ = call_code(
+107   """
+108   print(" ".join([x, y]))
+109   print(" ".join([z, n]))
+110   """
+111   ,
+112   all_codes, local_variables, pytex)
+113   assert cell_output == (
+114       "one two two\nthree THREE_Three FoUr_four quattro_cuatro"
+115   )
 
 
 
 
-100   cell_output, _ = call_code(
-101   """
-102   print(" ".join([x, y]))
-103   print(" ".join([z, n]))
-104   """
-105   ,
-106   all_codes, local_variables, pytex)
-107   assert cell_output == (
-108       "one two two\nthree THREE_Three FoUr_four quattro_cuatro"
-109   )
+116   try:
+117       call_code(
+118   """
+119   raise RuntimeError("a runtime error")
+120   """
+121   ,
+122   all_codes, local_variables, pytex)
+123   except RuntimeError as e:
+124       assert str(e) == "a runtime error"
+125   else:
+126       assert False, "This should have failed"
 
 
 
 
-110   try:
-111       call_code(
-112   """
-113   raise RuntimeError("a runtime error")
-114   """
-115   ,
-116   all_codes, local_variables, pytex)
-117   except RuntimeError as e:
-118       assert str(e) == "a runtime error"
-119   else:
-120       assert False, "This should have failed"
-121   cell_output, cell_figure_path = call_code(
-122   """
-123   import plotly.express as px
-124   fig = px.scatter(x=[1, 2, 3], y=[4, 5, 6])
-125   fig
-126   """
-127   ,
-128   all_codes, local_variables, pytex)
-129   assert cell_output == ""
-130   assert cell_figure_path == (
-131       "pythontex-files-test_call_code/py_default_1_79.png"
-132   )
+127   cell_output, cell_figure_path = call_code(
+128   """
+129   import plotly.express as px
+130   fig = px.scatter(x=[1, 2, 3], y=[4, 5, 6])
+131   fig
+132   """
+133   ,
+134   all_codes, local_variables, pytex)
+135   assert cell_output == ""
+136   assert cell_figure_path == (
+137       "pythontex-files-test_call_code/py_default_1_79.png"
+138   )
 
 
 
@@ -189,13 +195,16 @@
       so we simply mock save_cells_as_notebook, also defined internally by this
       package, to write a mock notebook instead of the actual one.
 
-133   original_save_cells_as_notebook = save_cells_as_notebook
-134
+139   original_save_cells_as_notebook = save_cells_as_notebook
+140
 
-135   def save_cells_as_notebook(
-136       all_cells: list[str], pytex: any
-137   ) -> None:
-138       return original_save_cells_as_notebook(
-139           ["\n# This notebook was disabled"], pytex
-140       )
+141   def save_cells_as_notebook(
+142       all_cells: list[tuple[str, str]], pytex: any
+143   ) -> None:
+144       return original_save_cells_as_notebook(
+145           [
+146               ("markdown", "This notebook was disabled"),
+147               ("code", "\nprint('This notebook was disabled')")
+148           ], pytex
+149       )
 

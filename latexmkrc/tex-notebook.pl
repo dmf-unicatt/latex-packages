@@ -4,6 +4,11 @@ $clean_ext .= " pythontex-files-%R/scripts/* pythontex-files-%R/scripts";
 $clean_full_ext .= " notebooks-%R/* notebooks-%R";
 push @generated_exts, 'pytxcode';
 
+# --- Clean up markdown generated files and dirs ---
+$clean_ext .= " _markdown_%R/* _markdown_%R";
+push @generated_exts, 'debug-extensions.json';
+push @generated_exts, 'markdown.in';
+
 # --- PythonTeX command ---
 $pythontex = 'pythontex %O %S';
 

@@ -5,6 +5,18 @@
 
 \chapter{Case with numbers}
 
+\begin{mdcell}
+We start from *the most simple* case possible, the case of numbers.
+
+Note that this content is typed in markdown, and then converted to LaTeX via the `markdown` package. It can contain inline formulas like $1 + 2 = 3$, display math formulas like
+$$3 + 4 = 7$$
+and even more complicated environments like `aligned` (provided that they are embedded in dollars)
+$$\begin{aligned}
+10 + 20 &= 30\\
+3 + 4 &= 7
+\end{aligned}$$
+\end{mdcell}
+
 \begin{pycell}
 x = 1
 y = 2
@@ -19,25 +31,32 @@ l = 6
 m = 7
 \end{pycell}
 
+\begin{mdcell}
+We can print a linear combination of the provided number from a pycell, either directly...
+\end{mdcell}
 
-We can print a linear combination of the provided number from a pycell:
-
-\begin{itemize}
-\item directly
 \begin{pycell}
 print(x + y + z + n - l - m)
 \end{pycell}
 \begin{pyexpectedoutput}
 -3
 \end{pyexpectedoutput}
-\item implicitly
+
+\begin{mdcell}
+... implicitly ...
+\end{mdcell}
+
 \begin{pycell}
 x + y + z + n - l - m
 \end{pycell}
 \begin{pyexpectedoutput}
 -3
 \end{pyexpectedoutput}
-\item in both ways (with duplicated output)
+
+\begin{mdcell}
+... or in both ways (with duplicated output)
+\end{mdcell}
+
 \begin{pycell}
 print(x + y + z + n - l - m + 1)
 x + y + z + n - l - m + 2
@@ -46,9 +65,11 @@ x + y + z + n - l - m + 2
 -2
 -1
 \end{pyexpectedoutput}
-\end{itemize}
 
+\begin{mdcell}
 One can also print lists of numbers
+\end{mdcell}
+
 \begin{pycell}
 x = [1, 2, 3]
 y = [4, 5, 6]
@@ -60,8 +81,11 @@ print(f"{y}")
 [4, 5, 6]
 \end{pyexpectedoutput}
 
-
 \chapter{Case with strings and spaces}
+
+\begin{mdcell}
+One can print simple strings, possibly containing spaces
+\end{mdcell}
 
 \begin{pycell}
 x = "one"
@@ -88,7 +112,10 @@ one two two
 three THREE_Three FoUr_four quattro_cuatro
 \end{pyexpectedoutput}
 
-Once can also print multiline strings
+\begin{mdcell}
+One can also print multiline strings
+\end{mdcell}
+
 \begin{pycell}
 Z = """three
 THREE_Three"""
@@ -119,7 +146,9 @@ quattro_cuatro
 
 \chapter{Variable resets}
 
+\begin{mdcell}
 In this file the python session resets at every chapter, and therefore
+\end{mdcell}
 
 \begin{pycell}
 a = 1
@@ -130,11 +159,15 @@ print(a, b)
 1 this is a string
 \end{pyexpectedoutput}
 
-works, but trying to use the variable \texttt{x} from the previous chapter would not (see \texttt{test\_pycell\_FAIL.tex}).
+\begin{mdcell}
+works, but trying to use the variable `x` from the previous chapter would not (see `test_pycell_FAIL.tex`).
+\end{mdcell}
 
 \chapter{Figures}
 
+\begin{mdcell}
 You can have plotly figures in the code cells. By outputting the figure in the last line of the code cell it will be automatically added to the document.
+\end{mdcell}
 
 \begin{pycell}
 import plotly.express as px
@@ -143,7 +176,10 @@ fig
 \end{pycell}
 \pyexpectedfigure{images/scatter_123_456.png}
 
+\begin{mdcell}
 A figure appears also when other text outputs are present
+\end{mdcell}
+
 \begin{pycell}
 x = [10, 20, 30]
 y = [40, 50, 60]

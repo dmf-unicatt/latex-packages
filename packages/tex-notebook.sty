@@ -45,6 +45,10 @@
   \PythonTeXLoadedfalse
 \fi
 
+% The markdown package to convert from markdown to latex
+\RequirePackage[texMathDollars,texMathSingleBackslash]{markdown}
+
+
 %%% ================================================================
 %%%                     INTEGRATION WITH PYTHONTEX
 %%% ================================================================
@@ -106,7 +110,9 @@
 
 % Function call_code: execute a block of Python code, store the code in the provided list, and return the output
 \begin{pythontexcustomcode}[begin]{py}
-def call_code(code: str, all_codes: list[str], python_state: dict[str, any], pytex: any) -> tuple[str, str | None]:
+def call_code(
+    code: str, all_cells: list[tuple[str, str]], python_state: dict[str, any], pytex: any
+) -> tuple[str, str | None]:
     """
     Execute a block of Python code, store the code in the provided list, and return the output.
 
@@ -117,8 +123,8 @@ def call_code(code: str, all_codes: list[str], python_state: dict[str, any], pyt
     ----------
     code
         A multiline string of Python code to execute.
-    all_codes
-        A list to which the current code block is appended (for tracking or logging).
+    all_cells
+        A list to which the current code block is appended.
     python_state
         A dictionary containing global variables.
     pytex
@@ -137,7 +143,7 @@ def call_code(code: str, all_codes: list[str], python_state: dict[str, any], pyt
     import os
 
     # Append current code
-    all_codes.append(code)
+    all_cells.append(("code", code))
 
     # Split by line, and capture implicit output on the last line
     lines = code.splitlines()
@@ -300,14 +306,16 @@ def latex_include_graphics(path: str, pytex: any) -> str:
 
 % Function save_cells_as_notebook: convert a list of code cell strings into a Jupyter Notebook file
 \begin{pythontexcustomcode}[begin]{py}
-def save_cells_as_notebook(all_cells: list[str], pytex: any) -> None:
+def save_cells_as_notebook(all_cells: list[tuple[str, str]], pytex: any) -> None:
     """
-    Convert a list of code cell strings into a Jupyter Notebook file.
+    Convert a list of cell types and strings into a Jupyter Notebook file.
 
     Parameters
     ----------
-    all_cells : list of str
-        Code cells as strings. Each cell must start with an empty line from pycode_wrapper.
+    all_cells
+        Code cells as a tuple (type, content).
+        If a cell has type == "code", the content must start with an empty line from pycode_wrapper.
+        If a cell has type == "markdown", the content must have been already converted to markdown.
     pytex
         The PythonTeXUtils object, used to determine the notebook filename.
     """
@@ -322,14 +330,21 @@ def save_cells_as_notebook(all_cells: list[str], pytex: any) -> None:
     nb = nbformat.v4.new_notebook()
     nb_cells = []
 
-    for cell in all_cells:
-        lines = cell.splitlines()
-        if lines:
-            # pycode_wrapper adds an empty first line; enforce and remove it
-            assert lines[0] == "", "First line must be empty (added by pycode_wrapper)"
-            lines = lines[1:]
-        # Add processed code cell to the notebook
-        nb_cells.append(nbformat.v4.new_code_cell("\n".join(lines)))
+    for (type, content) in all_cells:
+        if type == "code":
+            lines = content.splitlines()
+            if lines:
+                # pycode_wrapper adds an empty first line; enforce and remove it
+                assert lines[0] == "", "First line must be empty (added by pycode_wrapper)"
+                lines = lines[1:]
+            # Add processed code cell to the notebook
+            cell = nbformat.v4.new_code_cell("\n".join(lines))
+        elif type == "markdown":
+            cell = nbformat.v4.new_markdown_cell(content)
+        else:
+            raise ValueError("Invalid cell")
+
+        nb_cells.append(cell)
 
     nb["cells"] = nb_cells
 
@@ -388,6 +403,7 @@ save_cells_as_notebook(all_cells, pytex)
 \tl_new:N \l__py_expected_tl
 \seq_new:N \l__py_lines_seq
 \int_new:N \l__py_linecount_int
+\tl_new:N \l__md_input_tl
 
 %%% ----------------------------------------------------------------
 %%% Define a newline token with catcode 12 ("other")
@@ -395,7 +411,7 @@ save_cells_as_notebook(all_cells, pytex)
 \tl_set:Nx \newline_other_cat { \char_generate:nn {`\^^M} {12} }
 
 %%% ----------------------------------------------------------------
-%%% Helper: Set a token list with multi-line verbatim input
+%%% Helper: set a token list with multi-line verbatim input
 %%% ----------------------------------------------------------------
 \NewDocumentCommand \setverbatim {m +v}
   {
@@ -542,10 +558,10 @@ save_cells_as_notebook(all_cells, pytex)
 \NewDocumentEnvironment{pycell}{+c}
   {
     % Ensure that output verification has been caried out for the previous cell
-    \pyc{assert~"cell_output"~not~in~python_state, f"""Missing~output~verification~for~cell~{all_cells[-1]}"""}
+    \pyc{assert~"cell_output"~not~in~python_state, f"""Missing~output~verification~for~cell~{all_cells[-1][1]}"""}
 
     % Ensure that figure verification has been caried out for the previous cell
-    \pyc{assert~"cell_figure_path"~not~in~python_state, f"""Missing~figure~verification~for~cell~{all_cells[-1]}"""}
+    \pyc{assert~"cell_figure_path"~not~in~python_state, f"""Missing~figure~verification~for~cell~{all_cells[-1][1]}"""}
 
     % Store the input code in a temporary variable
     \tl_set:Nn \l__py_user_code_tl {#1}
@@ -588,10 +604,10 @@ save_cells_as_notebook(all_cells, pytex)
 \begin{pythontexcustomcode}[end]{py}
 if len(all_cells) > 0:
     # Ensure that output verification has been caried out for the last cell
-    assert "cell_output" not in python_state, f"""Missing output verification for cell {all_cells[-1]}"""
+    assert "cell_output" not in python_state, f"""Missing output verification for cell {all_cells[-1][1]}"""
 
     # Ensure that figure verification has been caried out for the last cell
-    assert "cell_figure_path" not in python_state, f"""Missing figure verification for cell {all_cells[-1]}"""
+    assert "cell_figure_path" not in python_state, f"""Missing figure verification for cell {all_cells[-1][1]}"""
 \end{pythontexcustomcode}
 
 \ExplSyntaxOn
@@ -613,7 +629,7 @@ if len(all_cells) > 0:
     \exp_args:Nx \scantokens {
       {
         \begin_pycode \newline_other_cat
-        assert~cell_output~==~"""\l__py_expected_tl""", f"""Unexpected~output~{cell_output}~for~cell~{all_cells[-1]},~was~expecting~""" + """\l__py_expected_tl""" \newline_other_cat
+        assert~cell_output~==~"""\l__py_expected_tl""", f"""Unexpected~output~{cell_output}~for~cell~{all_cells[-1][1]},~was~expecting~""" + """\l__py_expected_tl""" \newline_other_cat
         \end_pycode \newline_other_cat
       }
     }
@@ -645,6 +661,45 @@ if len(all_cells) > 0:
     % Clean up the cell_figure_path variable to signal that figure verification was carried out
     \pyc{del~cell_figure_path}
   }
+
+%%% ----------------------------------------------------------------
+%%% Verbatim wrappers for the markdown environment
+%%% ----------------------------------------------------------------
+\setverbatim \begin_markdown {\begin{markdown}}
+\setverbatim \end_markdown {\end{markdown}}
+
+%%% ----------------------------------------------------------------
+%%% Environment: mdcell - converts markdown content to latex, and
+%%% stores markdown cell in the output notebook
+%%% ----------------------------------------------------------------
+
+\NewDocumentEnvironment{mdcell}{+c}
+  {
+    % Store the input markdown in a temporary variable
+    \tl_set:Nn \l__md_input_tl {#1}
+
+    % Replace \obeyedline with custom newline token
+    \tl_replace_all:Nnn \l__md_input_tl {\obeyedline} {\newline_other_cat}
+
+    % Pass to markdown wrapper
+    \exp_args:Nx \scantokens {
+      {
+        \begin_markdown \newline_other_cat
+        \l__md_input_tl \newline_other_cat
+        \end_markdown \newline_other_cat
+      }
+    }
+
+    % Store the markdown content
+    \exp_args:Nx \scantokens {
+      {
+        \begin_pycode \newline_other_cat
+        all_cells.append(("markdown", r"""\l__md_input_tl""")) \newline_other_cat
+        \end_pycode \newline_other_cat
+      }
+    }
+  }
+  {}
 
 \ExplSyntaxOff
 
@@ -717,6 +772,20 @@ if len(all_cells) > 0:
   {\begin{center}%
     \includegraphics[width=\linewidth]{#1}%
   \end{center}}
+
+%%% ----------------------------------------------------------------
+%%% Environment: mdcell - simply outputs to latex
+%%% (since pythontex is not running and we are not creating
+%%%  a notebook anyways)
+%%% ----------------------------------------------------------------
+
+\makeatletter
+\@ifundefined{NewEnvironmentCopy}{%
+    \newenvironment{mdcell}{\begin{markdown}}{\end{markdown}}%
+}{%
+    \NewEnvironmentCopy{mdcell}{markdown}%
+}
+\makeatother
 
 %%% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%% End if pythontex is available and LaTeX >= 2025/06/01

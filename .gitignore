@@ -3,6 +3,7 @@
 *.bbl
 *.blg
 *.cpc
+*.debug-extensions.json
 *.dep
 *.dvi
 *.fdb_latexmk
@@ -10,6 +11,7 @@
 *.gz
 *.log
 *.mat
+*.markdown.in
 *.nav
 *.out
 *.pdf
@@ -25,6 +27,7 @@
 *.xsim
 .ipynb_checkpoints
 .virtual_documents
+_markdown_*
 notebooks-*
 pythontex-files-*
 xsim-files-*

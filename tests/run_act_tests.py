@@ -9,7 +9,7 @@ def main() -> None:
 
     Usage
     -----
-    python run_act.py [container_name_1 container_name_2 ...]
+    python run_act_tests.py [container_name_1 container_name_2 ...]
     """
     # Go back to parent directory
     os.chdir("..")

@@ -1,12 +1,17 @@
-name: docker
+name: Build and publish docker base images
 
 on:
   schedule:
     - cron: "0 0 * * MON"
   workflow_dispatch:
+    inputs:
+      publish:
+        description: "Publish image on GitHub Container Registry"
+        required: true
+        default: "true"
 
 jobs:
-  test:
+  build:
     strategy:
       matrix:
         include:
@@ -64,8 +69,10 @@ jobs:
             exit 1
           fi
       - name: Login to GitHub Container Registry
+        if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.publish == 'true')
         run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
       - name: Publish image to GitHub packages
+        if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.publish == 'true')
         run: |
           TAG_NAME="${{ matrix.tag-name }}"
           docker push ghcr.io/dmf-unicatt/latex-packages:latest-${TAG_NAME}

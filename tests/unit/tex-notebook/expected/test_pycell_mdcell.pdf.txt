@@ -4,14 +4,7 @@
 
     We start from the most simple case possible, the case of numbers.
         Note that this content is typed in markdown, and then converted to LaTeX
-    via the markdown package. It can contain inline formulas like 1 + 2 = 3, display
-    math formulas like
-                                        3+4=7
-    and even more complicated environments like aligned (provided that they are
-    embedded in dollars)
-                                   10 + 20 = 30
-                                       3+4=7
-
+    via the markdown package.
 
 1   x = 1
 2   y = 2
@@ -32,17 +25,16 @@
 
         We can print a linear combination of the provided number from a pycell,
     either directly...
-6    print(x + y + z + n - l - m)
+
+6   print(x + y + z + n - l - m)
 
 
-     -3
+    -3
 
-          ... implicitly ...
+         ... implicitly ...
 
-7    x + y + z + n - l - m
-
-
-     -3
+7   x + y + z + n - l - m
+     -3
 
           ... or in both ways (with duplicated output)
 

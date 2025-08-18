@@ -1,0 +1,27 @@
+Chapter 1
+
+Some mdcell content
+
+1.1        This is Markdown
+   • Bullet
+   • Another bullet
+
+       Some italic and bold text.
+
+   1. Numbered
+   2. List
+
+       Some inline code and a link1 appearing in LaTeX as a footnote.
+       The cell can contain inline formulas like 1 + 2 = 3, display math formulas
+like
+                                     3+4=7
+and even more complicated environments like aligned (provided that they are
+embedded in dollars)
+                               10 + 20 = 30
+                                      3+4=7
+
+
+
+
+  1 https://www.latex-project.org
+

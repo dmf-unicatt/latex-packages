@@ -182,6 +182,30 @@ def normalize_notebook(nb: dict[str, any]) -> dict[str, any]:
     return nb
 
 
+def notebook_has_code_cells(nb: dict[str, any]) -> bool:
+    """
+    Determine whether a Jupyter notebook contains at least one code cell.
+
+    This function inspects the notebook's cell list and checks if any
+    cell is of type "code". A notebook parsed from a .ipynb file using
+    `json.load()` has a top-level key "cells" which is a list of cell
+    dictionaries, each with a "cell_type" field.
+
+    Parameters
+    ----------
+    nb
+        A notebook parsed from a .ipynb file using `json.load()`.
+
+    Returns
+    -------
+    bool
+        True if the notebook contains at least one code cell,
+        False otherwise.
+    """
+    return any(cell.get("cell_type") == "code" for cell in nb.get("cells", []))
+
+
+
 def remove_hidden_files_and_directories(directory: str) -> None:
     """
     Recursively delete all hidden files and directories (starting with '.') in a directory.
@@ -580,12 +604,20 @@ def run_latex_tests(tex_tests: list[str], maxfail: int, regold: bool) -> None:
                     continue
 
                 # Run pytest in the ipynb_dir
-                ret, out, err = run_command(["pytest", "--nbval"], cwd=os.path.join(test_dir, ipynb_dir))
-                if ret != 0:
-                    print(f"{FAIL} - pytest failed running notebooks in pythontex directory")
-                    print(out + err)
-                    failure_counter += 1
-                    continue
+                run_nbval = False
+                for generated_ipynb in generated_ipynbs:
+                    generated_ipynb = os.path.join(ipynb_dir, generated_ipynb)
+                    with open(os.path.join(test_dir, generated_ipynb), "r", encoding="utf-8") as gen_f:
+                        if notebook_has_code_cells(json.load(gen_f)):
+                            run_nbval = True
+                            break
+                if run_nbval:
+                    ret, out, err = run_command(["pytest", "--nbval"], cwd=os.path.join(test_dir, ipynb_dir))
+                    if ret != 0:
+                        print(f"{FAIL} - pytest failed running notebooks in pythontex directory")
+                        print(out + err)
+                        failure_counter += 1
+                        continue
 
                 # Clean up hidden files produced by nbval, otherwise latexmk will not be able to clean
                 # the notebook directory

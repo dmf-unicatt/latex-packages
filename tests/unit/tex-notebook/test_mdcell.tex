@@ -1,0 +1,30 @@
+\documentclass[oneside]{book}
+\usepackage{tests-tex-notebook}
+
+\begin{document}
+
+\chapter{Some \texttt{mdcell} content}
+
+\begin{mdcell}
+## This is Markdown
+
+- Bullet
+- Another bullet
+
+Some *italic* and **bold** text.
+
+1. Numbered
+2. List
+
+Some `inline code` and a [link](https://www.latex-project.org) appearing in LaTeX as a footnote.
+
+The cell can contain inline formulas like $1 + 2 = 3$, display math formulas like
+$$3 + 4 = 7$$
+and even more complicated environments like `aligned` (provided that they are embedded in dollars)
+$$\begin{aligned}
+10 + 20 &= 30\\
+3 + 4 &= 7
+\end{aligned}$$
+\end{mdcell}
+
+\end{document}

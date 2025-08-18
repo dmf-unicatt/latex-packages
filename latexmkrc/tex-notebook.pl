@@ -23,7 +23,9 @@ sub source_contains_pythontex {
         if ( /\\py\s*\{/
           || /\\begin\s*\{pycode\}/
           || /\\begin\s*\{pyblock\}/
-          || /\\begin\s*\{pycell\}/ ) {
+          || /\\begin\s*\{pycell\}/
+          || /\\begin\s*\{mdcell\}/
+        ) {
             close $fh;
             return 1;
         }

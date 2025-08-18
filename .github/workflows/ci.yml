@@ -26,7 +26,6 @@ jobs:
           - tag-name: debian-13
           - tag-name: debian-testing
           - tag-name: debian-unstable
-          - tag-name: debian-experimental
       fail-fast: false
     container: ghcr.io/dmf-unicatt/latex-packages:latest-${{ matrix.tag-name }}
     runs-on: ubuntu-latest

@@ -29,11 +29,7 @@ RUN apt update -y -q && \
     # Install git
     apt install -y -qq --no-install-recommends git && \
     # Install texlive
-    if [ "${BASE_IMAGE}" = "debian:experimental" ]; then \
-        apt install -y -qq -t experimental --no-install-recommends texlive-extra-utils texlive-latex-extra texlive-lang-english; \
-    else \
-        apt install -y -qq --no-install-recommends texlive-extra-utils texlive-latex-extra texlive-lang-english; \
-    fi && \
+    apt install -y -qq --no-install-recommends texlive-extra-utils texlive-latex-extra texlive-lang-english; \
     # Install additional required LaTeX related packages
     apt install -y -qq --no-install-recommends latexmk poppler-utils && \
     # Install chromium for kaleido

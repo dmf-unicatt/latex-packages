@@ -16,9 +16,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - tag-name: ubuntu-22.10
-          - tag-name: debian-12
-          - tag-name: ubuntu-23.04
           - tag-name: ubuntu-23.10
           - tag-name: ubuntu-24.04
           - tag-name: ubuntu-24.10

@@ -15,15 +15,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - base-image: ubuntu:22.10
-            tag-name: ubuntu-22.10
-            expected-texlive-version: "2022.20220722-1"
-          - base-image: debian:12
-            tag-name: debian-12
-            expected-texlive-version: "2022.20230122-3"
-          - base-image: ubuntu:23.04
-            tag-name: ubuntu-23.04
-            expected-texlive-version: "2022.20230122-2"
           - base-image: ubuntu:23.10
             tag-name: ubuntu-23.10
             expected-texlive-version: "2023.20230613-3"

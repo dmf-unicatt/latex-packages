@@ -1,0 +1,10 @@
+--- /usr/share/texlive/texmf-dist/tex/latex/markdown/markdown.sty
++++ /usr/share/texlive/texmf-dist/tex/latex/markdown/markdown.sty
+@@ -167,6 +167,7 @@
+       }
+   }
+   { \markdownEnd }
++\NewEnvironmentCopy{mdcell}{markdown}
+ \renewenvironment
+   { markdown* }
+   [ 1 ]

@@ -46,8 +46,15 @@ COPY patches/pythontex/PR_223.patch /tmp/PR_223.patch
 RUN patch -p0 < /tmp/PR_223.patch && rm /tmp/PR_223.patch
 
 # Apply mdcell patch on old latex versions
-COPY patches/markdown/duplicate_markdown_env.sh /tmp/duplicate_markdown_env.sh
-RUN bash /tmp/duplicate_markdown_env.sh /usr/share/texlive/texmf-dist/tex/latex/markdown/markdown.sty && rm /tmp/duplicate_markdown_env.sh
+# (on new latex versions the patch is left empty, and will not be applied)
+COPY patches/markdown /tmp/patches-markdown
+RUN if [ -s "/tmp/patches-markdown/mdcell-${BASE_IMAGE}.patch" ]; then \
+        echo "Applying patch mdcell-${BASE_IMAGE}.patch"; \
+        patch -p0 < /tmp/patches-markdown/mdcell-${BASE_IMAGE}.patch; \
+    else \
+        echo "Patch file is empty, skipping."; \
+    fi \
+    && rm -rf /tmp/patches-markdown
 
 # Update LuaTeX font database
 RUN luaotfload-tool -u

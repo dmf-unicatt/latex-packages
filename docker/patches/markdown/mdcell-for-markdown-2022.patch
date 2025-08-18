@@ -1,0 +1,12 @@
+--- /usr/share/texlive/texmf-dist/tex/latex/markdown/markdown.sty
++++ /usr/share/texlive/texmf-dist/tex/latex/markdown/markdown.sty
+@@ -277,6 +277,9 @@
+ \renewenvironment{markdown}{%
+   \markdownReadAndConvert@markdown{}}{%
+   \markdownEnd}%
++\newenvironment{mdcell}{%
++  \markdownReadAndConvert@markdown{}}{%
++  \markdownEnd}%
+ \renewenvironment{markdown*}[1]{%
+   \markdownSetup{#1}%
+   \markdownReadAndConvert@markdown*}{%

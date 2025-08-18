@@ -1,0 +1,29 @@
+--- /usr/share/texlive/texmf-dist/tex/latex/markdown/markdown.sty
++++ /usr/share/texlive/texmf-dist/tex/latex/markdown/markdown.sty
+@@ -129,6 +129,26 @@
+       }
+   }
+   { \markdownEnd }
++\newenvironment
++  { mdcell }
++  {
++    \group_begin:
++    \char_set_catcode_active:n { 13 }
++    \char_set_catcode_letter:n { 35 }
++    \peek_regex_replace_once:nnF
++      { \ *\[\r*([^]]*)\][^\r]* }
++      {
++        \c { group_end: }
++        \c { tl_set_rescan:Nnn } \c { l_tmpa_tl } { } { \1 }
++        \c { __markdown_setup:V } \c { l_tmpa_tl }
++        \c { markdownReadAndConvert@markdown } { }
++      }
++      {
++        \group_end:
++        \markdownReadAndConvert@markdown { }
++      }
++  }
++  { \markdownEnd }
+ \renewenvironment
+   { markdown* }
+   [ 1 ]

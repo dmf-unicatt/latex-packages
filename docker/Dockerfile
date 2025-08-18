@@ -26,8 +26,8 @@ RUN set -e; \
 
 # Update package lists and install required packages, then clean cache
 RUN apt update -y -q && \
-    # Install git
-    apt install -y -qq --no-install-recommends git && \
+    # Install basic commands
+    apt install -y -qq --no-install-recommends git patch && \
     # Install texlive
     apt install -y -qq --no-install-recommends texlive-extra-utils texlive-latex-extra texlive-lang-english; \
     # Install additional required LaTeX related packages
@@ -40,6 +40,10 @@ RUN apt update -y -q && \
     apt install -y -qq --no-install-recommends python-is-python3 python3-mpi4py python3-pip python3-pygments && \
     # Clean cache
     apt clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Apply pythontex patch to avoid python warnings
+COPY patches/pythontex/PR_223.patch /tmp/PR_223.patch
+RUN patch -p0 < /tmp/PR_223.patch && rm /tmp/PR_223.patch
 
 # Update LuaTeX font database
 RUN luaotfload-tool -u

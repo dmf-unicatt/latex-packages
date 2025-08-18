@@ -1,10 +1,9 @@
 --- /usr/share/texlive/texmf-dist/tex/latex/markdown/markdown.sty
 +++ /usr/share/texlive/texmf-dist/tex/latex/markdown/markdown.sty
-@@ -129,6 +129,26 @@
-       }
+@@ -130,6 +130,26 @@
    }
    { \markdownEnd }
-+\newenvironment
++ \newenvironment
 +  { mdcell }
 +  {
 +    \group_begin:
@@ -16,14 +15,29 @@
 +        \c { group_end: }
 +        \c { tl_set_rescan:Nnn } \c { l_tmpa_tl } { } { \1 }
 +        \c { __markdown_setup:V } \c { l_tmpa_tl }
-+        \c { markdownReadAndConvert@markdown } { }
++        \c { markdownReadAndConvert@mdcell } { }
 +      }
 +      {
 +        \group_end:
-+        \markdownReadAndConvert@markdown { }
++        \markdownReadAndConvert@mdcell { }
 +      }
 +  }
 +  { \markdownEnd }
  \renewenvironment
    { markdown* }
    [ 1 ]
+   {
+@@ -157,6 +177,13 @@
+     |markdownReadAndConvert<\end{markdown#1}>%
+                            <|end<markdown#1>>>%
+ |endgroup
++\begingroup
++  \catcode`\|=0\catcode`\<=1\catcode`\>=2%
++  \catcode`\\=12|catcode`|{=12|catcode`|}=12%
++  |gdef|markdownReadAndConvert@mdcell#1<%
++    |markdownReadAndConvert<\end{mdcell#1}>%
++                           <|end<mdcell#1>>>%
++|endgroup
+ \DeclareOption*{%
+   \expandafter\markdownSetup\expandafter{\CurrentOption}}%
+ \ProcessOptions\relax

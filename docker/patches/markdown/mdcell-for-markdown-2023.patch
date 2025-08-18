@@ -1,0 +1,26 @@
+--- /usr/share/texlive/texmf-dist/tex/latex/markdown/markdown.sty
++++ /usr/share/texlive/texmf-dist/tex/latex/markdown/markdown.sty
+@@ -682,6 +682,9 @@
+ \renewenvironment{markdown}{%
+   \markdownReadAndConvert@markdown{}}{%
+   \markdownEnd}%
++\newenvironment{mdcell}{%
++  \markdownReadAndConvert@mdcell{}}{%
++  \markdownEnd}%
+ \renewenvironment{markdown*}[1]{%
+   \markdownSetup{#1}%
+   \markdownReadAndConvert@markdown*}{%
+@@ -693,6 +696,13 @@
+     |markdownReadAndConvert<\end{markdown#1}>%
+                            <|end<markdown#1>>>%
+ |endgroup
++\begingroup
++  \catcode`\|=0\catcode`\<=1\catcode`\>=2%
++  \catcode`\\=12|catcode`|{=12|catcode`|}=12%
++  |gdef|markdownReadAndConvert@mdcell#1<%
++    |markdownReadAndConvert<\end{mdcell#1}>%
++                           <|end<mdcell#1>>>%
++|endgroup
+ \ExplSyntaxOn
+ \newcommand\markdownLaTeXThemeName{}
+ \seq_new:N \g__markdown_latex_themes_seq

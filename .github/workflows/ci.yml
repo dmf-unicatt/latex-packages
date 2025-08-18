@@ -40,7 +40,7 @@ jobs:
       - name: Run unit tests
         run: |
           cd tests
-          python run_tests.py unit
+          python run_tests.py
 
   test-packages-in-act:
     runs-on: ubuntu-latest

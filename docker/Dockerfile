@@ -45,6 +45,10 @@ RUN apt update -y -q && \
 COPY patches/pythontex/PR_223.patch /tmp/PR_223.patch
 RUN patch -p0 < /tmp/PR_223.patch && rm /tmp/PR_223.patch
 
+# Apply mdcell patch on old latex versions
+COPY patches/markdown/duplicate_markdown_env.sh /tmp/duplicate_markdown_env.sh
+RUN bash /tmp/duplicate_markdown_env.sh /usr/share/texlive/texmf-dist/tex/latex/markdown/markdown.sty && rm /tmp/duplicate_markdown_env.sh
+
 # Update LuaTeX font database
 RUN luaotfload-tool -u
 

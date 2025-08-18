@@ -779,13 +779,14 @@ if len(all_cells) > 0:
 %%%  a notebook anyways)
 %%% ----------------------------------------------------------------
 
-\makeatletter
-\@ifundefined{NewEnvironmentCopy}{%
-    \newenvironment{mdcell}{\begin{markdown}}{\end{markdown}}%
-}{%
-    \NewEnvironmentCopy{mdcell}{markdown}%
+% The mdcell environment should always be a copy of the markdown environment
+% Unfortunately it is not easy to do so for very old LaTeX versions,
+% and so in those cases we manually patch markdown.sty via
+% see docker/patches/markdown/duplicate_markdown_env.sh
+% The \@ifundefined catches the unpatched cases.
+\@ifundefined{mdcell}{%
+  \NewEnvironmentCopy{mdcell}{markdown}%
 }
-\makeatother
 
 %%% ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 %%% End if pythontex is available and LaTeX >= 2025/06/01

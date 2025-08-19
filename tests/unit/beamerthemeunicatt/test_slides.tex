@@ -1,0 +1,180 @@
+\documentclass{beamerunicatt}
+
+\title{My presentation}
+\author[F. Ballarin]{\underline{\textbf{Francesco Ballarin}}$^{1,2}$}
+\institute[Università Cattolica del Sacro Cuore]{%
+$ ^{1}$ Università~Cattolica~del~Sacro~Cuore,\\
+\hspace{0.7em} Department~of~Mathematics~and~Physics, Brescia,~Italy\\[1ex]
+$ ^{2}$ Università~Cattolica~del~Sacro~Cuore,\\
+\hspace{0.7em} Department~of~Mathematics~for~Economic,~Financial\\
+\hspace{0.7em} and~Actuarial~Sciences, Milano,~Italy
+}
+\date{Conference, Location, Date}
+
+\begin{document}
+
+\begin{frame}
+\frametitle{Introduction}
+\begin{itemize}
+\item \highlight{first} item:
+\begin{itemize}
+\item \highlightB{one} subitem;
+\item \highlightB{another} subitem;
+\end{itemize}
+\item \highlight{second} \highlightB{standalone} item.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\frametitle{Some blocks (I)}
+\begin{block}{A blue block}
+This is a block colored in blue.
+
+\begin{itemize}
+\item \highlight{first} item:
+\begin{itemize}
+\item \highlightB{one} subitem;
+\item \highlightB{another} subitem;
+\end{itemize}
+\item \highlight{second} standalone item.
+\end{itemize}
+\end{block}
+
+\begin{alertblock}{A red block}
+This is a block colored in red.
+
+\begin{itemize}
+\item \highlight{first} item:
+\begin{enumerate}
+\item \highlightB{one} subitem;
+\item \highlightB{another} subitem;
+\end{enumerate}
+\item \highlight{second} standalone item.
+\end{itemize}
+\end{alertblock}
+\end{frame}
+
+\begin{frame}
+\frametitle{Some blocks (II)}
+\begin{exampleblock}{A green block}
+This is a block colored in green.
+
+\begin{enumerate}
+\item \highlight{first} item:
+\begin{enumerate}
+\item \highlightB{one} subitem;
+\item \highlightB{another} subitem;
+\end{enumerate}
+\item \highlight{second} standalone item.
+\end{enumerate}
+\end{exampleblock}
+
+\begin{remarkblock}{A yellow block}
+This is a block colored in yellow.
+
+\begin{enumerate}
+\item \highlight{first} item:
+\begin{itemize}
+\item \highlightB{one} subitem;
+\item \highlightB{another} subitem;
+\end{itemize}
+\item \highlight{second} standalone item.
+\end{enumerate}
+\end{remarkblock}
+\end{frame}
+
+\begin{frame}
+\frametitle{Some blocks (III)}
+\begin{proofblock}{A gray block}
+This is a block colored in gray.
+
+\begin{enumerate}
+\item \highlight{first} item:
+\begin{itemize}
+\item \highlightB{one} subitem;
+\item \highlightB{another} subitem;
+\end{itemize}
+\item \highlight{second} standalone item.
+\end{enumerate}
+\end{proofblock}
+\end{frame}
+
+\begin{frame}
+\frametitle{Some results (I)}
+\begin{theorem}[Pythagoras]
+For a right triangle with sides $a, b$ and hypotenuse $c$, we have
+\[
+a^2 + b^2 = c^2.
+\]
+\end{theorem}
+
+\begin{definition}[Prime Number]
+A prime number is an integer greater than 1 that has no positive divisors other than 1 and itself.
+\end{definition}
+
+\begin{example}[Small Primes]
+The first few prime numbers are $2, 3, 5, 7, 11$.
+\end{example}
+
+\begin{lemma}[Divisibility Property]
+If a prime $p$ divides the product $ab$, then $p$ divides $a$ or $p$ divides $b$.
+\end{lemma}
+\end{frame}
+
+\begin{frame}
+\frametitle{Some results (II)}
+\begin{proposition}[Infinitude of Primes]
+There are infinitely many prime numbers.
+\end{proposition}
+
+\begin{proof}
+Assume there are finitely many primes \(p_1,\dots,p_n\). Consider
+\[
+P = p_1 p_2 \cdots p_n + 1.
+\]
+Then \(P\) is either prime itself or divisible by a prime not in the list. In either case, there exists a prime not in \(\{p_1,\dots,p_n\}\), contradicting finiteness. Hence, there are infinitely many primes.
+\end{proof}
+
+\begin{remark}[Euclid]
+The proof of the infinitude of primes, originally due to Euclid, is one of the oldest and most elegant arguments in mathematics.
+\end{remark}
+
+\begin{example}[Non-Prime Numbers]
+The integers $4, 6, 8, 9, 10$ are not prime, since each can be expressed as a product of smaller integers.
+\end{example}
+\end{frame}
+
+\section{My first section}
+
+\begin{frame}
+\frametitle{Section 1 content}
+\begin{block}{Content}
+\begin{itemize}
+\item This is the \highlight{first} item in the \highlightB{block}.
+\item This is the \highlight{second} item in the \highlightB{block}.
+\end{itemize}
+\end{block}
+\end{frame}
+
+\begin{inverseframe}
+\frametitle{Inverse frames}
+
+\begin{itemize}
+\item \highlight{first} item:
+\begin{itemize}
+\normalsize
+\item \highlightB{one} subitem;
+\item \highlightB{another} subitem;
+\end{itemize}
+\item \highlight{second} \highlightB{standalone} item.
+\end{itemize}
+
+\begin{block}{Content}
+\begin{itemize}
+\item This is the \highlight{first} item in the \highlightB{block}.
+\item This is the \highlight{second} item in the \highlightB{block}.
+\end{itemize}
+\end{block}
+\end{inverseframe}
+
+\end{document}

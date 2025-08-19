@@ -1,0 +1,76 @@
+% Copyright 2007 by Marco Barisione (originally named beamerthemeTorino.sty)
+% Copyright 2015 by Francesco Ballarin
+%
+% This file may be distributed and/or modified
+%
+% 1. under the LaTeX Project Public License and/or
+% 2. under the GNU Public License.
+
+\ProvidesPackage{beamerthemeunicatt}[2025/08/19 Unicatt Beamer Theme]
+
+% Load Latin Modern (safe, even if wrapper already did)
+\RequirePackage{lmodern}
+
+% --- Theme options ---
+\mode<presentation>
+
+% Option placeholders
+\def\unicatt@titlepagelogo{}
+
+\DeclareOptionBeamer{titlepagelogo}{%
+  \def\unicatt@titlepagelogo{#1}%
+}
+\DeclareOptionBeamer{bullet}{%
+  \PassOptionsToPackage{bullet=#1}{beamerinnerthemeunicatt}%
+}
+\DeclareOptionBeamer{pageofpages}{%
+  \PassOptionsToPackage{pageofpages=#1}{beamerouterthemeunicatt}%
+}
+\DeclareOptionBeamer{titleline}[true]{%
+  \PassOptionsToPackage{titleline=#1}{beamerouterthemeunicatt}%
+}
+\DeclareOptionBeamer{autotitlepage}[true]{%
+  \def\unicatt@autotitlepage{#1}%
+}
+
+% Defaults
+\ExecuteOptionsBeamer{bullet=circle,titleline=true,autotitlepage=true}
+\ProcessOptionsBeamer
+
+% --- Default logo search ---
+\ifx\unicatt@titlepagelogo\@empty
+  \IfFileExists{img/unicatt.png}{%
+    \def\unicatt@titlepagelogo{img/unicatt.png}%
+  }{%
+    \IfFileExists{images/unicatt.png}{%
+      \def\unicatt@titlepagelogo{images/unicatt.png}%
+    }{}%
+  }%
+\fi
+
+% Pass down logo if set
+\ifx\unicatt@titlepagelogo\@empty\else
+  \PassOptionsToPackage{titlepagelogo=\unicatt@titlepagelogo}{beamerinnerthemeunicatt}
+\fi
+
+% --- Load components (safe in both cases) ---
+\useinnertheme{unicatt}
+\useoutertheme{unicatt}
+\usecolortheme{unicatt}
+
+% --- Beamer template tweaks ---
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{section in toc}[circle]
+\setbeamertemplate{subsection in toc}[circle unnumbered]
+
+% --- Add automatic title page ---
+\ifx\unicatt@autotitlepage\@empty\else
+  \AtBeginDocument{%
+    \begin{frame}[plain]
+      \titlepage
+    \end{frame}
+  }
+\fi
+
+
+\mode<all>

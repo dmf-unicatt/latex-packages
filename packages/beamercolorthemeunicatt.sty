@@ -1,0 +1,228 @@
+% Copyright 2015 by Francesco Ballarin
+%
+% This file may be distributed and/or modified
+%
+% 1. under the LaTeX Project Public License and/or
+% 2. under the GNU Public License.
+
+\mode<presentation>
+
+\definecolor{primary_color}{HTML}{00325c}
+\definecolor{secondary_color}{HTML}{c23e46}
+\definecolor{primary_color_alpha}{HTML}{145e9a}
+\definecolor{secondary_color_alpha}{HTML}{fac32a}
+
+\setbeamercolor*{palette primary}{fg=white,bg=primary_color}
+\setbeamercolor*{palette secondary}{fg=white,bg=secondary_color}
+\setbeamercolor*{palette tertiary}{fg=white,bg=primary_color_alpha}
+\setbeamercolor*{palette quaternary}{fg=white,bg=secondary_color_alpha}
+
+\setbeamercolor*{highlight primary}{fg=primary_color}
+\setbeamercolor*{highlight secondary}{fg=secondary_color}
+
+\setbeamercolor*{titlelike}{bg=primary_color}
+\setbeamercolor*{frametitle}{bg=black,fg=black}
+\setbeamercolor*{part title}{bg=black,fg=black}
+\setbeamercolor*{item}{fg=primary_color}
+
+\setbeamercolor*{separation line}{}
+\setbeamercolor*{fine separation line}{}
+
+\setbeamercolor*{block title}{bg=primary_color,fg=white}
+\setbeamercolor*{block body}{bg=primary_color_alpha!30!white,fg=black}
+\setbeamercolor{block title alerted}{bg=alerted text.fg!90!white,fg=white}
+\setbeamercolor{block body alerted}{bg=alerted text.fg!30!white,fg=black}
+\setbeamercolor{block title example}{bg=green!60!black,fg=white}
+\setbeamercolor{block body example}{bg=green!30!white,fg=black}
+\setbeamercolor{block title remark}{bg=yellow!90!white,fg=black}
+\setbeamercolor{block body remark}{bg=yellow!30!white,fg=black}
+\setbeamercolor{block title proof}{bg=darkgray!80!white,fg=white}
+\setbeamercolor{block body proof}{bg=gray!30!white,fg=black}
+
+% only need to define remarkblock and proofblock, as block, alertedblock and example block are already defined
+\makeatletter
+\newcommand{\newcustomblock}[1]{%
+  % --- begin template (uses block title #1 / block body #1 colours) ---
+  \expandafter\def\csname block #1 begin\endcsname{%
+    \syncitemswithblocktitle{block title #1}%
+    \synchighlightswithblocktitle{block title #1}%
+    \par\vskip\medskipamount%
+    \begin{beamercolorbox}[colsep*=.75ex]{block title #1}%
+      \usebeamerfont{block title}\insertblocktitle%
+    \end{beamercolorbox}%
+    \vspace{-0.5mm}%
+    \begin{beamercolorbox}[colsep*=.75ex,vmode]{block body #1}%
+      \usebeamerfont{block body}%
+  }%
+  % --- end template ---
+  \expandafter\def\csname block #1 end\endcsname{%
+    \end{beamercolorbox}%
+    \vskip\smallskipamount%
+  }%
+  % --- environment begin: takes one mandatory {title} argument ---
+  % \csname #1block\endcsname will be called with a following {title}
+  \expandafter\def\csname #1block\endcsname##1{%
+    \begin{actionenv}%
+      \def\insertblocktitle{##1}%
+      \csname block #1 begin\endcsname%
+  }%
+  % --- environment end ---
+  \expandafter\def\csname end#1block\endcsname{%
+    \csname block #1 end\endcsname%
+    \end{actionenv}%
+  }%
+}
+\makeatother
+\newcustomblock{remark}
+\newcustomblock{proof}
+
+% only need to define proposition and lemma, because theorem, lemma, definition, example are already defined by beamer
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{remark}[theorem]{Remark}
+
+% define theorems as numbered
+\setbeamertemplate{theorems}[numbered]
+
+% prepend theorem numbering with chapter number, but only if chapter is used
+\newif\ifchaptersused
+\chaptersusedfalse
+\newcounter{chapter}
+\newcommand{\chapter}[1][]{%
+  \chaptersusedtrue
+  \stepcounter{chapter}%
+  \setcounter{theorem}{0}% reset theorem counter at each "chapter"
+}
+\makeatletter
+\renewcommand{\thetheorem}{%
+  \ifchaptersused
+    \arabic{chapter}.\arabic{theorem}%
+  \else
+    \arabic{theorem}%
+  \fi}
+
+% customize plain for theorem, proposition and lemma
+\def\th@plain{%
+  \normalfont
+  \def\inserttheoremblockenv{block}%
+}
+% customize definition and example
+\def\th@definition{%
+  \normalfont
+  \def\inserttheoremblockenv{alertblock}%
+}
+\def\th@example{%
+  \normalfont
+  \def\inserttheoremblockenv{exampleblock}%
+}
+% customize remark: this is different from the others because there is not remark environment originally
+\renewenvironment{remark}[1][]%
+{%
+  \refstepcounter{theorem}%
+  \edef\mylocaltitle{%
+    \ifx\\#1\\% no optional argument
+      Remark \thetheorem%
+    \else% optional argument given
+      Remark \thetheorem~(#1)%
+    \fi
+  }%
+  \begin{remarkblock}{\mylocaltitle}%
+}%
+{%
+  \end{remarkblock}%
+}
+% customize proof: this is different from the others because it is not numbered
+\renewenvironment{proof}[1][]%
+{%
+  \edef\mylocaltitle{%
+    \ifx\\#1\\% no optional argument
+      Proof%
+    \else% optional argument given
+      #1%
+    \fi
+  }%
+  \begin{proofblock}{\mylocaltitle}%
+}%
+{%
+  \end{proofblock}%
+}
+\makeatother
+
+% sync itemize/enumerate bullets to the current block title background
+\newcommand{\syncitemswithblocktitle}[1]{%
+  \setbeamercolor*{itemize item}{fg=#1.bg}%
+  \setbeamercolor*{itemize subitem}{fg=#1.bg}%
+  \setbeamercolor*{itemize subsubitem}{fg=#1.bg}%
+  \setbeamercolor*{enumerate item}{fg=#1.bg}%
+  \setbeamercolor*{enumerate subitem}{fg=#1.bg}%
+  \setbeamercolor*{enumerate subsubitem}{fg=#1.bg}%
+}
+\addtobeamertemplate{block begin}{\syncitemswithblocktitle{block title}}{}
+\addtobeamertemplate{block alerted begin}{\syncitemswithblocktitle{block title alerted}}{}
+\addtobeamertemplate{block example begin}{\syncitemswithblocktitle{block title example}}{}
+% not doing it for remark and proof, because it is already done inside \newcustomblock
+
+\newcommand{\highlight}[1]{\textbf{\usebeamercolor[fg]{highlight primary}#1}}
+\newcommand{\highlightB}[1]{\textbf{\usebeamercolor[fg]{highlight secondary}#1}}
+\newcommand{\mathhighlight}[1]{\usebeamercolor[fg]{highlight primary}#1}
+\newcommand{\mathhighlightB}[1]{\usebeamercolor[fg]{highlight secondary}#1}
+
+\newcommand{\synchighlightswithblocktitle}[1]{%
+  \setbeamercolor{highlight primary}{fg=#1.bg}%
+  \setbeamercolor{highlight secondary}{fg=#1.bg}%
+}
+\addtobeamertemplate{block begin}{\synchighlightswithblocktitle{block title}}{}
+\addtobeamertemplate{block alerted begin}{\synchighlightswithblocktitle{block title alerted}}{}
+\addtobeamertemplate{block example begin}{\synchighlightswithblocktitle{block title example}}{}
+% not doing it for remark and proof, because it is already done inside \newcustomblock
+
+% Apply normal size to all itemize/enumerate levels
+\setbeamerfont{itemize/enumerate body}{size=\normalsize}
+\setbeamerfont{itemize/enumerate subbody}{size=\normalsize}
+\setbeamerfont{itemize/enumerate subsubbody}{size=\normalsize}
+
+% Frames for sections
+\newenvironment{sectionframe}{\begingroup%
+\setbeamercolor{normal text}{fg=primary_color,bg=primary_color_alpha!30!white}
+\usebeamercolor[fg]{normal text}
+\begin{frame}[c]%
+\centering
+\fontsize{25pt}{30}\selectfont
+}{%
+\end{frame}%
+\endgroup}
+
+\AtBeginSection[]{
+  \begin{sectionframe}%
+  \insertsection
+  \end{sectionframe}
+}
+
+% Inverse frames
+\newenvironment{inverseframe}{\begingroup%
+\setbeamercolor{normal text}{fg=white,bg=black!90}
+\usebeamercolor[fg]{normal text}
+
+\setbeamercolor*{palette primary}{fg=black,bg=secondary_color}
+\setbeamercolor*{palette secondary}{fg=black,bg=primary_color}
+\setbeamercolor*{palette tertiary}{fg=black,bg=secondary_color_alpha}
+\setbeamercolor*{palette quaternary}{fg=black,bg=primary_color_alpha}
+
+\setbeamercolor*{highlight primary}{fg=secondary_color}
+\setbeamercolor*{highlight secondary}{fg=primary_color_alpha}
+
+\setbeamercolor*{titlelike}{bg=secondary_color}
+\setbeamercolor*{frametitle}{bg=white,fg=white}
+\setbeamercolor*{part title}{bg=white,fg=white}
+\setbeamercolor*{item}{fg=secondary_color}
+
+\setbeamercolor*{separation line}{}
+\setbeamercolor*{fine separation line}{}
+
+\setbeamercolor*{block title}{bg=secondary_color!70!white,fg=black}
+\setbeamercolor*{block body}{bg=secondary_color!20!white,fg=black}
+
+\begin{frame}%
+}{\end{frame}\endgroup}
+
+
+\mode<all>

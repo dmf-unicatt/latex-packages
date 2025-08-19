@@ -1,0 +1,153 @@
+My presentation
+
+
+
+
+          Francesco Ballarin1,2
+          1
+              Università Cattolica del Sacro Cuore,
+              Department of Mathematics and Physics, Brescia, Italy
+          2
+              Università Cattolica del Sacro Cuore,
+              Department of Mathematics for Economic, Financial
+              and Actuarial Sciences, Milano, Italy
+
+
+          Conference, Location, Date
+Introduction
+
+ • first item:
+         • one subitem;
+         • another subitem;
+ • second standalone item.
+
+
+
+
+  1/ 9             F. Ballarin   My presentation
+Some blocks (I)
+
+A blue block
+This is a block colored in blue.
+  • first item:
+          • one subitem;
+          • another subitem;
+  • second standalone item.
+
+
+A red block
+This is a block colored in red.
+  • first item:
+      1. one subitem;
+      2. another subitem;
+  • second standalone item.
+
+
+
+
+   2/ 9             F. Ballarin   My presentation
+Some blocks (II)
+
+A green block
+This is a block colored in green.
+ 1. first item:
+    1.1 one subitem;
+    1.2 another subitem;
+ 2. second standalone item.
+
+A yellow block
+This is a block colored in yellow.
+ 1. first item:
+       • one subitem;
+       • another subitem;
+ 2. second standalone item.
+
+
+
+
+   3/ 9           F. Ballarin   My presentation
+Some blocks (III)
+
+A gray block
+This is a block colored in gray.
+ 1. first item:
+       • one subitem;
+       • another subitem;
+ 2. second standalone item.
+
+
+
+
+   4/ 9           F. Ballarin   My presentation
+Some results (I)
+
+Theorem 1 (Pythagoras)
+For a right triangle with sides a, b and hypotenuse c, we have
+
+                                                  a2 + b2 = c2 .
+
+
+Definition 2 (Prime Number)
+A prime number is an integer greater than 1 that has no positive divisors other than 1 and itself.
+
+Example 3 (Small Primes)
+The first few prime numbers are 2, 3, 5, 7, 11.
+
+Lemma 4 (Divisibility Property)
+If a prime p divides the product ab, then p divides a or p divides b.
+
+
+
+   5/ 9           F. Ballarin   My presentation
+Some results (II)
+
+Proposition 5 (Infinitude of Primes)
+There are infinitely many prime numbers.
+
+Proof
+Assume there are finitely many primes p1 , . . . , pn . Consider
+
+                                                  P = p1 p2 · · · pn + 1.
+
+Then P is either prime itself or divisible by a prime not in the list. In either case, there exists a prime
+not in {p1 , . . . , pn }, contradicting finiteness. Hence, there are infinitely many primes.
+
+Remark 6 (Euclid)
+The proof of the infinitude of primes, originally due to Euclid, is one of the oldest and most elegant
+arguments in mathematics.
+
+Example 7 (Non-Prime Numbers)
+The integers 4, 6, 8, 9, 10 are not prime, since each can be expressed as a product of smaller integers.
+   6/ 9           F. Ballarin   My presentation
+                                My first section
+
+
+
+
+7/ 9   F. Ballarin   My presentation
+Section 1 content
+
+Content
+ • This is the first item in the block.
+ • This is the second item in the block.
+
+
+
+
+  8/ 9          F. Ballarin   My presentation
+Inverse frames
+
+ • first item:
+         • one subitem;
+         • another subitem;
+ • second standalone item.
+
+Content
+ • This is the first item in the block.
+ • This is the second item in the block.
+
+
+
+
+  9/ 9             F. Ballarin   My presentation
+

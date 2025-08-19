@@ -6,12 +6,6 @@ Chapter 3
 
           F. Ballarin
           Università Cattolica del Sacro Cuore
-Theorem-like environments
-
-
-
-
-   1/ 2         F. Ballarin   Chapter 3
 Some results (I)
 
 Theorem 3.1 (Pythagoras)

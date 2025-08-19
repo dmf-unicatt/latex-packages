@@ -87,7 +87,7 @@
 \newif\ifchaptersused
 \chaptersusedfalse
 \newcounter{chapter}
-\newcommand{\chapter}[1][]{%
+\newcommand{\chapter}[1]{%
   \chaptersusedtrue
   \stepcounter{chapter}%
   \setcounter{theorem}{0}% reset theorem counter at each "chapter"

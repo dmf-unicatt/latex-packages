@@ -1,0 +1,41 @@
+%%% ================================================================
+%%%                     REQUIRED PACKAGES
+%%% ================================================================
+
+% Basic math
+\RequirePackage{amsmath}
+\RequirePackage{amssymb}
+\RequirePackage{amsfonts}
+\RequirePackage{amsthm}
+
+% Load graphics packages
+\RequirePackage{graphicx}
+
+% interpret beamer frames for book output
+\RequirePackage{beamerarticle}
+
+% Define all environments as in the beamer theme
+\mode<article>{
+  \newcommand{\highlight}[1]{\textbf{#1}}
+  \newcommand{\highlightB}[1]{\textbf{#1}}
+  \newcommand{\mathhighlight}[1]{#1}
+  \newcommand{\mathhighlightB}[1]{#1}
+
+  \newenvironment{remarkblock}[1]{\textbf{#1}\par}{\par}
+  \newenvironment{proofblock}[1]{\textbf{#1}\par}{\par}
+
+  \theoremstyle{plain}
+  \newtheorem{proposition}[theorem]{Proposition}
+  \theoremstyle{example}
+  \newtheorem{remark}[theorem]{Remark}
+
+  \numberwithin{theorem}{chapter} % will apply to all environments, since the share the same counter
+
+  \newenvironment{inverseframe}[1][]{}{}
+}
+
+
+% Redefine \frametitle to do nothing in book mode
+\mode<article>{
+  \renewcommand{\frametitle}[1]{}
+}

@@ -1,0 +1,69 @@
+Chapter 2
+ A subtitle
+
+
+
+
+          F. Ballarin
+          Università Cattolica del Sacro Cuore
+Blocks
+
+
+
+
+   1/ 3   F. Ballarin   Chapter 2
+Some blocks (I)
+
+A blue block
+This is a block colored in blue.
+  • first item:
+          • one subitem;
+          • another subitem;
+  • second standalone item.
+
+
+A red block
+This is a block colored in red.
+  • first item:
+      1. one subitem;
+      2. another subitem;
+  • second standalone item.
+
+
+
+
+   1/ 3             F. Ballarin   Chapter 2
+Some blocks (II)
+
+A green block
+This is a block colored in green.
+ 1. first item:
+    1.1 one subitem;
+    1.2 another subitem;
+ 2. second standalone item.
+
+A yellow block
+This is a block colored in yellow.
+ 1. first item:
+       • one subitem;
+       • another subitem;
+ 2. second standalone item.
+
+
+
+
+   2/ 3           F. Ballarin   Chapter 2
+Some blocks (III)
+
+A gray block
+This is a block colored in gray.
+ 1. first item:
+       • one subitem;
+       • another subitem;
+ 2. second standalone item.
+
+
+
+
+   3/ 3           F. Ballarin   Chapter 2
+

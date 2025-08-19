@@ -1,0 +1,31 @@
+Chapter 4
+ A subtitle
+
+
+
+
+          F. Ballarin
+          Università Cattolica del Sacro Cuore
+Defining sections
+
+
+
+
+   1/ 2             F. Ballarin   Chapter 4
+                                 My first section
+
+
+
+
+1/ 2   F. Ballarin   Chapter 4
+Section 1 content
+
+Content
+ • This is the first item in the block.
+ • This is the second item in the block.
+
+
+
+
+  2/ 2          F. Ballarin   Chapter 4
+

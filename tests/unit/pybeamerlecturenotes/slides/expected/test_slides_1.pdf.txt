@@ -1,0 +1,51 @@
+Chapter 1
+ A subtitle
+
+
+
+
+          F. Ballarin
+          Università Cattolica del Sacro Cuore
+Introduction
+
+
+
+
+   1/ 4        F. Ballarin   Chapter 1
+Introduction
+
+ • first item:
+         • one subitem;
+         • another subitem;
+ • second standalone item.
+
+
+
+
+  1/ 4             F. Ballarin   Chapter 1
+Introduction (II)
+
+ • third item:
+          • one subitem;
+          • another subitem;
+ • fourth standalone item.
+
+
+
+
+   2/ 4             F. Ballarin   Chapter 1
+Introduction (III)
+This is a sentence that will appear in both book and slides.
+
+
+
+
+   3/ 4          F. Ballarin   Chapter 1
+Introduction (IV)
+This is another sentence that will appear in both book and slides.
+
+
+
+
+   4/ 4          F. Ballarin   Chapter 1
+

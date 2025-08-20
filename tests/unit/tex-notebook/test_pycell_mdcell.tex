@@ -188,4 +188,28 @@ y = [40, 50, 60]
 \end{pyexpectedoutput}
 \pyexpectedfigure{images/scatter_102030_405060.png}
 
+\chapter{Interacting with the outer document}
+
+\texttt{mdcell} can interact with the rest of the document.
+
+For instance, we can define an equation and a figure before the \texttt{mdcell} call.
+
+\begin{equation}
+1 + 1 = 2
+\label{eq:1p1e2}
+\end{equation}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.5\linewidth]{images/fail_image_verification.png}
+\caption{This is a sample figure with caption}
+\label{fig:black}
+\end{figure}
+
+Next, we can refer to them inside the \texttt{mdcell} using the custom \verb|`\eqref{...}`{=tex}| and \verb|\mdref| commands.
+
+\begin{mdcell}
+We are inside the markdown cell: refer to `\eqref{eq:1p1e2}`{=tex} and to Figure `\ref{fig:black}`{=tex}.
+\end{mdcell}
+
 \end{document}

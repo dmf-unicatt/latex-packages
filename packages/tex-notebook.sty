@@ -46,7 +46,7 @@
 \fi
 
 % The markdown package to convert from markdown to latex
-\RequirePackage[texMathDollars,texMathSingleBackslash]{markdown}
+\RequirePackage[rawAttribute,texMathDollars,texMathSingleBackslash]{markdown}
 
 
 %%% ================================================================
@@ -304,6 +304,75 @@ def latex_include_graphics(path: str, pytex: any) -> str:
         return latex_escape(path)
 \end{pythontexcustomcode}
 
+% Function read_labels_from_aux: read LaTeX labels from an .aux file and convert them to a python dict.
+\begin{pythontexcustomcode}[begin]{py}
+def read_labels_from_aux(auxfile: str) -> dict[str, str]:
+    """
+    Read LaTeX labels from an .aux file and return a dictionary mapping
+    label names to their printed numbers (as strings).
+
+    Parameters
+    ----------
+    auxfile
+        Path to the LaTeX .aux file (usually generated during compilation).
+
+    Returns
+    -------
+    refs : dict[str, str]
+        Dictionary mapping label names (e.g., 'eq:1', 'fig:black') to numbers
+        (e.g., '1', '2', '(1)').
+    """
+    import re
+
+    refs = {}
+    # LaTeX writes labels in the form \newlabel{labelname}{{number}{page}}
+    newlabel_pattern = re.compile(r'\\newlabel\{([^}]+)\}\{\{([^}]+)\}')
+
+    with open(auxfile, encoding="utf-8") as f:
+        for line in f:
+            m = newlabel_pattern.search(line)
+            if m:
+                label = m.group(1)
+                number = m.group(2)
+                refs[label] = number
+    return refs
+\end{pythontexcustomcode}
+
+% Function replace_refs_in_md: replace LaTeX reference macros inside mdcell with their actual numbers.
+\begin{pythontexcustomcode}[begin]{py}
+def replace_refs_in_md(mdtext: str, refs: dict[str, str]) -> str:
+    """
+    Replace LaTeX reference macros in markdown text with their actual numbers,
+    only when inside backticks followed by {=tex}.
+
+    Parameters
+    ----------
+    mdtext
+        Markdown string possibly containing backtick-tex references.
+    refs
+        Dictionary mapping labels to their numbers.
+
+    Returns
+    -------
+    processed_md
+        Markdown text with all backtick-tex references replaced by numbers.
+    """
+    import re
+
+    # pattern: `\ref{label}`{=tex} or `\eqref{label}`{=tex}
+    pattern = re.compile(r'`(\\(?:ref|eqref)\{([^}]+)\})`\{=tex\}')
+
+    def repl(m):
+        macro = m.group(1)      # e.g., \ref{fig:black} or \eqref{eq:1}
+        label = m.group(2)      # e.g., 'fig:black' or 'eq:1'
+        if macro.startswith(r'\ref'):
+            return refs.get(label, '??')
+        else:  # \eqref
+            return f"({refs.get(label, '??')})"
+
+    return pattern.sub(repl, mdtext)
+\end{pythontexcustomcode}
+
 % Function save_cells_as_notebook: convert a list of code cell strings into a Jupyter Notebook file
 \begin{pythontexcustomcode}[begin]{py}
 def save_cells_as_notebook(all_cells: list[tuple[str, str]], pytex: any) -> None:
@@ -341,7 +410,7 @@ def save_cells_as_notebook(all_cells: list[tuple[str, str]], pytex: any) -> None
             # Add processed code cell to the notebook
             cell = nbformat.v4.new_code_cell("\n".join(lines))
         elif type == "markdown":
-            cell = nbformat.v4.new_markdown_cell(content)
+            cell = nbformat.v4.new_markdown_cell(replace_refs_in_md(content, pytex.refs))
         else:
             raise ValueError("Invalid cell")
 
@@ -381,6 +450,9 @@ pytex.include_images = True
 
 # Set the default notebook output filename. Downstream packages can personalize it further.
 pytex.notebook_filename = os.path.join(f"notebooks-{pytex.jobname}", f"{pytex.id}.ipynb")
+
+# Load references from previous compilation
+pytex.refs = read_labels_from_aux(f"{pytex.jobname}.aux")
 \end{pythontexcustomcode}
 
 %%% ----------------------------------------------------------------

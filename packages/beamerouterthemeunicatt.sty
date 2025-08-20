@@ -48,17 +48,19 @@
   \leavevmode%
   \hbox{%
   \begin{beamercolorbox}[wd=.2\paperwidth,ht=\footerheight,dp=0pt,center]{lineup}%
+    \vbox to \footerheight{\vfil%
     \color{secondary_color_alpha}\usebeamerfont{palette primary}%
     \insertframenumber{}\unicatt@pageofpages{} \inserttotalframenumber%
-    \vspace{0.1mm}
+    \vfil}%
   \end{beamercolorbox}%
   \begin{beamercolorbox}[wd=.8\paperwidth,ht=\footerheight,dp=0pt]{linebottom}%
+    \vbox to \footerheight{\vfil%
     \color{white}\usebeamerfont{palette primary}%
-    \; \insertshortauthor\
-    \quad
+    \; \insertshortauthor\ %
+    \quad%
     \color{secondary_color_alpha}\usebeamerfont{palette primary}%
     \beamer@shorttitle%
-    \vspace{0.1mm}
+    \vfil}%
   \end{beamercolorbox}%
   } %
 }

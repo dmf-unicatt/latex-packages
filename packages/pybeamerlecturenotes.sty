@@ -7,34 +7,47 @@
 \RequirePackage{amssymb}
 \RequirePackage{amsfonts}
 \RequirePackage{amsthm}
+\RequirePackage{thmtools}
 
 % Load graphics packages
 \RequirePackage{graphicx}
+
+% interpret beamer frames for book output
+\RequirePackage[noamsthm]{beamerarticle}
 
 % Load tikz
 \RequirePackage{tikz}
 \usetikzlibrary{calc,intersections}
 
-% interpret beamer frames for book output
-\RequirePackage{beamerarticle}
+% Define theorem like environments
+\declaretheorem[qed=$\Diamond$,style=plain,numberlike=figure]{theorem}
+\declaretheorem[qed=$\Diamond$,style=plain,sibling=theorem]{lemma}
+\declaretheorem[qed=$\Diamond$,style=plain,sibling=theorem]{proposition}
+\declaretheorem[qed=$\Diamond$,style=plain,sibling=theorem]{corollary}
+\declaretheorem[qed=$\Diamond$,style=definition,sibling=theorem]{definition}
+\declaretheorem[qed=$\Diamond$,style=example,sibling=theorem]{example}
+\declaretheorem[qed=$\Diamond$,style=example,sibling=theorem]{exercise}
+\declaretheorem[qed=$\Diamond$,style=remark,sibling=theorem]{remark}
+
+\numberwithin{theorem}{chapter}
+\numberwithin{lemma}{chapter}
+\numberwithin{proposition}{chapter}
+\numberwithin{corollary}{chapter}
+\numberwithin{definition}{chapter}
+\numberwithin{example}{chapter}
+\numberwithin{exercise}{chapter}
+\numberwithin{remark}{chapter}
 
 % Define all environments as in the beamer theme
 \newcommand{\highlight}[1]{\emph{#1}}
 \newcommand{\highlightB}[1]{\emph{#1}}
 \newcommand{\mathhighlight}[1]{#1}
 \newcommand{\mathhighlightB}[1]{#1}
-
 \newenvironment{remarkblock}[1]{\textbf{#1}\par}{\par}
 \newenvironment{proofblock}[1]{\textbf{#1}\par}{\par}
-
-\theoremstyle{plain}
-\newtheorem{proposition}[theorem]{Proposition}
-\theoremstyle{example}
-\newtheorem{remark}[theorem]{Remark}
-
-\numberwithin{theorem}{chapter} % will apply to all environments, since the share the same counter
-
 \newenvironment{inverseframe}[1][]{}{}
+
+
 
 % Redefine \frametitle to do nothing in book mode
 \renewcommand{\frametitle}[1]{}

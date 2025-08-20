@@ -76,8 +76,9 @@
 \newcustomblock{remark}
 \newcustomblock{proof}
 
-% only need to define proposition and lemma, because theorem, lemma, definition, example are already defined by beamer
+% only need to define proposition, exercise and remark, because theorem, lemma, definition, example are already defined by beamer
 \newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{exercise}[theorem]{Exercise}
 \newtheorem{remark}[theorem]{Remark}
 
 % define captions as numbered
@@ -86,6 +87,9 @@
 
 % define theorems as numbered
 \setbeamertemplate{theorems}[numbered]
+\makeatletter
+\let\c@theorem\c@figure
+\makeatother
 
 % prepend theorem numbering with chapter number, but only if chapter is used
 \newif\ifchaptersused
@@ -117,24 +121,40 @@
   \normalfont
   \def\inserttheoremblockenv{block}%
 }
-% customize definition and example
+% customize definition
 \def\th@definition{%
   \normalfont
   \def\inserttheoremblockenv{alertblock}%
 }
+% customize example
 \def\th@example{%
   \normalfont
   \def\inserttheoremblockenv{exampleblock}%
 }
-% customize remark: this is different from the others because there is not remark environment originally
+% customize exercise and remark: these are different from the others because these environment are not defined originally
+\renewenvironment{exercise}[1][]%
+{%
+  \refstepcounter{theorem}%
+  \edef\mylocaltitle{%
+    \ifx\\#1\\% no optional argument
+      Exercise~\thetheorem%
+    \else% optional argument given
+      Exercise~\thetheorem~(#1)%
+    \fi
+  }%
+  \begin{exampleblock}{\mylocaltitle}%
+}%
+{%
+  \end{exampleblock}%
+}
 \renewenvironment{remark}[1][]%
 {%
   \refstepcounter{theorem}%
   \edef\mylocaltitle{%
     \ifx\\#1\\% no optional argument
-      Remark \thetheorem%
+      Remark~\thetheorem%
     \else% optional argument given
-      Remark \thetheorem~(#1)%
+      Remark~\thetheorem~(#1)%
     \fi
   }%
   \begin{remarkblock}{\mylocaltitle}%

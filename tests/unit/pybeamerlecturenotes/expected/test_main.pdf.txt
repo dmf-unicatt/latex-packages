@@ -17,13 +17,7 @@ Introduction
  This is a sentence that will appear in both book and slides.
  This is another sentence that will appear in both book and slides.
  This content will only be shown in the book, and not in the slides
-
-
-
-
-                                    1
-2   CHAPTER 1. INTRODUCTION
-Chapter 2
+Chapter 2
 
 Blocks
 
@@ -58,25 +52,21 @@ This is a block colored in green.
       (b) another subitem;
 
   2. second standalone item.
+A yellow block
+This is a block colored in yellow.
 
-                                    3
-4                                        CHAPTER 2. BLOCKS
+1. first item:
+     • one subitem;
+     • another subitem;
+2. second standalone item.
 
-    A yellow block
-    This is a block colored in yellow.
+A gray block
+This is a block colored in gray.
 
-    1. first item:
-         • one subitem;
-         • another subitem;
-    2. second standalone item.
-
-    A gray block
-    This is a block colored in gray.
-
-    1. first item:
-         • one subitem;
-         • another subitem;
-    2. second standalone item.
+1. first item:
+     • one subitem;
+     • another subitem;
+2. second standalone item.
 Chapter 3
 
 Theorem-like environments
@@ -84,32 +74,40 @@ Theorem-like environments
 Theorem 3.1 (Pythagoras). For a right triangle with sides a, b and hypotenuse
 c, we have
                              a2 + b2 = c2 .
-Definition 3.2 (Prime Number). A prime number is an integer greater than 1
-that has no positive divisors other than 1 and itself.
-Example 3.3 (Small Primes). The first few prime numbers are 2, 3, 5, 7, 11.
+                                                                               ♦
+   An illustration of the Pythagorean theorem is shown in Figure 3.2.
+Definition 3.3 (Prime Number). A prime number is an integer greater than 1
+that has no positive divisors other than 1 and itself.                  ♦
+Example 3.4 (Small Primes). The first few prime numbers are 2, 3, 5, 7, 11.    ♦
+Lemma 3.5 (Divisibility Property). If a prime p divides the product ab, then
+p divides a or p divides b.                                                ♦
+Corollary 3.6. If a prime p divides the product abc, then p divides a, or p
+divides b, or p divides c.                                                ♦
+Exercise 3.7. Prove Corollary 3.6 using Lemma 3.5.                             ♦
+Proposition 3.8 (Infinitude of Primes). There are infinitely many prime num-
+bers.                                                                      ♦
 
-Lemma 3.4 (Divisibility Property). If a prime p divides the product ab, then
-p divides a or p divides b.
-Proposition 3.5 (Infinitude of Primes). There are infinitely many prime num-
-bers.
 
-Proof. Assume there are finitely many primes p1 , . . . , pn . Consider
+
+
+                        b                    c
+
+
+
+                                         a
+
+Figure 3.2: A right triangle illustrating the Pythagorean theorem: a2 + b2 = c2 .
+Proof. Assume there are finitely many primes p1 , . . . , pn . Consider
 
                                 P = p1 p2 · · · pn + 1.
 
 Then P is either prime itself or divisible by a prime not in the list. In either
 case, there exists a prime not in {p1 , . . . , pn }, contradicting finiteness. Hence,
 there are infinitely many primes.
-Remark 3.6 (Euclid). The proof of the infinitude of primes, originally due to
-Euclid, is one of the oldest and most elegant arguments in mathematics.
-Example 3.7 (Non-Prime Numbers). The integers 4, 6, 8, 9, 10 are not prime,
-since each can be expressed as a product of smaller integers.
-
-
-
-
-                                          5
-6   CHAPTER 3. THEOREM-LIKE ENVIRONMENTS
+Remark 3.9 (Euclid). The proof of the infinitude of primes, originally due to
+Euclid, is one of the oldest and most elegant arguments in mathematics.     ♦
+Example 3.10 (Non-Prime Numbers). The integers 4, 6, 8, 9, 10 are not prime,
+since each can be expressed as a product of smaller integers.             ♦
 Chapter 4
 
 Defining sections
@@ -118,13 +116,7 @@ Defining sections
 Content
   • This is the first item in the block.
   • This is the second item in the block.
-
-
-
-
-                                     7
-8   CHAPTER 4. DEFINING SECTIONS
-Chapter 5
+Chapter 5
 
 Defining inverse frames
 
@@ -135,11 +127,7 @@ Defining inverse frames
   • second standalone item.
 
 Content
+
   • This is the first item in the block.
   • This is the second item in the block.
-
-
-
-
-                                     9
 

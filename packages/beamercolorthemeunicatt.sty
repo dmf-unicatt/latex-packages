@@ -79,6 +79,7 @@
 % only need to define proposition, exercise and remark, because theorem, lemma, definition, example are already defined by beamer
 \newtheorem{proposition}[theorem]{Proposition}
 \newtheorem{exercise}[theorem]{Exercise}
+\newtheorem{pyexercise}[theorem]{Exercise}
 \newtheorem{remark}[theorem]{Remark}
 
 % define captions as numbered
@@ -161,6 +162,30 @@
 }%
 {%
   \end{remarkblock}%
+}
+% customize pyexercise: this is different from the others because it take an extra mandatory argument
+\RenewDocumentEnvironment{pyexercise}{o m}
+{
+  % Step theorem counter
+  \refstepcounter{theorem}
+
+  % Build title
+  \IfNoValueTF{#1}%
+    {\def\mylocaltitle{Exercise~\thetheorem}}%
+    {\def\mylocaltitle{Exercise~\thetheorem~(#1)}}%
+
+  % Begin example block
+  \begin{exampleblock}{\mylocaltitle}%
+
+  % Hide content until we deliberately switch modes
+  \mode*%
+}
+{
+  % Insert mandatory content in presentation mode
+  \mode<presentation>{#2}%
+
+  % Close block
+  \end{exampleblock}%
 }
 % customize proof: this is different from the others because it is not numbered
 \renewenvironment{proof}[1][]%

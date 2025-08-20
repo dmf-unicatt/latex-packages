@@ -15,12 +15,11 @@ $pythontex = 'pythontex %O %S';
 # --- Check if source contains PythonTeX commands/environments ---
 sub source_contains_pythontex {
     my ($file) = @_;
-    return 0 unless -e $file;
 
-    open(my $fh, "<", $file) or return 0;
+    open(my $fh, "<", $file);
     while (<$fh>) {
-        # Match any direct PythonTeX usage
-        if ( /\\py\s*\{/
+        # Direct PythonTeX usage
+        if (/\\py\s*\{/
           || /\\begin\s*\{pycode\}/
           || /\\begin\s*\{pyblock\}/
           || /\\begin\s*\{pycell\}/
@@ -28,6 +27,15 @@ sub source_contains_pythontex {
         ) {
             close $fh;
             return 1;
+        }
+
+        # Look for \input or \include
+        if (/\\(?:input|include)\s*\{([^}]+)\}/) {
+            my $included = $1;
+            # Add .tex if no extension
+            $included .= ".tex" unless $included =~ /\.[^}]+$/;
+            # Recursively scan
+            return 1 if source_contains_pythontex($included);
         }
     }
     close $fh;

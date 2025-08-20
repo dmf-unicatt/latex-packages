@@ -83,5 +83,35 @@ The proof of the infinitude of primes, originally due to Euclid, is one of the o
 
 \begin{example}[Non-Prime Numbers]
 The integers $4, 6, 8, 9, 10$ are not prime, since each can be expressed as a product of smaller integers.
+\label{ex:non_prime}
 \end{example}
+\end{frame}
+
+\begin{frame}
+\frametitle{Some results (IV)}
+\begin{pyexercise}{Go to Jupyter and run Exercise~\ref{ex:non_prime_py}.}
+\begin{mdcell}
+As stated in Example `\ref{ex:non_prime}`{=tex}, we verify that $6$ is not prime by checking that $6 = 2 \cdot 3$.
+\end{mdcell}
+\begin{pycell}
+assert 6 == 2 * 3
+\end{pycell}
+\mode<all>
+\label{ex:non_prime_py}
+\end{pyexercise}
+
+\begin{remark}
+In Exercise~\ref{ex:non_prime_py} we could have also used a larger number, say $8$, $9$ or $10$. See Exercise~\ref{ex:non_prime_py_2}.
+\end{remark}
+
+\begin{pyexercise}[Variant of Exercise~\ref{ex:non_prime_py}]{Go to Jupyter and run Exercise~\ref{ex:non_prime_py_2}.}
+\begin{mdcell}
+As stated in Example `\ref{ex:non_prime}`{=tex}, we verify that $10$ is not prime by checking that $10 = 2 \cdot 5$.
+\end{mdcell}
+\begin{pycell}
+assert 10 == 2 * 5
+\end{pycell}
+\mode<all>
+\label{ex:non_prime_py_2}
+\end{pyexercise}
 \end{frame}

@@ -30,6 +30,9 @@
 \RequirePackage{tikz}
 \usetikzlibrary{calc,intersections}
 
+% Load the tex-notebook package from this same repository for the pycell environment
+\RequirePackage{tex-notebook}
+
 % Define theorem like environments
 \declaretheorem[qed=$\Diamond$,style=plain,numberlike=figure]{theorem}
 \declaretheorem[qed=$\Diamond$,style=plain,sibling=theorem]{lemma}
@@ -48,6 +51,28 @@
 \numberwithin{example}{chapter}
 \numberwithin{exercise}{chapter}
 \numberwithin{remark}{chapter}
+
+% Define pyexercise separately, since it has a second mandatory argument
+\declaretheorem[%
+  name=Exercise,qed=$\Diamond$,style=example,sibling=theorem,%
+  postheadhook={%
+    \ifPythonTeXLoaded
+    \edef\writemarkdowntitle{%
+      \noexpand\pyc{all_cells.append(("markdown","\detokenize{##}\space Exercise \thetheorem"))}%
+    }
+    \writemarkdowntitle
+    \fi
+  }%
+]{pyexerciseinternal}
+\NewDocumentEnvironment{pyexercise}{o m}
+{%
+  \IfNoValueTF{#1}
+    {\begin{pyexerciseinternal}}
+    {\begin{pyexerciseinternal}[#1]}
+}
+{%
+  \end{pyexerciseinternal}%
+}
 
 % Define all environments as in the beamer theme
 \newcommand{\highlight}[1]{\emph{#1}}

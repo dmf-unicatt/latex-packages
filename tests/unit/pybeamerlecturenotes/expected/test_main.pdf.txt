@@ -97,17 +97,35 @@ bers.                                                                      ♦
                                          a
 
 Figure 3.2: A right triangle illustrating the Pythagorean theorem: a2 + b2 = c2 .
-Proof. Assume there are finitely many primes p1 , . . . , pn . Consider
+    Proof. Assume there are finitely many primes p1 , . . . , pn . Consider
 
-                                P = p1 p2 · · · pn + 1.
+                                    P = p1 p2 · · · pn + 1.
 
-Then P is either prime itself or divisible by a prime not in the list. In either
-case, there exists a prime not in {p1 , . . . , pn }, contradicting finiteness. Hence,
-there are infinitely many primes.
-Remark 3.9 (Euclid). The proof of the infinitude of primes, originally due to
-Euclid, is one of the oldest and most elegant arguments in mathematics.     ♦
-Example 3.10 (Non-Prime Numbers). The integers 4, 6, 8, 9, 10 are not prime,
-since each can be expressed as a product of smaller integers.             ♦
+    Then P is either prime itself or divisible by a prime not in the list. In either
+    case, there exists a prime not in {p1 , . . . , pn }, contradicting finiteness. Hence,
+    there are infinitely many primes.
+    Remark 3.9 (Euclid). The proof of the infinitude of primes, originally due to
+    Euclid, is one of the oldest and most elegant arguments in mathematics.     ♦
+    Example 3.10 (Non-Prime Numbers). The integers 4, 6, 8, 9, 10 are not prime,
+    since each can be expressed as a product of smaller integers.             ♦
+    Exercise 3.11. As stated in Example 3.10, we verify that 6 is not prime by
+    checking that 6 = 2 · 3.
+1   assert 6 == 2 * 3
+
+
+
+
+                                                                                        ♦
+    Remark 3.12. In Exercise 3.11 we could have also used a larger number, say 8,
+    9 or 10. See Exercise 3.13.                                                ♦
+    Exercise 3.13 (Variant of Exercise 3.11). As stated in Example 3.10, we verify
+    that 10 is not prime by checking that 10 = 2 · 5.
+2   assert 10 == 2 * 5
+
+
+
+
+                                                                                        ♦
 Chapter 4
 
 Defining sections

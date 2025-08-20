@@ -80,6 +80,10 @@
 \newtheorem{proposition}[theorem]{Proposition}
 \newtheorem{remark}[theorem]{Remark}
 
+% define captions as numbered
+\setbeamertemplate{caption}[numbered]
+\setbeamercolor{caption name}{fg=primary_color}
+
 % define theorems as numbered
 \setbeamertemplate{theorems}[numbered]
 
@@ -98,7 +102,15 @@
     \arabic{chapter}.\arabic{theorem}%
   \else
     \arabic{theorem}%
-  \fi}
+  \fi
+}
+\renewcommand{\thefigure}{%
+  \ifchaptersused
+    \arabic{chapter}.\arabic{figure}%
+  \else
+    \arabic{figure}%
+  \fi
+}
 
 % customize plain for theorem, proposition and lemma
 \def\th@plain{%

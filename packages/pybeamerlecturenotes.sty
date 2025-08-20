@@ -12,6 +12,17 @@
 % Load graphics packages
 \RequirePackage{graphicx}
 
+% Enable links
+\RequirePackage{hyperref}
+\hypersetup{
+  colorlinks=true,     % Use colored text for links instead of boxes
+  linkcolor=black,     % Set all colors to black
+  citecolor=black,
+  urlcolor=black,
+  pdfborder={0 0 0},   % Remove border around links
+  bookmarksdepth=0     % Disable bookmarks
+}
+
 % interpret beamer frames for book output
 \RequirePackage[noamsthm]{beamerarticle}
 
@@ -46,8 +57,6 @@
 \newenvironment{remarkblock}[1]{\textbf{#1}\par}{\par}
 \newenvironment{proofblock}[1]{\textbf{#1}\par}{\par}
 \newenvironment{inverseframe}[1][]{}{}
-
-
 
 % Redefine \frametitle to do nothing in book mode
 \renewcommand{\frametitle}[1]{}

@@ -304,37 +304,48 @@ def latex_include_graphics(path: str, pytex: any) -> str:
         return latex_escape(path)
 \end{pythontexcustomcode}
 
-% Function read_labels_from_aux: read LaTeX labels from an .aux file and convert them to a python dict.
+% Function read_labels_from_main_aux: read LaTeX labels from the main .aux file and convert them to a python dict.
 \begin{pythontexcustomcode}[begin]{py}
-def read_labels_from_aux(auxfile: str) -> dict[str, str]:
+def read_labels_from_main_aux(main_auxfile: str) -> dict[str, str]:
     """
-    Read LaTeX labels from an .aux file and return a dictionary mapping
-    label names to their printed numbers (as strings).
+    Read all labels from the main .aux file and any files it inputs.
 
     Parameters
     ----------
-    auxfile
-        Path to the LaTeX .aux file (usually generated during compilation).
+    main_auxfile
+        Path to the main LaTeX .aux file.
 
     Returns
     -------
-    refs : dict[str, str]
-        Dictionary mapping label names (e.g., 'eq:1', 'fig:black') to numbers
-        (e.g., '1', '2', '(1)').
+    refs
+        Mapping label names -> printed numbers (as strings)
     """
+    import pathlib
     import re
 
     refs = {}
-    # LaTeX writes labels in the form \newlabel{labelname}{{number}{page}}
     newlabel_pattern = re.compile(r'\\newlabel\{([^}]+)\}\{\{([^}]+)\}')
+    input_pattern = re.compile(r'\\@input\{([^}]+)\}')
 
-    with open(auxfile, encoding="utf-8") as f:
+    main_auxfile = pathlib.Path(main_auxfile)
+    to_read = [main_auxfile]
+
+    # Collect .aux files from \@input commands
+    with open(main_auxfile, encoding="utf-8") as f:
         for line in f:
-            m = newlabel_pattern.search(line)
+            m = input_pattern.search(line)
             if m:
-                label = m.group(1)
-                number = m.group(2)
-                refs[label] = number
+                included_aux = main_auxfile.parent / m.group(1)
+                to_read.append(included_aux)
+
+    # Read all labels from collected .aux files
+    for auxfile in to_read:
+        with open(auxfile, encoding="utf-8") as f:
+            for line in f:
+                m = newlabel_pattern.search(line)
+                if m:
+                    refs[m.group(1)] = m.group(2)
+
     return refs
 \end{pythontexcustomcode}
 
@@ -365,10 +376,11 @@ def replace_refs_in_md(mdtext: str, refs: dict[str, str]) -> str:
     def repl(m):
         macro = m.group(1)      # e.g., \ref{fig:black} or \eqref{eq:1}
         label = m.group(2)      # e.g., 'fig:black' or 'eq:1'
+        ref = refs[label]
         if macro.startswith(r'\ref'):
-            return refs.get(label, '??')
+            return ref
         else:  # \eqref
-            return f"({refs.get(label, '??')})"
+            return f"({ref})"
 
     return pattern.sub(repl, mdtext)
 \end{pythontexcustomcode}
@@ -452,7 +464,7 @@ pytex.include_images = True
 pytex.notebook_filename = os.path.join(f"notebooks-{pytex.jobname}", f"{pytex.id}.ipynb")
 
 # Load references from previous compilation
-pytex.refs = read_labels_from_aux(f"{pytex.jobname}.aux")
+pytex.refs = read_labels_from_main_aux(f"{pytex.jobname}.aux")
 \end{pythontexcustomcode}
 
 %%% ----------------------------------------------------------------

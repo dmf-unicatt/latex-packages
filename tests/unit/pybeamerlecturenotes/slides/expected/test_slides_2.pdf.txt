@@ -4,8 +4,14 @@ Chapter 2
 
 
 
-          F. Ballarin
-          Università Cattolica del Sacro Cuore
+          Francesco Ballarin1,2
+          1
+              Università Cattolica del Sacro Cuore,
+              Department of Mathematics and Physics, Brescia, Italy
+          2
+              Università Cattolica del Sacro Cuore,
+              Department of Mathematics for Economic, Financial
+              and Actuarial Sciences, Milano, Italy
 Some blocks (I)
 
 A blue block

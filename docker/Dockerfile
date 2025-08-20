@@ -29,7 +29,7 @@ RUN apt update -y -q && \
     # Install basic commands
     apt install -y -qq --no-install-recommends git patch && \
     # Install texlive
-    apt install -y -qq --no-install-recommends texlive-extra-utils texlive-humanities texlive-latex-extra texlive-lang-english; \
+    apt install -y -qq --no-install-recommends texlive-extra-utils texlive-humanities texlive-latex-extra texlive-lang-english texlive-science; \
     # Install additional required LaTeX related packages
     apt install -y -qq --no-install-recommends latexmk poppler-utils && \
     # Install chromium for kaleido

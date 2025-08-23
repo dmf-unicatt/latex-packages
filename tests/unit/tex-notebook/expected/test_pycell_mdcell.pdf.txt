@@ -161,4 +161,37 @@ and \mdref commands.
 
 
                Figure 5.1: This is a sample figure with caption
+    Chapter 6
+
+    Hiding codes
+
+    When PythonTeX is loaded, by providing the optional print argument, some
+    pycell can be executed, included in the output notebook, but hidden from the
+    print.
+        We first show a cell without the print argument, which defines the variable
+    a ...
+
+1   a = 1
+
+
+
+
+        ... then a cell with print=true, which defines the variable b ...
+
+2   b = 2
+
+
+
+
+       ... and finally a cell with print=false, which defines the variable c but will
+    not show up in the pdf.
+
+
+
+        The variable c is still available, as we can see by summing a + b + c:
+3   a + b + c
+
+    6
+
+        Unfortunately the print optional argument is not supported without PythonTeX.
 

@@ -212,4 +212,45 @@ Next, we can refer to them inside the \texttt{mdcell} using the custom \verb|`\e
 We are inside the markdown cell: refer to `\eqref{eq:1p1e2}`{=tex} and to Figure `\ref{fig:black}`{=tex}.
 \end{mdcell}
 
+\chapter{Hiding codes}
+
+When \texttt{PythonTeX} is loaded, by providing the optional \texttt{print} argument, some \texttt{pycell} can be executed, included in the output notebook, but hidden from the print.
+
+We first show a cell without the \texttt{print} argument, which defines the variable \texttt{a} ...
+
+\begin{pycell}
+a = 1
+\end{pycell}
+
+... then a cell with \texttt{print=true}, which defines the variable \texttt{b} ...
+
+\ifPythonTeXLoaded
+\begin{pycell}[print=true]
+b = 2
+\end{pycell}
+\else
+\begin{pycell}
+b = 2
+\end{pycell}
+\fi
+
+... and finally a cell with \texttt{print=false}, which defines the variable \texttt{c} but will not show up in the pdf.
+
+\ifPythonTeXLoaded
+\begin{pycell}[print=false]
+c = 3
+\end{pycell}
+\else
+\fi
+
+The variable \texttt{c} is still available, as we can see by summing \texttt{a + b + c}:
+\begin{pycell}
+a + b + c
+\end{pycell}
+\begin{pyexpectedoutput}
+6
+\end{pyexpectedoutput}
+
+Unfortunately the \texttt{print} optional argument is not supported without \texttt{PythonTeX}.
+
 \end{document}

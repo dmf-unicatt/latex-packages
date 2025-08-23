@@ -570,6 +570,7 @@ save_cells_as_notebook(all_cells, pytex)
 \seq_new:N \l__py_lines_seq
 \int_new:N \l__py_linecount_int
 \tl_new:N \l__md_input_tl
+\bool_new:N \l__pycell_print_bool
 
 %%% ----------------------------------------------------------------
 %%% Define a newline token with catcode 12 ("other")
@@ -721,7 +722,13 @@ save_cells_as_notebook(all_cells, pytex)
 %%% Environment: pycell - runs python code and prints verbatim
 %%% with line numbers
 %%% ----------------------------------------------------------------
-\NewDocumentEnvironment{pycell}{+c}
+\keys_define:nn {pycell}
+ {
+   print .bool_set:N = \l__pycell_print_bool,
+   print .default:n = {true}
+ }
+
+\NewDocumentEnvironment{pycell}{O{print=true} +c}
   {
     % Ensure that output verification has been caried out for the previous cell
     \pyc{assert~"cell_output"~not~in~python_state, f"""Missing~output~verification~for~cell~{all_cells[-1][1]}"""}
@@ -729,20 +736,26 @@ save_cells_as_notebook(all_cells, pytex)
     % Ensure that figure verification has been caried out for the previous cell
     \pyc{assert~"cell_figure_path"~not~in~python_state, f"""Missing~figure~verification~for~cell~{all_cells[-1][1]}"""}
 
+    % Process the print argument
+   \keys_set:nn {pycell}{#1}
+
     % Store the input code in a temporary variable
-    \tl_set:Nn \l__py_user_code_tl {#1}
+    \tl_set:Nn \l__py_user_code_tl {#2}
 
     % Replace \obeyedline with custom newline token
     \tl_replace_all:Nnn \l__py_user_code_tl {\obeyedline} {\newline_other_cat}
 
     % Pass to pyverbatim wrapper
-    \exp_args:Nx \scantokens {
+    \bool_if:NT \l__pycell_print_bool
       {
-        \begin_pyverbatim_wrapper \newline_other_cat
-        \l__py_user_code_tl \newline_other_cat
-        \end_pyverbatim_wrapper \newline_other_cat
+        \exp_args:Nx \scantokens {
+          {
+            \begin_pyverbatim_wrapper \newline_other_cat
+            \l__py_user_code_tl \newline_other_cat
+            \end_pyverbatim_wrapper \newline_other_cat
+          }
+        }
       }
-    }
 
     % Pass the pycode wrapper
     \exp_args:Nx \scantokens {

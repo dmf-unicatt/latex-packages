@@ -36,6 +36,8 @@ RUN apt update -y -q && \
     if apt-cache policy chromium | grep Candidate | grep -v '(none)' >/dev/null 2>&1; then \
         apt install -y -qq --no-install-recommends chromium chromium-driver; \
     fi && \
+    # Install fonts for plotly
+    apt install -y -qq --no-install-recommends fonts-noto && \
     # Install required Python packages via apt
     apt install -y -qq --no-install-recommends python-is-python3 python3-mpi4py python3-pip python3-pygments && \
     # Clean cache

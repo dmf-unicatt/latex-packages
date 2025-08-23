@@ -182,7 +182,6 @@ def call_code(
 
     # Convert the plotly figure to a PIL image
     if cell_figure is not None:
-        cell_figure.update_layout(margin=dict(l=5, r=5, t=5, b=5))
         cell_figure_path = os.path.join(f"pythontex-files-{pytex.jobname}", f"{pytex.id}_{pytex.instance}.png")
         cell_figure.write_image(cell_figure_path, width=600, height=400, scale=2)
     else:
@@ -237,6 +236,77 @@ def compare_images(actual: str, expected: str, threshold: int = 5) -> None:
     if abs(hash1 - hash2) > threshold:
         raise RuntimeError(
             f"Image mismatch between {actual} and {expected} (hash difference {abs(hash1 - hash2)} > {threshold})")
+\end{pythontexcustomcode}
+
+% Function initialize_plotly_template: change plotly default template to be print friendly
+\begin{pythontexcustomcode}[begin]{py}
+def initialize_plotly_template() -> None:
+    """
+    Change plotly default template to be print friendly.
+
+    The new default template has white brackground color (instead of light blue), black axes (instead of white),
+    and smaller margins around the figure.
+    """
+    import copy
+    import plotly.io
+
+    # Define the template
+    print_friendly_template = copy.deepcopy(plotly.io.templates["plotly_white"])
+    print_friendly_template.update(
+        layout=dict(
+            # Backgrounds
+            plot_bgcolor="white",
+            paper_bgcolor="white",
+
+            # 2D axes styling
+            xaxis=dict(
+                showgrid=True,
+                gridcolor="lightgray",
+                zeroline=True,
+                zerolinecolor="black",
+                zerolinewidth=3
+            ),
+            yaxis=dict(
+                showgrid=True,
+                gridcolor="lightgray",
+                zeroline=True,
+                zerolinecolor="black",
+                zerolinewidth=3
+            ),
+
+            # 3D scene styling
+            scene=dict(
+                xaxis=dict(
+                    backgroundcolor="white",
+                    gridcolor="lightgray",
+                    showbackground=True,
+                    zerolinecolor="black",
+                    zerolinewidth=3
+                ),
+                yaxis=dict(
+                    backgroundcolor="white",
+                    gridcolor="lightgray",
+                    showbackground=True,
+                    zerolinecolor="black",
+                    zerolinewidth=3
+                ),
+                zaxis=dict(
+                    backgroundcolor="white",
+                    gridcolor="lightgray",
+                    showbackground=True,
+                    zerolinecolor="black",
+                    zerolinewidth=3
+                )
+            ),
+
+            # Margins
+            margin=dict(l=5, r=5, t=5, b=5)
+        )
+    )
+
+    # Register and set as default
+    plotly.io.templates["print_friendly"] = print_friendly_template
+    plotly.io.templates.default = "print_friendly"
 \end{pythontexcustomcode}
 
 % Function latex_escape.py: escape special LaTeX characters in a string, suitable for inclusion inside \texttt{}.
@@ -454,6 +524,15 @@ import __main__
 # added to the .py and .ipynb outputs
 all_cells = []
 python_state = __main__.__dict__
+
+# Set plotly default template
+try:
+    import plotly
+except ImportError:
+    pass
+else:
+    initialize_plotly_template()
+    del plotly
 
 # Add a hook to pytex object to disable inclusion of images.
 # If True, the image gets included. If False, its path (as text) is

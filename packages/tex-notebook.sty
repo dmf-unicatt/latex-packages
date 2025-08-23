@@ -186,7 +186,7 @@ def call_code(
     if cell_figure is not None:
         # Save Plotly figure to an in-memory buffer
         buffer = io.BytesIO()
-        cell_figure.write_image(buffer, width=600, height=400, scale=2)
+        cell_figure.write_image(buffer, scale=2)
         # Trim whitespace and save
         image = crop_image(buffer)
         cell_figure_path = os.path.join(f"pythontex-files-{pytex.jobname}", f"{pytex.id}_{pytex.instance}.png")

@@ -35,6 +35,58 @@
 % Load the tex-notebook package from this same repository for the pycell environment
 \RequirePackage{tex-notebook}
 
+%%% ================================================================
+%%%                           PACKAGE OPTIONS
+%%% ================================================================
+
+\ExplSyntaxOn
+
+% Define keys and default values
+\keys_define:nn { pybeamerlecturenotes }
+  {
+    append-job-name-to-notebook .bool_set:N = \l__pybeamerlecturenotes_append_jobname_bool,
+    append-job-name-to-notebook .initial:n = false,
+  }
+
+% Set default values
+\keys_set:nn { pybeamerlecturenotes } { append-job-name-to-notebook = false }
+
+% Process unknown package options as key-values
+\DeclareOption*{
+  \edef\temp{\noexpand\keys_set:nn { pybeamerlecturenotes } { \CurrentOption }}
+  \temp
+}
+\ProcessOptions\relax
+
+\ExplSyntaxOff
+
+%%% ================================================================
+%%%                     NOTEBOOK CONFIGURATION
+%%% ================================================================
+
+% Create a new notebook at every chapter
+\ExplSyntaxOn
+\pretocmd{\chapter}{%
+  \stepcounter{pynotebook}
+  % Attach chapter number to notebook
+  \ifPythonTeXLoaded
+  % Folder name
+  \bool_if:NTF \l__pybeamerlecturenotes_append_jobname_bool
+    { \edef\nbfolder{notebooks-\jobname} }
+    { \edef\nbfolder{notebooks} }
+  % Notebook name: \thechapter has not been incremented yet, so use python f-string f"notebok_{... + 1}"
+  \edef\nbname{notebook_{\thechapter + 1}}
+  % Attach to pythontex
+  \edef\attachnotebooknametopythontex{\pyc{pytex.notebook_filename = os.path.join("\nbfolder", f"\nbname.ipynb")}}%
+  \attachnotebooknametopythontex
+  \fi
+}{}{}
+\ExplSyntaxOff
+
+%%% ================================================================
+%%%                     THEOREM LIKE ENVIRONMENTS
+%%% ================================================================
+
 % Define theorem like environments
 \declaretheorem[qed=$\Diamond$,style=plain,numberlike=figure]{theorem}
 \declaretheorem[qed=$\Diamond$,style=plain,sibling=theorem]{lemma}
@@ -78,6 +130,10 @@
 {%
   \end{pyexerciseinternal}%
 }
+
+%%% ================================================================
+%%%                MACROS FOR COMPATIBILITY WITH BEAMER
+%%% ================================================================
 
 % Define all environments as in the beamer theme
 \newcommand{\highlight}[1]{\emph{#1}}

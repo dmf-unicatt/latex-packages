@@ -44,12 +44,12 @@
 % Define keys and default values
 \keys_define:nn { exercise-book }
   {
-    academicyear .tl_set:N = \l_exercise_book_academic_year_tl,
-    academicyear .initial:n = {0},
+    academic-year .tl_set:N = \l_exercise_book_academic_year_tl,
+    academic-year .initial:n = {0},
   }
 
 % Set default values
-\keys_set:nn { exercise-book } { academicyear = 0 }
+\keys_set:nn { exercise-book } { academic-year = 0 }
 
 % Process unknown package options as key-values
 \DeclareOption*{
@@ -527,7 +527,7 @@
                       }
                     \typeout { \tl_use:N \l_mymsg_tl }
 
-                    % Do replacement if the academicyear package argument is >= than replacementsinceacademicyear
+                    % Do replacement if the academic-year package argument is >= than replacementsinceacademicyear
                     \int_compare:nTF
                       {
                         \int_eval:n { \tl_to_str:N \l_exercise_book_academic_year_tl }

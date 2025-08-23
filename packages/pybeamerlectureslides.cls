@@ -18,3 +18,5 @@ $ ^{2}$ Università~Cattolica~del~Sacro~Cuore,\\
 % Load tikz
 \RequirePackage{tikz}
 \usetikzlibrary{calc,intersections}
+\RequirePackage{pgfplots}
+\usepgfplotslibrary{patchplots}

@@ -142,6 +142,8 @@ def call_code(
     import io
     import os
 
+    import PIL.Image
+
     # Append current code
     all_cells.append(("code", code))
 
@@ -182,8 +184,13 @@ def call_code(
 
     # Convert the plotly figure to a PIL image
     if cell_figure is not None:
+        # Save Plotly figure to an in-memory buffer
+        buffer = io.BytesIO()
+        cell_figure.write_image(buffer, width=600, height=400, scale=2)
+        # Trim whitespace and save
+        image = crop_image(buffer)
         cell_figure_path = os.path.join(f"pythontex-files-{pytex.jobname}", f"{pytex.id}_{pytex.instance}.png")
-        cell_figure.write_image(cell_figure_path, width=600, height=400, scale=2)
+        image.save(cell_figure_path)
     else:
         cell_figure_path = None
 
@@ -236,6 +243,94 @@ def compare_images(actual: str, expected: str, threshold: int = 5) -> None:
     if abs(hash1 - hash2) > threshold:
         raise RuntimeError(
             f"Image mismatch between {actual} and {expected} (hash difference {abs(hash1 - hash2)} > {threshold})")
+\end{pythontexcustomcode}
+
+% Function crop_image: crop an image shriking unnecessary white space
+\begin{pythontexcustomcode}[begin]{py}
+def crop_image(buffer: "io.BytesIO") -> "PIL.Image.Image":
+    """
+    Crop an image with a solid background from a BytesIO buffer.
+
+    Consecutive all-white rows/columns are shrunk: at least 1 row/column
+    remains, at most 10 percent of the original block.
+
+    Parameters
+    ----------
+    buffer
+        A buffer containing the image data.
+
+    Returns
+    -------
+    :
+        A cropped PIL image. If the image is fully white,
+        the original image is returned.
+    """
+    import math
+
+    import numpy as np
+    import PIL.Image
+
+    # Open the image from buffer
+    buffer.seek(0)
+    im = PIL.Image.open(buffer).convert("RGB")
+    arr = np.array(im)
+
+    # Create mask of all non-white pixels
+    mask = np.any(arr != 255, axis=-1)
+
+    # Handle trivial case of fully white image
+    if not mask.any():
+        return im  # fully white image
+
+    # Helper function to shrink each direction
+    def shrink_axis(mask_axis: np.ndarray) -> np.ndarray:
+        """
+        Shrinks consecutive False (white) blocks in a 1D boolean array.
+        Keeps at least 1 element per block, at most 10 percent of the original block length.
+
+        Parameters
+        ----------
+        mask_axis
+            Boolean 1D array where True indicates foreground pixels.
+
+        Returns
+        -------
+        :
+            Array of indices to keep along this axis.
+        """
+        keep = []
+        i = 0
+        N = len(mask_axis)
+        while i < N:
+            if mask_axis[i]:
+                # Foreground pixel: always keep
+                keep.append(i)
+                i += 1
+            else:
+                # Start of a consecutive background block
+                start = i
+                while i < N and not mask_axis[i]:
+                    i += 1
+                block_len = i - start
+                n_keep = max(1, math.ceil(block_len * 0.1))
+                if n_keep >= block_len:
+                    keep.extend(range(start, i))
+                else:
+                    step = block_len / n_keep
+                    keep.extend([start + int(j * step) for j in range(n_keep)])
+        return np.array(keep, dtype=int)
+
+    # Rows and columns containing foreground
+    rows_mask = np.any(mask, axis=1)
+    cols_mask = np.any(mask, axis=0)
+
+    # Compute shrunk indices for rows and columns
+    rows_keep = shrink_axis(rows_mask)
+    cols_keep = shrink_axis(cols_mask)
+
+    # Crop
+    cropped_arr = arr[rows_keep][:, cols_keep]
+    return PIL.Image.fromarray(cropped_arr)
 \end{pythontexcustomcode}
 
 % Function initialize_plotly_template: change plotly default template to be print friendly
@@ -299,8 +394,8 @@ def initialize_plotly_template() -> None:
                 )
             ),
 
-            # Margins
-            margin=dict(l=5, r=5, t=5, b=5)
+            # Centered title
+            title=dict(x=0.5, xanchor="center")
         )
     )
 

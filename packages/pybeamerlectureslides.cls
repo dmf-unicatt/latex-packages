@@ -20,3 +20,6 @@ $ ^{2}$ Università~Cattolica~del~Sacro~Cuore,\\
 \usetikzlibrary{calc,intersections}
 \RequirePackage{pgfplots}
 \usepgfplotslibrary{patchplots}
+
+% Allow to refer to environments defined in another file
+\RequirePackage{xr-hyper}

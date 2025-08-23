@@ -126,6 +126,7 @@ Figure 3.2: A right triangle illustrating the Pythagorean theorem: a2 + b2 = c2 
 
 
                                                                                         ♦
+    Homework 3.A. Prove that 12 is not a prime number.                                  ♦
 Chapter 4
 
 Defining sections

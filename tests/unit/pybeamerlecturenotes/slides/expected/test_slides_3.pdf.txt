@@ -83,6 +83,9 @@ In Exercise 3.11 we could have also used a larger number, say 8, 9 or 10. See Ex
 Exercise 3.13 (Variant of Exercise 3.11)
 Go to Jupyter and run Exercise 3.13.
 
+Homework 3.A
+Prove that 12 is not a prime number.
+
 
 
 

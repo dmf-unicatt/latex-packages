@@ -34,12 +34,15 @@
 \setbeamercolor{block body alerted}{bg=alerted text.fg!30!white,fg=black}
 \setbeamercolor{block title example}{bg=green!60!black,fg=white}
 \setbeamercolor{block body example}{bg=green!30!white,fg=black}
-\setbeamercolor{block title remark}{bg=yellow!90!white,fg=black}
+\setbeamercolor{block title homework}{bg=teal!70!black,fg=white}
+\setbeamercolor{block body homework}{bg=teal!20!white,fg=black}
+\definecolor{darkyellow}{rgb}{0.95,0.75,0.2}
+\setbeamercolor{block title remark}{bg=darkyellow,fg=black}
 \setbeamercolor{block body remark}{bg=yellow!30!white,fg=black}
 \setbeamercolor{block title proof}{bg=darkgray!80!white,fg=white}
 \setbeamercolor{block body proof}{bg=gray!30!white,fg=black}
 
-% only need to define remarkblock and proofblock, as block, alertedblock and example block are already defined
+% only need to define remarkblock, homeworkblock and proofblock, because block, alertedblock and example block are already defined
 \makeatletter
 \newcommand{\newcustomblock}[1]{%
   % --- begin template (uses block title #1 / block body #1 colours) ---
@@ -74,12 +77,14 @@
 }
 \makeatother
 \newcustomblock{remark}
+\newcustomblock{homework}
 \newcustomblock{proof}
 
-% only need to define proposition, exercise and remark, because theorem, lemma, definition, example are already defined by beamer
+% only need to define proposition, exercise, pyexercise, homework, and remark, because theorem, lemma, definition, example are already defined by beamer
 \newtheorem{proposition}[theorem]{Proposition}
 \newtheorem{exercise}[theorem]{Exercise}
 \newtheorem{pyexercise}[theorem]{Exercise}
+\newtheorem{homework}{Homework}
 \newtheorem{remark}[theorem]{Remark}
 
 % define captions as numbered
@@ -92,7 +97,7 @@
 \let\c@theorem\c@figure
 \makeatother
 
-% prepend theorem numbering with chapter number, but only if chapter is used
+% prepend label numbering with chapter number, but only if chapter is used
 \newif\ifchaptersused
 \chaptersusedfalse
 \newcounter{chapter}
@@ -107,6 +112,13 @@
     \arabic{chapter}.\arabic{theorem}%
   \else
     \arabic{theorem}%
+  \fi
+}
+\renewcommand{\thehomework}{%
+  \ifchaptersused
+    \arabic{chapter}.\Alph{homework}%
+  \else
+    \arabic{homework}%
   \fi
 }
 \renewcommand{\thefigure}{%
@@ -132,32 +144,42 @@
   \normalfont
   \def\inserttheoremblockenv{exampleblock}%
 }
-% customize exercise and remark: these are different from the others because these environment are not defined originally
+% customize exercise, homework and remark: these are different from the others because these environment are not defined originally
 \renewenvironment{exercise}[1][]%
 {%
   \refstepcounter{theorem}%
-  \edef\mylocaltitle{%
-    \ifx\\#1\\% no optional argument
-      Exercise~\thetheorem%
-    \else% optional argument given
-      Exercise~\thetheorem~(#1)%
-    \fi
-  }%
+  \if\relax\detokenize{#1}\relax
+    \def\mylocaltitle{Exercise~\thetheorem}%
+  \else
+    \def\mylocaltitle{Exercise~\thetheorem~(#1)}%
+  \fi
   \begin{exampleblock}{\mylocaltitle}%
 }%
 {%
   \end{exampleblock}%
 }
+\renewenvironment{homework}[1][]%
+{%
+  \refstepcounter{homework}%
+  \if\relax\detokenize{#1}\relax
+    \def\mylocaltitle{Homework~\thehomework}%
+  \else
+    \def\mylocaltitle{Homework~\thehomework~(#1)}%
+  \fi
+
+  \begin{homeworkblock}{\mylocaltitle}%
+}%
+{%
+  \end{homeworkblock}%
+}
 \renewenvironment{remark}[1][]%
 {%
   \refstepcounter{theorem}%
-  \edef\mylocaltitle{%
-    \ifx\\#1\\% no optional argument
-      Remark~\thetheorem%
-    \else% optional argument given
-      Remark~\thetheorem~(#1)%
-    \fi
-  }%
+  \if\relax\detokenize{#1}\relax
+    \def\mylocaltitle{Remark~\thetheorem}%
+  \else
+    \def\mylocaltitle{Remark~\thetheorem~(#1)}%
+  \fi
   \begin{remarkblock}{\mylocaltitle}%
 }%
 {%
@@ -190,13 +212,11 @@
 % customize proof: this is different from the others because it is not numbered
 \renewenvironment{proof}[1][]%
 {%
-  \edef\mylocaltitle{%
-    \ifx\\#1\\% no optional argument
-      Proof%
-    \else% optional argument given
-      #1%
-    \fi
-  }%
+  \if\relax\detokenize{#1}\relax
+    \def\mylocaltitle{Proof}%
+  \else
+    \def\mylocaltitle{#1}%
+  \fi
   \begin{proofblock}{\mylocaltitle}%
 }%
 {%

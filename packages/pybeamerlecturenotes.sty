@@ -44,6 +44,7 @@
 \declaretheorem[qed=$\Diamond$,style=example,sibling=theorem]{example}
 \declaretheorem[qed=$\Diamond$,style=example,sibling=theorem]{exercise}
 \declaretheorem[qed=$\Diamond$,style=remark,sibling=theorem]{remark}
+\declaretheorem[qed=$\Diamond$,style=example]{homework}
 
 \numberwithin{theorem}{chapter}
 \numberwithin{lemma}{chapter}
@@ -53,6 +54,8 @@
 \numberwithin{example}{chapter}
 \numberwithin{exercise}{chapter}
 \numberwithin{remark}{chapter}
+\numberwithin{homework}{chapter}
+\renewcommand{\thehomework}{\thechapter.\Alph{homework}}
 
 % Define pyexercise separately, since it has a second mandatory argument
 \declaretheorem[%

@@ -32,7 +32,7 @@ jobs:
             expected-texlive-version: "2024.20250309-1"
           - base-image: debian:testing
             tag-name: debian-testing
-            expected-texlive-version: "2024.20250309-1"
+            expected-texlive-version: "2025.20250727-2"
           - base-image: debian:unstable
             tag-name: debian-unstable
             expected-texlive-version: "2025.20250727-2"

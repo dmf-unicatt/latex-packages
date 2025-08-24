@@ -153,8 +153,8 @@ mdcell can interact with the rest of the document.
    For instance, we can define an equation and a figure before the mdcell call.
 
                                   1+1=2                                   (5.1)
-   Next, we can refer to them inside the mdcell using the custom `\eqref{...}`{=tex}
-and \mdref commands.
+   Next, we can refer to them inside the mdcell using `\eqref{...}`{=tex}
+and `\ref{...}`{=tex} commands.
    We are inside the markdown cell: refer to (5.1) and to Figure 5.1.
 
 

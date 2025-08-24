@@ -1,0 +1,15 @@
+----  Messages for py:default:1  ----
+      content = replace_refs_in_md(content, pytex.refs)
+  ValueError: Found a \ref or \eqref outside backticks with {=tex} in Refer to \eqref{eq:1p1e2}.
+
+----  Messages for py:default:2  ----
+      content = replace_refs_in_md(content, pytex.refs)
+  ValueError: Found a \ref or \eqref outside backticks with {=tex} in Refer to \ref{eq:1p1e2}.
+
+----  Messages for py:default:3  ----
+      check_markdown_math_delimiters(content)
+  ValueError: Found forbidden LaTeX delimiters: \(...\) or \[...\]. Use $...$ or $$...$$ instead. Affected markdown cell is This is not ok \(1 + 1 = 2\).
+
+----  Messages for py:default:4  ----
+      check_markdown_math_delimiters(content)
+  ValueError: Found forbidden LaTeX delimiters: \(...\) or \[...\]. Use $...$ or $$...$$ instead. Affected markdown cell is This is not ok either \[1 + 1 = 2.\]

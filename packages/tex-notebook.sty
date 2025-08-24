@@ -197,6 +197,37 @@ def call_code(
     return cell_output, cell_figure_path
 \end{pythontexcustomcode}
 
+% Function check_markdown_math_delimiters: ensure that there are no \(...\), \[...\] environments in markdown
+\begin{pythontexcustomcode}[begin]{py}
+def check_markdown_math_delimiters(mdtext: str) -> None:
+    r"""
+    Scan a Markdown string and raise an error if LaTeX-style delimiters
+    `\(...\)` or `\[...\]` are found. Only `$...$` and `$$...$$` are allowed.
+
+    Parameters
+    ----------
+    mdtext : str
+        Markdown text to be scanned for forbidden LaTeX delimiters.
+
+    Raises
+    ------
+    ValueError
+        If any of the forbidden delimiters (`\(`, `\)`, `\[`, `\]`) are found
+        in the Markdown text.
+    """
+    import re
+
+    # Pattern to detect forbidden delimiters
+    forbidden_pattern = re.compile(r'\\[()\[\]]')
+
+    if forbidden_pattern.search(mdtext):
+        raise ValueError(
+            r"Found forbidden LaTeX delimiters: \(...\) or \[...\]. "
+            "Use $...$ or $$...$$ instead. "
+            f"Affected markdown cell is {mdtext}"
+        )
+\end{pythontexcustomcode}
+
 % Function compare_images: compare two images using perceptual hashing and raise an error if they differ beyond a threshold
 \begin{pythontexcustomcode}[begin]{py}
 def compare_images(actual: str, expected: str, threshold: int = 5) -> None:
@@ -532,15 +563,52 @@ def replace_refs_in_md(mdtext: str, refs: dict[str, str]) -> str:
     -------
     processed_md
         Markdown text with all backtick-tex references replaced by numbers.
+
+    Raises
+    ------
+    KeyError
+        If the matched label is not found in the ``refs`` dictionary.
     """
     import re
 
-    # pattern: `\ref{label}`{=tex} or `\eqref{label}`{=tex}
+    # Matches correctly formatted references: `\ref{label}`{=tex} or `\eqref{label}`{=tex}
     pattern = re.compile(r'`(\\(?:ref|eqref)\{([^}]+)\})`\{=tex\}')
+    # Matches any LaTeX reference macro not inside backticks
+    loose_pattern = re.compile(r'\\(?:ref|eqref)\{([^}]+)\}')
 
-    def repl(m):
+    # First, check for any unwrapped refs
+    if loose_pattern.search(pattern.sub("", mdtext)):  # remove the correctly wrapped ones to avoid false positives
+        raise ValueError(
+            r"Found a \ref or \eqref outside backticks with {=tex} "
+            f"in {mdtext}"
+        )
+
+    def repl(m: re.Match) -> str:
+        r"""
+        Replace a single LaTeX reference macro with its numeric value.
+
+        Parameters
+        ----------
+        m
+            Match object representing a correctly formatted LaTeX reference,
+            e.g., ``\ref{label}`` or ``\eqref{label}``, found inside backticks
+            with ``{=tex}``.
+
+        Returns
+        -------
+        :
+            The numeric reference string. For ``\ref`` this is just the number,
+            for ``\eqref`` this is the number enclosed in parentheses.
+
+        Raises
+        ------
+        KeyError
+            If the matched label is not found in the ``refs`` dictionary.
+        """
         macro = m.group(1)      # e.g., \ref{fig:black} or \eqref{eq:1}
         label = m.group(2)      # e.g., 'fig:black' or 'eq:1'
+        if label not in refs:
+            raise KeyError(f"Reference label '{label}' not found in refs dictionary")
         ref = refs[label]
         if macro.startswith(r'\ref'):
             return ref
@@ -587,7 +655,9 @@ def save_cells_as_notebook(all_cells: list[tuple[str, str]], pytex: any) -> None
             # Add processed code cell to the notebook
             cell = nbformat.v4.new_code_cell("\n".join(lines))
         elif type == "markdown":
-            cell = nbformat.v4.new_markdown_cell(replace_refs_in_md(content, pytex.refs))
+            content = replace_refs_in_md(content, pytex.refs)
+            check_markdown_math_delimiters(content)
+            cell = nbformat.v4.new_markdown_cell(content)
         else:
             raise ValueError("Invalid cell")
 

@@ -1,0 +1,74 @@
+\documentclass[oneside]{book}
+\usepackage{tests-tex-notebook}
+
+\begin{document}
+
+\chapter{Case with a missing reference}
+
+We first define an equation in LaTeX.
+
+\begin{equation}
+1 + 1 = 2
+\label{eq:1p1e2}
+\end{equation}
+
+We can refer to it from markdown using either using \verb|`\eqref{...}`{=tex}| and \verb|`\ref{...}`{=tex}| commands.
+
+\begin{mdcell}
+Refer to `\eqref{eq:1p1e2}`{=tex}.
+\end{mdcell}
+
+\begin{mdcell}
+Refer to `\ref{eq:1p1e2}`{=tex}.
+\end{mdcell}
+
+Forgetting to wrap the latex commands \verb|\eqref| and \verb|\ref| in \verb|`...`{=tex}| and directly using them raises an error.
+
+% First failure mode
+\begin{mdcell}
+Refer to \eqref{eq:1p1e2}.
+\end{mdcell}
+
+% Manually step counter to force creation of a new notebook, otherwise the second failure mode would go unsted
+\stepcounter{pynotebook}
+
+% Second failure mode
+\begin{mdcell}
+Refer to \ref{eq:1p1e2}.
+\end{mdcell}
+
+\chapter{Case with invalid math delimiters}
+
+\verb|$...$| and \verb|$$...$$| can be used to render formulas in LaTeX and jupyter lab.
+
+\begin{mdcell}
+This is ok $1 + 1 = 2$.
+\end{mdcell}
+
+\begin{mdcell}
+This is ok too $$1 + 1 = 2.$$
+\end{mdcell}
+
+Instead, \verb|\(...\)| and \verb|\[...\]| renders correctly in LaTeX, but not in jupyter lab, hence they are forbidden.
+
+% First failure mode
+\begin{mdcell}
+This is not ok \(1 + 1 = 2\).
+\end{mdcell}
+
+% Manually step counter to force creation of a new notebook, otherwise the second failure mode would go unsted
+\stepcounter{pynotebook}
+
+% Second failure mode
+\begin{mdcell}
+This is not ok either \[1 + 1 = 2.\]
+\end{mdcell}
+
+\ifPythonTeXLoaded
+% nothing else to be done
+\else
+% Mock failure in python execution, since pythontex is not running
+\printfailfilelinebyline{expected/\jobname.err.txt}
+\fi
+
+\end{document}

@@ -1,0 +1,29 @@
+\documentclass{beamerunicatt}
+
+\begin{document}
+
+\begin{frame}[fragile]
+\frametitle{This is correct}
+\begin{pyexercise}{Go to Jupyter and run Exercise~\ref{ex:correct}.}
+\begin{pycell}
+# Use 10 instead of 6
+assert 10 == 2 * 5
+\end{pycell}
+\mode<all>
+\label{ex:correct}
+\end{pyexercise}
+\end{frame}
+
+\begin{frame}
+\frametitle{This will give an error}
+\begin{pyexercise}{Go to Jupyter and run Exercise~\ref{ex:wrong}.}
+\begin{pycell}
+# Use 10 instead of 6
+assert 10 == 2 * 5
+\end{pycell}
+\mode<all>
+\label{ex:wrong}
+\end{pyexercise}
+\end{frame}
+
+\end{document}

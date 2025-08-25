@@ -1,0 +1,3 @@
+! Illegal parameter number in definition of \iterate.
+<to be read again>
+l.27 \end{frame}

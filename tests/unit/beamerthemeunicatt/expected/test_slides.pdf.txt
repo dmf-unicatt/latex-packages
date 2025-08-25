@@ -17,21 +17,21 @@ My presentation
 Introduction
 
  • first item:
-         • one subitem;
-         • another subitem;
+      • one subitem;
+      • another subitem;
  • second standalone item.
 
 
 
 
-  1/ 9             F. Ballarin   My presentation
+  1/ 11          F. Ballarin   My presentation
 Some blocks (I)
 
 A blue block
 This is a block colored in blue.
   • first item:
-          • one subitem;
-          • another subitem;
+       • one subitem;
+       • another subitem;
   • second standalone item.
 
 
@@ -45,7 +45,7 @@ This is a block colored in red.
 
 
 
-   2/ 9             F. Ballarin   My presentation
+   2/ 11          F. Ballarin   My presentation
 Some blocks (II)
 
 A green block
@@ -65,7 +65,7 @@ This is a block colored in yellow.
 
 
 
-   3/ 9           F. Ballarin   My presentation
+   3/ 11          F. Ballarin   My presentation
 Some blocks (III)
 
 A gray block
@@ -78,30 +78,50 @@ This is a block colored in gray.
 
 
 
-   4/ 9           F. Ballarin   My presentation
+   4/ 11          F. Ballarin   My presentation
 Some results (I)
 
 Theorem 1 (Pythagoras)
 For a right triangle with sides a, b and hypotenuse c, we have
 
-                                                  a2 + b2 = c2 .
+                                                     a2 + b2 = c2 .
 
-
-Definition 2 (Prime Number)
-A prime number is an integer greater than 1 that has no positive divisors other than 1 and itself.
-
-Example 3 (Small Primes)
-The first few prime numbers are 2, 3, 5, 7, 11.
-
-Lemma 4 (Divisibility Property)
-If a prime p divides the product ab, then p divides a or p divides b.
+An illustration of the Pythagorean theorem is shown in Figure 2.
 
 
 
-   5/ 9           F. Ballarin   My presentation
+
+                                                 b              c
+
+
+
+
+                                                            a
+
+                Figure 2: A right triangle illustrating the Pythagorean theorem: a2 + b2 = c2 .
+
+   5/ 11         F. Ballarin   My presentation
 Some results (II)
 
-Proposition 5 (Infinitude of Primes)
+Definition 3 (Prime Number)
+A prime number is an integer greater than 1 that has no positive divisors other than 1 and itself.
+
+Example 4 (Small Primes)
+The first few prime numbers are 2, 3, 5, 7, 11.
+
+Lemma 5 (Divisibility Property)
+If a prime p divides the product ab, then p divides a or p divides b.
+
+Corollary 6
+If a prime p divides the product abc, then p divides a, or p divides b, or p divides c.
+
+Exercise 7
+Prove Corollary 6 using Lemma 5.
+
+   6/ 11          F. Ballarin   My presentation
+Some results (III)
+
+Proposition 8 (Infinitude of Primes)
 There are infinitely many prime numbers.
 
 Proof
@@ -112,19 +132,37 @@ Assume there are finitely many primes p1 , . . . , pn . Consider
 Then P is either prime itself or divisible by a prime not in the list. In either case, there exists a prime
 not in {p1 , . . . , pn }, contradicting finiteness. Hence, there are infinitely many primes.
 
-Remark 6 (Euclid)
+Remark 9 (Euclid)
 The proof of the infinitude of primes, originally due to Euclid, is one of the oldest and most elegant
 arguments in mathematics.
 
-Example 7 (Non-Prime Numbers)
+Example 10 (Non-Prime Numbers)
 The integers 4, 6, 8, 9, 10 are not prime, since each can be expressed as a product of smaller integers.
-   6/ 9           F. Ballarin   My presentation
-                                My first section
+   7/ 11          F. Ballarin   My presentation
+Some results (IV)
+
+Exercise 11
+Go to Jupyter and run Exercise 11.
+
+Remark 12
+In Exercise 11 we could have also used a larger number, say 8, 9 or 10. See Exercise 13.
+
+Exercise 13 (Variant of Exercise 11)
+Go to Jupyter and run Exercise 13.
+
+Homework 1
+Prove that 12 is not a prime number.
 
 
 
 
-7/ 9   F. Ballarin   My presentation
+   8/ 11         F. Ballarin   My presentation
+                                 My first section
+
+
+
+
+9/ 11   F. Ballarin   My presentation
 Section 1 content
 
 Content
@@ -134,12 +172,12 @@ Content
 
 
 
-  8/ 9          F. Ballarin   My presentation
+  10/ 11        F. Ballarin   My presentation
 Inverse frames
 
  • first item:
-         • one subitem;
-         • another subitem;
+       • one subitem;
+       • another subitem;
  • second standalone item.
 
 Content
@@ -149,5 +187,5 @@ Content
 
 
 
-  9/ 9             F. Ballarin   My presentation
+  11/ 11         F. Ballarin   My presentation
 

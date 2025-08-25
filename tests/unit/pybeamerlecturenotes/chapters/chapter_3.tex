@@ -87,7 +87,7 @@ The integers $4, 6, 8, 9, 10$ are not prime, since each can be expressed as a pr
 \end{example}
 \end{frame}
 
-\begin{frame}
+\begin{frame}[fragile]
 \frametitle{Some results (IV)}
 \begin{pyexercise}{Go to Jupyter and run Exercise~\ref{ex:non_prime_py}.}
 \begin{mdcell}
@@ -109,6 +109,7 @@ In Exercise~\ref{ex:non_prime_py} we could have also used a larger number, say $
 As stated in Example `\ref{ex:non_prime}`{=tex}, we verify that $10$ is not prime by checking that $10 = 2 \cdot 5$.
 \end{mdcell}
 \begin{pycell}
+# Use 10 instead of 6
 assert 10 == 2 * 5
 \end{pycell}
 \mode<all>

@@ -1,5 +1,7 @@
 \documentclass{beamerunicatt}
 
+\usepackage{tikz}
+
 \title{My presentation}
 \author[F. Ballarin]{\underline{\textbf{Francesco Ballarin}}$^{1,2}$}
 \institute[Università Cattolica del Sacro Cuore]{%
@@ -108,6 +110,35 @@ a^2 + b^2 = c^2.
 \]
 \end{theorem}
 
+An illustration of the Pythagorean theorem is shown in Figure \ref{fig:pythagorean}.
+
+\begin{figure}
+\centering
+\begin{tikzpicture}[scale=1.5]
+    % Triangle coordinates
+    \coordinate (A) at (0,0);
+    \coordinate (B) at (3,0);
+    \coordinate (C) at (0,2);
+
+    % Draw triangle
+    \draw[thick] (A) -- (B) -- (C) -- cycle;
+
+    % Right angle marker at A
+    \draw (0.3,0) -- (0.3,0.3) -- (0,0.3);
+
+    % Label sides
+    \draw[below] (A) -- (B) node[midway, below] {$a$};
+    \draw[left] (A) -- (C) node[midway, left] {$b$};
+    \draw[above right] (B) -- (C) node[midway, right] {$c$};
+\end{tikzpicture}
+\caption{A right triangle illustrating the Pythagorean theorem: $a^2 + b^2 = c^2$.}
+\label{fig:pythagorean}
+\end{figure}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Some results (II)}
 \begin{definition}[Prime Number]
 A prime number is an integer greater than 1 that has no positive divisors other than 1 and itself.
 \end{definition}
@@ -118,11 +149,22 @@ The first few prime numbers are $2, 3, 5, 7, 11$.
 
 \begin{lemma}[Divisibility Property]
 If a prime $p$ divides the product $ab$, then $p$ divides $a$ or $p$ divides $b$.
+\label{lemma:divisibility_property}
 \end{lemma}
+
+\begin{corollary}
+If a prime $p$ divides the product $abc$, then $p$ divides $a$, or $p$ divides $b$, or $p$ divides $c$.
+\label{corollary:divisibility_property}
+\end{corollary}
+
+\begin{exercise}
+Prove Corollary \ref{corollary:divisibility_property} using Lemma \ref{lemma:divisibility_property}.
+\end{exercise}
+
 \end{frame}
 
 \begin{frame}
-\frametitle{Some results (II)}
+\frametitle{Some results (III)}
 \begin{proposition}[Infinitude of Primes]
 There are infinitely many prime numbers.
 \end{proposition}
@@ -141,7 +183,43 @@ The proof of the infinitude of primes, originally due to Euclid, is one of the o
 
 \begin{example}[Non-Prime Numbers]
 The integers $4, 6, 8, 9, 10$ are not prime, since each can be expressed as a product of smaller integers.
+\label{ex:non_prime}
 \end{example}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Some results (IV)}
+\begin{pyexercise}{Go to Jupyter and run Exercise~\ref{ex:non_prime_py}.}
+\begin{mdcell}
+As stated in Example `\ref{ex:non_prime}`{=tex}, we verify that $6$ is not prime by checking that $6 = 2 \cdot 3$.
+\end{mdcell}
+\begin{pycell}
+assert 6 == 2 * 3
+\end{pycell}
+\mode<all>
+\label{ex:non_prime_py}
+\end{pyexercise}
+
+\begin{remark}
+In Exercise~\ref{ex:non_prime_py} we could have also used a larger number, say $8$, $9$ or $10$. See Exercise~\ref{ex:non_prime_py_2}.
+\end{remark}
+
+\begin{pyexercise}[Variant of Exercise~\ref{ex:non_prime_py}]{Go to Jupyter and run Exercise~\ref{ex:non_prime_py_2}.}
+\begin{mdcell}
+As stated in Example `\ref{ex:non_prime}`{=tex}, we verify that $10$ is not prime by checking that $10 = 2 \cdot 5$.
+\end{mdcell}
+\begin{pycell}
+# Use 10 instead of 6
+assert 10 == 2 * 5
+\end{pycell}
+\mode<all>
+\label{ex:non_prime_py_2}
+\end{pyexercise}
+
+\begin{homework}
+Prove that $12$ is not a prime number.
+\end{homework}
+
 \end{frame}
 
 \section{My first section}

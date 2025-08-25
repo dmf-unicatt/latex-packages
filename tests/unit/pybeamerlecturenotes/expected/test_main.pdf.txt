@@ -120,7 +120,8 @@ Figure 3.2: A right triangle illustrating the Pythagorean theorem: a2 + b2 = c2 
     9 or 10. See Exercise 3.13.                                                ♦
     Exercise 3.13 (Variant of Exercise 3.11). As stated in Example 3.10, we verify
     that 10 is not prime by checking that 10 = 2 · 5.
-2   assert 10 == 2 * 5
+2   # Use 10 instead of 6
+3   assert 10 == 2 * 5
 
 
 

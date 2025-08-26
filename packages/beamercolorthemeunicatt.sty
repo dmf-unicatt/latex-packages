@@ -103,7 +103,7 @@
 \newcounter{chapter}
 \newcommand{\chapter}[1]{%
   \chaptersusedtrue
-  \stepcounter{chapter}%
+  \refstepcounter{chapter}%
   \setcounter{theorem}{0}% reset theorem counter at each "chapter"
 }
 \makeatletter

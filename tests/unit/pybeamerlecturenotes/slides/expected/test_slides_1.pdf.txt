@@ -37,12 +37,21 @@ Chapter 1
 Introduction (III)
 This is a sentence that will appear in both book and slides.
 
+                                               1+1=2           (1)
+
 
 
 
    3/ 4          F. Ballarin   Chapter 1
 Introduction (IV)
 This is another sentence that will appear in both book and slides.
+Furthermore, we can refer to
+ • the current chapter: 1,
+ • a chapter in another file: 5,
+ • a formula in a slide in the current file: (1),
+ • a formula in a slide in another file: (2.1),
+ • a lemma in a slide in another file: Lemma 3.5,
+ • a figure in a slide in another file: Figure 3.2.
 
 
 

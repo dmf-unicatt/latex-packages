@@ -1,5 +1,6 @@
 \setcounter{chapter}{0}
 \chapter{Introduction}
+\label{chap:intro}
 
 \begin{frame}
 \frametitle{Introduction}
@@ -28,11 +29,26 @@
 \begin{frame}
 \frametitle{Introduction (III)}
 This is a sentence that will appear in both book and slides.
+
+\begin{equation}
+1 + 1 = 2
+\label{eq:1p1e2_chap1}
+\end{equation}
 \end{frame}
 
 \begin{frame}
 \frametitle{Introduction (IV)}
 This is another sentence that will appear in both book and slides.
+
+Furthermore, we can refer to
+\begin{itemize}
+\item the current chapter: \ref{chap:intro},
+\item a chapter in another file: \ref{chap:inverse_frames},
+\item a formula in a slide in the current file: \eqref{eq:1p1e2_chap1},
+\item a formula in a slide in another file: \eqref{eq:1p1e2_chap2},
+\item a lemma in a slide in another file: Lemma \ref{lemma:divisibility_property},
+\item a figure in a slide in another file: Figure \ref{fig:pythagorean}.
+\end{itemize}
 \end{frame}
 
 \mode<article>{

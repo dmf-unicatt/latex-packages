@@ -15,7 +15,18 @@ Introduction
  • fourth standalone item.
 
  This is a sentence that will appear in both book and slides.
+
+                                   1+1=2                              (1.1)
  This is another sentence that will appear in both book and slides.
+ Furthermore, we can refer to
+ • the current chapter: 1,
+ • a chapter in another file: 5,
+
+ • a formula in a slide in the current file: (1.1),
+ • a formula in a slide in another file: (2.1),
+ • a lemma in a slide in another file: Lemma 3.5,
+ • a figure in a slide in another file: Figure 3.2.
+
  This content will only be shown in the book, and not in the slides
 Chapter 2
 
@@ -67,6 +78,9 @@ This is a block colored in gray.
      • one subitem;
      • another subitem;
 2. second standalone item.
+
+
+                                   1+1=2   (2.1)
 Chapter 3
 
 Theorem-like environments

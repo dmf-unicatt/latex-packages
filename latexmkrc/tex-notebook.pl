@@ -37,6 +37,17 @@ sub source_contains_pythontex {
             # Recursively scan
             return 1 if source_contains_pythontex($included);
         }
+
+        # Look for \includechapter
+        if (/\\(?:includechapter)\s*\{([^}]+)\}/) {
+            my $included = $1;
+            # Prepend with chapters/
+            $included = "chapters/" . $included;
+            # Add .tex if no extension
+            $included .= ".tex" unless $included =~ /\.[^}]+$/;
+            # Recursively scan
+            return 1 if source_contains_pythontex($included);
+        }
     }
     close $fh;
     return 0;

@@ -431,10 +431,34 @@ def run_latex_tests(tex_tests: list[str], maxfail: int, regold: bool) -> None:
 
         print("Running", os.path.join(test_dir, tex_file), end=" ", flush=True)
 
+        # Determine any required file
+        requires = []
+        if os.path.exists(os.path.join(test_dir, base + ".requires")):
+            with open(os.path.join(test_dir, base + ".requires"), "r", encoding="utf-8") as f:
+                for line in f:
+                    require_tex_relative = line.strip()
+                    if not require_tex_relative:
+                        continue
+                    dirname = os.path.dirname(require_tex_relative)
+                    dirname = os.path.join(test_dir, dirname) if dirname else test_dir
+                    basename = os.path.basename(require_tex_relative)
+                    requires.append((dirname, basename))
+
         # Clean up
         run_command(CLEAN_CMD + [tex_file], cwd=test_dir)
+        for require in requires:
+            run_command(CLEAN_CMD + [require[1]], cwd=require[0])
 
-        # Compile with latexmk
+        # Compile with latexmk any required file
+        for require in requires:
+            ret, out, err = run_command(LATEXMK_CMD + [require[1]], cwd=require[0])
+            if ret != 0:
+                print(f"{FAIL} - LaTeX compile error when building requirement {require_tex}")
+                print(out + err)
+                failure_counter += 1
+                continue
+
+        # Compile with latexmk the current tex file
         ret, out, err = run_command(LATEXMK_CMD + [tex_file], cwd=test_dir)
 
         if is_fail_test:
@@ -627,6 +651,8 @@ def run_latex_tests(tex_tests: list[str], maxfail: int, regold: bool) -> None:
 
         # Clean up
         run_command(CLEAN_CMD + [tex_file], cwd=test_dir)
+        for require in requires:
+            run_command(CLEAN_CMD + [require[1]], cwd=require[0])
 
     # Print test summary
     if failure_counter > 0:

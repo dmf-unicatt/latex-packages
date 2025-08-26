@@ -22,5 +22,8 @@ $ ^{2}$ Università~Cattolica~del~Sacro~Cuore,\\
 \usepgfplotslibrary{patchplots}
 \pgfplotsset{compat=1.18}
 
+% Load tabularx
+\RequirePackage{tabularx}
+
 % Allow to refer to environments defined in another file
 \RequirePackage{xr-hyper}

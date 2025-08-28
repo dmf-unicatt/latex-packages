@@ -80,8 +80,9 @@
 \newcustomblock{homework}
 \newcustomblock{proof}
 
-% only need to define proposition, exercise, pyexercise, homework, and remark, because theorem, lemma, definition, example are already defined by beamer
+% only need to define proposition, algorithm, exercise, pyexercise, homework, and remark, because theorem, lemma, definition, example are already defined by beamer
 \newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{algorithm}[theorem]{Algorithm}
 \newtheorem{exercise}[theorem]{Exercise}
 \newtheorem{pyexercise}[theorem]{Exercise}
 \newtheorem{homework}{Homework}
@@ -144,7 +145,20 @@
   \normalfont
   \def\inserttheoremblockenv{exampleblock}%
 }
-% customize exercise, homework and remark: these are different from the others because these environment are not defined originally
+% customize algorithm, exercise, homework and remark: these are different from the others because these environment are not defined originally
+\renewenvironment{algorithm}[1][]%
+{%
+  \refstepcounter{theorem}%
+  \if\relax\detokenize{#1}\relax
+    \def\mylocaltitle{Algorithm~\thetheorem}%
+  \else
+    \def\mylocaltitle{Algorithm~\thetheorem~(#1)}%
+  \fi
+  \begin{alertblock}{\mylocaltitle}%
+}%
+{%
+  \end{alertblock}%
+}
 \renewenvironment{exercise}[1][]%
 {%
   \refstepcounter{theorem}%

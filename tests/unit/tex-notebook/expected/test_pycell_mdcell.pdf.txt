@@ -170,14 +170,16 @@ and `\ref{...}`{=tex} commands.
     print.
         We first show a cell without the print argument, which defines the variable
     a ...
-
+        This is a text commenting the definition of the variable a. The text will
+    appear in the notebook and in the pdf.
 1   a = 1
 
 
 
 
-        ... then a cell with print=true, which defines the variable b ...
-
+       ... then a cell with print=true, which defines the variable b ...
+       This is a text commenting the definition of the variable b. The text will
+    appear in the notebook and in the pdf.
 2   b = 2
 
 

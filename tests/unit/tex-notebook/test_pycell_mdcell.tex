@@ -218,6 +218,9 @@ When \texttt{PythonTeX} is loaded, by providing the optional \texttt{print} argu
 
 We first show a cell without the \texttt{print} argument, which defines the variable \texttt{a} ...
 
+\begin{mdcell}
+This is a text commenting the definition of the variable `a`. The text will appear in the notebook and in the pdf.
+\end{mdcell}
 \begin{pycell}
 a = 1
 \end{pycell}
@@ -225,10 +228,16 @@ a = 1
 ... then a cell with \texttt{print=true}, which defines the variable \texttt{b} ...
 
 \ifPythonTeXLoaded
+\begin{mdcell}[print=true]
+This is a text commenting the definition of the variable `b`. The text will appear in the notebook and in the pdf.
+\end{mdcell}
 \begin{pycell}[print=true]
 b = 2
 \end{pycell}
 \else
+\begin{mdcell}
+This is a text commenting the definition of the variable `b`. The text will appear in the notebook and in the pdf.
+\end{mdcell}
 \begin{pycell}
 b = 2
 \end{pycell}
@@ -237,6 +246,9 @@ b = 2
 ... and finally a cell with \texttt{print=false}, which defines the variable \texttt{c} but will not show up in the pdf.
 
 \ifPythonTeXLoaded
+\begin{mdcell}[print=false]
+This is a text commenting the definition of the variable `c`. The text will appear in the notebook, but not in the pdf.
+\end{mdcell}
 \begin{pycell}[print=false]
 c = 3
 \end{pycell}

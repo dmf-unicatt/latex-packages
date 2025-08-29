@@ -736,6 +736,7 @@ save_cells_as_notebook(all_cells, pytex)
 \int_new:N \l__py_linecount_int
 \tl_new:N \l__md_input_tl
 \bool_new:N \l__pycell_print_bool
+\bool_new:N \l__mdcell_print_bool
 
 %%% ----------------------------------------------------------------
 %%% Define a newline token with catcode 12 ("other")
@@ -888,10 +889,10 @@ save_cells_as_notebook(all_cells, pytex)
 %%% with line numbers
 %%% ----------------------------------------------------------------
 \keys_define:nn {pycell}
- {
-   print .bool_set:N = \l__pycell_print_bool,
-   print .default:n = {true}
- }
+  {
+    print .bool_set:N = \l__pycell_print_bool,
+    print .default:n = {true}
+  }
 
 \NewDocumentEnvironment{pycell}{O{print=true} +c}
   {
@@ -1017,22 +1018,34 @@ if len(all_cells) > 0:
 %%% stores markdown cell in the output notebook
 %%% ----------------------------------------------------------------
 
-\NewDocumentEnvironment{mdcell}{+c}
+\keys_define:nn {mdcell}
   {
+    print .bool_set:N = \l__mdcell_print_bool,
+    print .default:n = {true}
+  }
+
+\NewDocumentEnvironment{mdcell}{O{print=true} +c}
+  {
+    % Process the print argument
+    \keys_set:nn {mdcell} {#1}
+
     % Store the input markdown in a temporary variable
-    \tl_set:Nn \l__md_input_tl {#1}
+    \tl_set:Nn \l__md_input_tl {#2}
 
     % Replace \obeyedline with custom newline token
     \tl_replace_all:Nnn \l__md_input_tl {\obeyedline} {\newline_other_cat}
 
     % Pass to markdown wrapper
-    \exp_args:Nx \scantokens {
+    \bool_if:NT \l__mdcell_print_bool
       {
-        \begin_markdown \newline_other_cat
-        \l__md_input_tl \newline_other_cat
-        \end_markdown \newline_other_cat
+        \exp_args:Nx \scantokens {
+          {
+            \begin_markdown \newline_other_cat
+            \l__md_input_tl \newline_other_cat
+            \end_markdown \newline_other_cat
+          }
+        }
       }
-    }
 
     % Store the markdown content
     \exp_args:Nx \scantokens {

@@ -1,0 +1,31 @@
+\documentclass{report}
+
+\usepackage{amsmath}
+
+% Chapters as letters: A, B, C...
+\renewcommand{\thechapter}{\Alph{chapter}}
+
+% Equations: Chapter.Equation (e.g. A.1, A.2, …)
+\numberwithin{equation}{chapter}
+
+\begin{document}
+
+\chapter{Hello World}
+\label{chap:external}
+
+Here is a simple equation:
+\begin{equation}
+E = mc^2
+\label{eq:external_1}
+\end{equation}
+
+And another:
+\begin{equation}
+a^2 + b^2 = c^2
+\label{eq:external_2}
+\end{equation}
+
+Note that this file will \emph{not} be compiled automatically by the test suite, because it does not start with the \texttt{test\_} prefix. Instead, it was manually added as a requirement for the \texttt{test\_main} file.
+
+\end{document}
+

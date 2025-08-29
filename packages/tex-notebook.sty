@@ -902,7 +902,7 @@ save_cells_as_notebook(all_cells, pytex)
     \pyc{assert~"cell_figure_path"~not~in~python_state, f"""Missing~figure~verification~for~cell~{all_cells[-1][1]}"""}
 
     % Process the print argument
-   \keys_set:nn {pycell}{#1}
+    \keys_set:nn {pycell} {#1}
 
     % Store the input code in a temporary variable
     \tl_set:Nn \l__py_user_code_tl {#2}

@@ -154,4 +154,33 @@
 \renewcommand{\frametitle}[1]{}
 
 % Define \includechapter
-\newcommand{\includechapter}[1]{\include{chapters/#1}}
+\RequirePackage{xr-hyper}
+\ExplSyntaxOn
+% Define a boolean for the aux-only option
+\bool_new:N \l__chapter_aux_only_bool
+
+\keys_define:nn {includechapter}
+  {
+    aux-only .bool_set:N = \l__chapter_aux_only_bool,
+    aux-only .default:n = {true}  % writing [aux-only] without value means true
+  }
+
+% Define the command
+\NewDocumentCommand{\includechapter}{O{} m}
+  {
+    % Parse the aux-only argument
+    \keys_set:nn {includechapter} {aux-only=false, #1}  % omitting [aux-only] means false by default
+    % Include either the .aux or the .tex file
+    \bool_if:NTF \l__chapter_aux_only_bool
+      {
+        \IfFileExists{chapters/#2.aux}
+          { \externaldocument{chapters/#2} }
+          { \PackageError{pybeamerlecturenotes}
+              {Missing~file~`chapters/#2.aux'}
+              {The~aux-only~mode~requires~the~.aux~file~to~exist.} }
+      }
+      {
+        \include{chapters/#2}
+      }
+  }
+\ExplSyntaxOff

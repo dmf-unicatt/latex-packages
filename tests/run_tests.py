@@ -453,7 +453,7 @@ def run_latex_tests(tex_tests: list[str], maxfail: int, regold: bool) -> None:
         for require in requires:
             ret, out, err = run_command(LATEXMK_CMD + [require[1]], cwd=require[0])
             if ret != 0:
-                print(f"{FAIL} - LaTeX compile error when building requirement {require_tex}")
+                print(f"{FAIL} - LaTeX compile error when building requirement {require}")
                 print(out + err)
                 failure_counter += 1
                 continue

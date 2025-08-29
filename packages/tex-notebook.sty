@@ -521,7 +521,7 @@ def read_labels_from_main_aux(main_auxfile: str) -> dict[str, str]:
 
     refs = {}
     newlabel_pattern = re.compile(r'\\newlabel\{([^}]+)\}\{\{([^}]+)\}')
-    input_pattern = re.compile(r'\\@input\{([^}]+)\}')
+    input_pattern = re.compile(r'\\(?:@input|mdcell@externaldocument)\{([^}]+)\}')
 
     main_auxfile = pathlib.Path(main_auxfile)
     to_read = [main_auxfile]

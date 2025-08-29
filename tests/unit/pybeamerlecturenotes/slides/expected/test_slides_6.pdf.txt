@@ -23,7 +23,7 @@ Chapter 6
     chapters, even when a single chapter is included. The command does not accept any optional
     argument.
 Sample citations from the chapter_6_requires.tex file (which is not actually included in this
-document): chapter A, equation A.1, (A.2).
+presentation): chapter A, equation A.1, (A.2).
 
 
 

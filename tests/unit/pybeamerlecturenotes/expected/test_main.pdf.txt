@@ -179,5 +179,5 @@ Including aux files
     The command does not accept any optional argument.
 
    Sample citations from the chapter_6_requires.tex file (which is not ac-
-tually included in this document): chapter A, equation A.1, (A.2).
+tually included in the main tex file): chapter A, equation A.1, (A.2).
 

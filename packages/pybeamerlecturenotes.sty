@@ -166,6 +166,8 @@
   }
 
 % Define the command
+\makeatletter
+\newcommand{\mdcell@externaldocument}[1]{}
 \NewDocumentCommand{\includechapter}{O{} m}
   {
     % Parse the aux-only argument
@@ -174,13 +176,20 @@
     \bool_if:NTF \l__chapter_aux_only_bool
       {
         \IfFileExists{chapters/#2.aux}
-          { \externaldocument{chapters/#2} }
-          { \PackageError{pybeamerlecturenotes}
-              {Missing~file~`chapters/#2.aux'}
-              {The~aux-only~mode~requires~the~.aux~file~to~exist.} }
+          {
+            \externaldocument{chapters/#2}
+            \immediate\write\@auxout{%
+              \string\mdcell@externaldocument{chapters/#2.aux}%
+            }%
+          }
+          {
+            \PackageError{pybeamerlecturenotes}
+              {Missing~file~`chapters/#2.aux'}{The~aux-only~mode~requires~the~.aux~file~to~exist.}
+          }
       }
       {
         \include{chapters/#2}
       }
   }
+\makeatother
 \ExplSyntaxOff

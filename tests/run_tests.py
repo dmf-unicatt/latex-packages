@@ -116,6 +116,40 @@ def check_ordered_subsequence_with_missing(expected_lines: list[str], actual_lin
     return (expected_idx == len(expected_lines))
 
 
+def merge_lines_with_continuation(lines: list[str]) -> list[str]:
+    """
+    Merge consecutive lines that end with the continuation character ~.
+
+    Parameters
+    ----------
+    lines
+        The input lines. Lines ending with ~ indicate that the next line
+        should be concatenated to the current one.
+
+    Returns
+    -------
+    merged_lines
+        The resulting lines after merging continuation lines. The ~
+        characters are removed in the merged output.
+    """
+    merged_lines = []
+    buffer = ""
+    for line in lines:
+        line = line.rstrip()  # remove trailing spaces
+        if line.endswith("~"):
+            buffer += line[:-1]  # append without the '~'
+        else:
+            if buffer:
+                buffer += line
+                merged_lines.append(buffer)
+                buffer = ""
+            else:
+                merged_lines.append(line)
+    if buffer:
+        merged_lines.append(buffer)
+    return merged_lines
+
+
 def normalize_text(text: str) -> list[str]:
     """
     Normalize a block of text for whitespace-insensitive comparisons.
@@ -474,6 +508,7 @@ def run_latex_tests(tex_tests: list[str], maxfail: int, regold: bool) -> None:
                 with open(os.path.join(test_dir, expected_err_txt), "r", encoding="utf-8") as exp_f:
                     expected_lines = [line.strip() for line in exp_f if line.strip()]
                     actual_lines = [*out.splitlines(), *err.splitlines()]
+                    actual_lines = merge_lines_with_continuation(actual_lines)
                     if check_ordered_subsequence_with_missing(expected_lines, actual_lines):
                         print(f"{XFAIL}")
                     else:

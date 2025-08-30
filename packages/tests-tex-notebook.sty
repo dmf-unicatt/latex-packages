@@ -6,25 +6,34 @@
 \pretocmd{\chapter}{\stepcounter{pynotebook}}{}{}
 
 % Add a command to mock a failure. Used when pythontex is not available and thus cannot trigger a failure
-\makeatletter
-\newread\failfile
+\directlua{
+function exercise_print_fail_file(fname)
+  local f = io.open(fname, "r")
+  if not f then
+    tex.error("File '" .. fname .. "' not found!")
+    return
+  end
+  local CHUNK = 75
+  for line in f:lines() do
+    local len = string.len(line)
+    local i = 1
+    while i <= len do
+      local chunk = line:sub(i, i + CHUNK - 1)
+      if i + CHUNK - 1 < len then chunk = chunk .. "~" end
+      texio.write_nl(chunk)
+      i = i + CHUNK
+    end
+    if len == 0 then texio.write_nl("") end
+  end
+  f:close()
+  tex.error("Mocked a compilation failure")
+end
+}
 
 \newcommand{\printfailfilelinebyline}[1]{%
-  \openin\failfile=#1\relax
-  \ifeof\failfile
-    \errmessage{File `#1' not found!}%
-  \else
-    \loop
-      \read\failfile to \failline
-      \ifeof\failfile
-        \let\repeatloop=\relax
-      \else
-        \typeout{\failline}%
-        \let\repeatloop=\repeat
-      \fi
-    \repeatloop
-    \closein\failfile
-    \errmessage{Mocked a compilation failure}
-  \fi
+    %\noexpand\directlua{exercise_print_fail_file([[\expanded{\detokenize{#1}}]])}%
+  \edef\expandedfilename{#1}%
+  \directlua{
+    exercise_print_fail_file("\luaescapestring{\expandafter\detokenize\expandafter{\expandedfilename}}")
+  }%
 }
-\makeatother

@@ -49,13 +49,13 @@
 \tl_new:N \l_exercise_book_academic_year_tl
 \bool_new:N \l_exercise_book_fullpage_bool
 \bool_new:N \l_exercise_book_blackboard_bool
-
+\tl_new:N \l_exercise_book_prefix_tl
 
 % Define keys and default values
 \keys_define:nn { exercise-book }
   {
     academic-year .tl_set:N = \l_exercise_book_academic_year_tl,
-    academic-year .initial:n = {0},
+    academic-year .initial:n = {0}, % default is year 0
 
     fullpage .choice:,
     fullpage / true  .code:n = { \bool_set_true:N  \l_exercise_book_fullpage_bool },
@@ -68,11 +68,14 @@
     blackboard / false .code:n = { \bool_set_false:N \l_exercise_book_blackboard_bool },
     blackboard .default:n = { true }, % when given without value
     blackboard .initial:n = { true }, % default if not given
+
+    prefix .tl_set:N = \l_exercise_book_prefix_tl,
+    prefix .initial:n = {}, % default is empty string
   }
 
 % Set default values
 \keys_set:nn { exercise-book }
-  { academic-year = 0, fullpage = false, blackboard = true }
+  { academic-year = 0, fullpage = false, blackboard = true, prefix = {} }
 
 % Process unknown package options as key-values
 \DeclareOption*{
@@ -100,6 +103,8 @@
     }
 }
 
+% Helper macro to print the prefix
+\cs_new:Npn \exercisebookprefix { \tl_use:N \l_exercise_book_prefix_tl }
 \ExplSyntaxOff
 
 %%% ================================================================
@@ -289,7 +294,7 @@
 % Custom exercise heading using paragraph style
 \newcommand{\exerciseHeading}[1]{%
   \paragraph{%
-    Exercise~\theprintedexercises\normalfont%
+    Exercise~\exercisebookprefix\theprintedexercises\normalfont%
     \ifhasSubtitle
       \space(\itshape\GetExerciseProperty{subtitle}).%
     \else
@@ -306,7 +311,7 @@
 % Custom solution heading with link back to the exercise
 \newcommand{\solutionHeading}[1]{%
   \edef\exref{ex:\GetExerciseProperty{id}}%
-  \paragraph{\linktoxsimenv{\exref}{Exercise~\GetExerciseProperty{printedcounter}}\normalfont.}%
+  \paragraph{\linktoxsimenv{\exref}{Exercise~\exercisebookprefix\GetExerciseProperty{printedcounter}}\normalfont.}%
 }
 \SetExerciseParameter{exercise}{solution-heading}{\solutionHeading}
 

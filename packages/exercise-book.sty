@@ -148,7 +148,11 @@
 \AtBeginDocument{
   % Load fullpage package if the option is provided
   \bool_if:NT \l_exercise_book_fullpage_bool
-    { \RequirePackage{fullpage} }
+    {
+      \RequirePackage{fullpage}
+      \RequirePackage{fancyhdr}
+      \fancyhead{}
+    }
 
   % If blackboard is false, replace academic year with 9999, add watermark, and show labels for debugging
   \bool_if:NF \l_exercise_book_blackboard_bool

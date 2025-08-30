@@ -163,20 +163,6 @@
 %%% ================================================================
 
 %%% ----------------------------------------------------------------
-%%% Helper: check if label exists
-%%% ----------------------------------------------------------------
-
-\makeatletter
-\newcommand{\labelExists}[1]{%
-  \ifcsname r@#1\endcsname
-    \expandafter\@firstoftwo
-  \else
-    \expandafter\@secondoftwo
-  \fi
-}
-\makeatother
-
-%%% ----------------------------------------------------------------
 %%% Helper: create links to be used in xsim environments and
 %%% sectioning environments
 %%% ----------------------------------------------------------------
@@ -701,6 +687,20 @@
 }
 
 %%% ----------------------------------------------------------------
+%%% Helper: check if label exists
+%%% ----------------------------------------------------------------
+
+\makeatletter
+\newcommand{\labelExists}[1]{%
+  \ifcsname r@#1\endcsname
+    \expandafter\@firstoftwo
+  \else
+    \expandafter\@secondoftwo
+  \fi
+}
+\makeatother
+
+%%% ----------------------------------------------------------------
 %%% Solution printing by section and subsection
 %%% ----------------------------------------------------------------
 
@@ -714,6 +714,9 @@
 \maxchap=1
 \maxsec=100
 \maxsubsec=100
+
+% Declare an if that evaluates to true if the exercise is in the current chapter, section or subsection.
+\newif\ifexerciseincurrentsection
 
 % Count how many additional information environment have been printed, in order to have an anchor for the links.
 % Note that it is done here, rather than in the actual additionalinformation environments, because the
@@ -739,58 +742,90 @@
 \newcommand{\PrintExercisePropertySectionBySection}[1]{%
   \setcounter{chap}{1}%
   \whileboolexpr{ test {\ifnumless{\value{chap}}{\numexpr\maxchap+1\relax}} }{%
-    \setcounter{sec}{1}%
+    \setcounter{sec}{0}%
     \whileboolexpr{ test {\ifnumless{\value{sec}}{\numexpr\maxsec+1\relax}} }{%
-      \edef\secref{sec:\arabic{chap}.\arabic{sec}}%
+      \ifnum\value{sec}>0%
+        \edef\secref{sec:\arabic{chap}.\arabic{sec}}%
+      \else%
+        \edef\secref{chap:\arabic{chap}}%
+      \fi%
       \labelExists{\secref}{%
-        \section{\linktosection{\secref}}%
-        \setcounter{subsec}{1}%
+        \ifnum\value{sec}>0%
+          \section{\linktosection{\secref}}%
+        \fi%
+        \setcounter{subsec}{0}%
         \whileboolexpr{ test {\ifnumless{\value{subsec}}{\numexpr\maxsubsec+1\relax}} }{%
-          \edef\subsecref{sec:\arabic{chap}.\arabic{sec}.\arabic{subsec}}%
+          \ifnum\value{subsec}>0%
+            \edef\subsecref{sec:\arabic{chap}.\arabic{sec}.\arabic{subsec}}%
+          \else%
+            \ifnum\value{sec}>0%
+              \edef\subsecref{sec:\arabic{chap}.\arabic{sec}}%
+            \else%
+              \edef\subsecref{chap:\arabic{chap}}%
+            \fi%
+          \fi%
           \labelExists{\subsecref}{%
-            \subsection{\linktosection{\subsecref}}%
+            \ifnum\value{subsec}>0%
+              \subsection{\linktosection{\subsecref}}%
+            \fi%
             \ForEachUsedExerciseByType{%
               \IfExercisePrintT{##1}{##2} {%
-                \ifnum\ExercisePropertyGet{##1}{##2}{chapter-value}=\value{chap}%
-                  \ifnum\ExercisePropertyGet{##1}{##2}{section-value}=\value{sec}%
-                    \ifnum\ExercisePropertyGet{##1}{##2}{subsection-value}=\value{subsec}%
-                      \stepcounter{pynotebook}% increment counter of tex-notebook package
-                      \IfStrEq{#1}{solution}{%
-                        \GetExercisePropertyTF{hassolution}{%
-                          \XSIMprint{solution}{exercise}{##2}%
+                \exerciseincurrentsectionfalse
+                \ifnum\ExercisePropertyGet{##1}{##2}{chapter-value}=\value{chap}
+                  \ifnum\ExercisePropertyGet{##1}{##2}{section-value}=0
+                    \ifnum\value{sec}=0
+                      \exerciseincurrentsectiontrue
+                    \fi
+                  \else
+                    \ifnum\ExercisePropertyGet{##1}{##2}{section-value}=\value{sec}
+                      \ifnum\ExercisePropertyGet{##1}{##2}{subsection-value}=0
+                        \ifnum\value{subsec}=0
+                          \exerciseincurrentsectiontrue
+                        \fi
+                      \else
+                        \ifnum\ExercisePropertyGet{##1}{##2}{subsection-value}=\value{subsec}
+                          \exerciseincurrentsectiontrue
+                        \fi
+                      \fi
+                    \fi
+                  \fi
+                \fi
+                \ifexerciseincurrentsection
+                  \stepcounter{pynotebook}% increment counter of tex-notebook package
+                  \IfStrEq{#1}{solution}{%
+                    \GetExercisePropertyTF{hassolution}{%
+                      \XSIMprint{solution}{exercise}{##2}%
+                    }{%
+                      \PackageError{exercise-book}{Missing solution}{Solution is missing for ##1 ##2}%
+                    }%
+                  }{%
+                    \IfStrEq{#1}{additionalinformation}{%
+                      \begin{additionalinformationinternal}{##2}
+                      \ifPythonTeXLoaded
+                      \edef\attachnotebooknametopythontex{\pyc{pytex.notebook_filename = os.path.join(f"notebooks-{pytex.jobname}", f"additional_information_\GetExerciseProperty{printedcounter}.ipynb")}}
+                      \attachnotebooknametopythontex
+                      \fi
+                      \ifLaTeXTwentyFive%
+                        \GetExercisePropertyTF{additionalinformation}{%
+                          ####1%
                         }{%
-                          \PackageError{exercise-book}{Missing solution}{Solution is missing for ##1 ##2}%
+                          \PackageError{exercise-book}{Missing additional information}{additional information is missing for ##1 ##2}%
                         }%
-                      }{%
-                        \IfStrEq{#1}{additionalinformation}{%
-                          \begin{additionalinformationinternal}{##2}
-                          \ifPythonTeXLoaded
-                          \edef\attachnotebooknametopythontex{\pyc{pytex.notebook_filename = os.path.join(f"notebooks-{pytex.jobname}", f"additional_information_\GetExerciseProperty{printedcounter}.ipynb")}}
-                          \attachnotebooknametopythontex
-                          \fi
-                          \ifLaTeXTwentyFive%
-                            \GetExercisePropertyTF{additionalinformation}{%
-                              ####1%
-                            }{%
-                              \PackageError{exercise-book}{Missing additional information}{additional information is missing for ##1 ##2}%
-                            }%
-                          \else%
-                            \GetExercisePropertyTF{additionalinformationfilename}{%
-                              \input{####1}%
-                            }{%
-                              \PackageError{exercise-book}{Missing additional information}{additional information is missing for ##1 ##2}%
-                            }%
-                          \fi%
-                          \end{additionalinformationinternal}
-                          \edef\solref{sol:\GetExerciseProperty{id}}%
-                          \noindent\textbf{Go back to:} {\itshape\linktoxsimenv{\solref}{solution}}.%
+                      \else%
+                        \GetExercisePropertyTF{additionalinformationfilename}{%
+                          \input{####1}%
                         }{%
-                          \PackageError{exercise-book}{Unknown solution type '#1'}{Expected 'solution' or 'additionalinformation'}%
+                          \PackageError{exercise-book}{Missing additional information}{additional information is missing for ##1 ##2}%
                         }%
-                      }%
-                    \fi%
-                  \fi%
-                \fi%
+                      \fi%
+                      \end{additionalinformationinternal}
+                      \edef\solref{sol:\GetExerciseProperty{id}}%
+                      \noindent\textbf{Go back to:} {\itshape\linktoxsimenv{\solref}{solution}}.%
+                    }{%
+                      \PackageError{exercise-book}{Unknown solution type '#1'}{Expected 'solution' or 'additionalinformation'}%
+                    }%
+                  }%
+                \fi
               }%
             }%
             \stepcounter{subsec}%

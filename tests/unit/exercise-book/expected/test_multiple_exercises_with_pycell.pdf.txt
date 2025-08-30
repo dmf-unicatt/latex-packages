@@ -1,4 +1,4 @@
-         chap:1
+          chap:1
 
 
 
@@ -10,8 +10,8 @@
                    1     First section
         sec:1.1
                    1.1     First subsection
-      sec:1.1.1
-           ex:1
+       sec:1.1.1
+            ex:1
                    Exercise 1 (Simple Addition). What is 2 + 2?
                      Please answer.
                    Go to: solution[1] .
@@ -23,73 +23,59 @@
 ex:2020-01-14-01
        sec:1.2.1
             ex:2
-                   Exercise 2 (January 14, 2020).       What is 3 + 3?
+                   Exercise 2 (January 14, 2020). What is 3 + 3?
                    Go to: solution[2] .
 
                    2.2     Another subsection
-      sec:1.2.2
-           ex:3
+       sec:1.2.2
+            ex:3
                    Exercise 3. What is 4 + 4?
                      This exercise is really similar to Exercise 1[3] .
                    Go to: solution[4] .
 ex:2020-01-15-01
             ex:4
-                   Exercise 4 (January 15, 2020).       Discuss this code
-
+                   Exercise 4 (January 15, 2020). Discuss this code
               1    5 + 5
-
-
                    10
-
                      This exercise is very different from Exercise 2[5] .
                    Go to: solution[6] .
                    2.3     A third subsection
 ex:2021-01-16-01
        sec:1.2.3
             ex:7
-                   Exercise 5 (January 16, 2021). What is 7 + 7? This replaced the exercise
-                   from 2020, which was asking about 6 + 6: look in the source code to find it.
+                   Exercise 5 (January 16, 2021). What is 7 + 7? This replaced the exercise from 2020, which was
+                   asking about 6 + 6: look in the source code to find it.
                       Sample code
               1    7 + 7
-
                    14
-
                    Go to: solution[7] .
 ex:2022-01-16-01
             ex:8
-                   Exercise 6 (January 16, 2022). What is 8 + 8? This will replace the exercise
-                   from 2023, which will ask about 9 + 9: look in the source code to find it.
-                      Sample code
+                   Exercise 6 (January 16, 2022). What is 8 + 8? This will replace the exercise from 2023, which
+                   will ask about 9 + 9: look in the source code to find it.
+                       Sample code
+
               1    8 + 8
-
                    16
-
                    Go to: solution[8] .
 ex:2024-01-16-01
            ex:10
-                   Exercise 7 (January 16, 2024). What is 10 + 10? This exercise was sup-
-                   posed to be replaced by the exercise from 2025, namely Exercise 8[9] , but such
-                   replacement will not happen until 2026.
+                   Exercise 7 (January 16, 2024). What is 10 + 10? This exercise was supposed to be replaced by
+                   the exercise from 2025, namely Exercise 8[9] , but such replacement will not happen until 2026.
                       Sample code
-
               1    10 + 10
-
                    20
-
                    Go to: solution[10] .
 ex:2025-01-16-01
            ex:11
-                   Exercise 8 (January 16, 2025). What is 11 + 11? This exercise will be
-                   replaced by the exercise from 2026, but such replacement will happen only in
-                   2026. Unfortunately I can’t show usage of \cref{ex:2026-01-16-01} here,
-                   because that exercise does not exist yet, but look into the source code to find
-                   it.
-                       Sample code
+                   Exercise 8 (January 16, 2025). What is 11 + 11? This exercise will be replaced by the exercise
+                   from 2026, but such replacement will happen only in 2026. Unfortunately I can’t show usage of
+                   \cref{ex:2026-01-16-01} here, because that exercise does not exist yet, but look into the source
+                   code to find it.
+                      Sample code
 
               1    11 + 11
-
                    22
-
                    Go to: solution[11] .
            chap:2
 
@@ -101,7 +87,7 @@ ex:2025-01-16-01
                     Solutions
 
                     1 First section[12]
-          sec:2.1
+         sec:2.1
                     1.1     First subsection[13]
         sec:2.1.1
             sol:1
@@ -111,7 +97,7 @@ ex:2025-01-16-01
 
 
                     2 Second section[16]
-          sec:2.2
+         sec:2.2
                     2.1     A subsection[17]
 sol:2020-01-14-01
         sec:2.2.1
@@ -119,9 +105,7 @@ sol:2020-01-14-01
                     Exercise 2[18] . 3 + 3 = 6
                       Want to try with python?
                1    3 + 3
-
                     6
-
                     Go to: additional information[19] .
 
                     2.2     Another subsection[20]
@@ -153,8 +137,8 @@ sol:2024-01-16-01
 sol:2025-01-16-01
            sol:11
                     Exercise 8[35] . 11 + 11 = 22.
-                       Unfortunately I can’t show usage of \cref{sol:2026-01-16-01} here, be-
-                    cause that points to the solution of an exercise that does not exist yet.
+                       Unfortunately I can’t show usage of \cref{sol:2026-01-16-01} here, because that points to
+                    the solution of an exercise that does not exist yet.
                     Go to: additional information[36] .
            chap:3
 
@@ -166,130 +150,98 @@ sol:2025-01-16-01
                     Additional information
 
                     1 First section[37]
-          sec:3.1
+         sec:3.1
                     1.1     First subsection[38]
         sec:3.1.1
             add:1
                     Exercise 1[39] .   Open python and do the following:
-
                1    2 + 2
-
                     4
-
                     Go back to: solution[40] .
 
 
                     2 Second section[41]
-          sec:3.2
+         sec:3.2
                     2.1     A subsection[42]
 add:2020-01-14-01
         sec:3.2.1
             add:2
                     Exercise 2[43] .   You can proceed as before, say
+
                1    3 + 3
-
                     6
-
                         Still, there is also a more elaborated solution with variables:
-
                2    a = 3
                3    b = 3
                4    a + b
 
                     6
-
                       The results are obviously the same.
                     Go back to: solution[44] .
                     2.2    Another subsection[45]
         sec:3.2.2
             add:3
                     Exercise 3[46] .   A more elaborated solution with functions:
-
                1    def my_sum(a, b):
                2        return a + b
                3
 
                4    print(my_sum(4, 4))
-
-
                     8
-
-                        This additional information is very different to the additional information
-                    for Exercise 1[47] .
+                      This additional information is very different to the additional information for Exercise 1[47] .
 add:2020-01-15-01
             add:4   Go back to: solution[48] .
 
-                    Exercise 4[49] .   A more elaborated solution with a plot. Store the numbers in
-                    a list.
-
+                    Exercise 4[49] .   A more elaborated solution with a plot. Store the numbers in a list.
                1    numbers = [5, 5]
-
-
-
-
                         Then plot their cumulative sum.
-
                2    import plotly.express as px
                3    fig = px.scatter(
                4        x=[1, 2],
                5        y=[numbers[0], numbers[0] + numbers[1]]
                6    )
                7    fig
-         You can plot again the figure if you want.
-8   print(sum(numbers))
-9   fig
+                         You can plot again the figure if you want.
+               8    print(sum(numbers))
+               9    fig
+                    10
 
-    10
-                        This additional information is very different from the additional information
-                    for Exercise 2[50] .
+
+
+
+                      This additional information is very different from the additional information for Exercise 2[50] .
                     Go back to: solution[51] .
 
-                    2.3   A third subsection[52]
+                    2.3     A third subsection[52]
 add:2021-01-16-01
         sec:3.2.3
             add:7
                     Exercise 5[53] .   Open python and do the following:
 
                1    print("7 + 7 is", 7 + 7)
-
-
                     7 + 7 is 14
-
 add:2022-01-16-01
             add:8   Go back to: solution[54] .
 
                     Exercise 6[55] .   Open python and do the following:
 
                1    print("8 + 8 is", 8 + 8)
-
-
                     8 + 8 is 16
-
 add:2024-01-16-01
            add:10   Go back to: solution[56] .
-
-                    Exercise 7[57] .   Open python and do the following:
-
+                    Exercise 7[57] .   Open python and do the following:
                1    print("10 + 10 is", 10 + 10)
-
-
                     10 + 10 is 20
-
-                      The additional information that will replace this one is the additional infor-
-                    mation for Exercise 8[58] .
+                        The additional information that will replace this one is the additional information for Exer-
+                    cise 8[58] .
 add:2025-01-16-01
            add:11   Go back to: solution[59] .
 
                     Exercise 8[60] .   Open python and do the following:
-
                1    print("11 + 11 is", 11 + 11)
-
-
                     11 + 11 is 22
-
-                        Unfortunately I can’t show usage of \cref{sol:2026-01-16-01} here, be-
-                    cause that points to the additional information of an exercise that does not exist
-                    yet.
+                       Unfortunately I can’t show usage of \cref{sol:2026-01-16-01} here, because that points to
+                    the additional information of an exercise that does not exist yet.
                     Go back to: solution[61] .
     Link details
 

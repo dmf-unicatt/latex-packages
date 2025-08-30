@@ -12,7 +12,7 @@
               1.1   Extra subsection
 sec:E.1.1.1
      ex:E.1
-              Exercise E.1 (Simple Addition).   What is 2 + 2?
+              Exercise E.1 (Simple Addition). What is 2 + 2?
               Go to: solution[1] .
   chap:E.2
 
@@ -37,8 +37,7 @@ sec:E.2.1.1
 
               Chapter E.C
 
-              Extra additional
-              information
+              Extra additional information
 
               1 Extra section[6]
   sec:E.3.1

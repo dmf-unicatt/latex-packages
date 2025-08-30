@@ -1,4 +1,4 @@
-         chap:1
+          chap:1
 
 
 
@@ -20,8 +20,8 @@
                    Go to: solution[2] .
 
                    1.1    First subsection
-      sec:1.1.1
-           ex:3
+       sec:1.1.1
+            ex:3
                    Exercise 3 (Simple Addition). What is 2 + 2?
                    Go to: solution[3] .
 
@@ -32,53 +32,50 @@
 ex:2020-01-14-01
        sec:1.2.1
             ex:4
-                   Exercise 4 (January 14, 2020).       What is 3 + 3?
+                   Exercise 4 (January 14, 2020). What is 3 + 3?
                    Go to: solution[4] .
 
                    2.2    Another subsection
-      sec:1.2.2
-           ex:5
+       sec:1.2.2
+            ex:5
                    Exercise 5. What is 4 + 4?
                      This exercise is really similar to Exercise 1[5] .
                    Go to: solution[6] .
-ex:2020-01-15-01
+ex:2020-01-15-01
             ex:6
                    Exercise 6 (January 15, 2020). What is 5 + 5?
                      This exercise is really similar to Exercise 4[7] .
                    Go to: solution[8] .
-
-                   2.3    A third subsection
+                   2.3    A third subsection
 ex:2021-01-16-01
        sec:1.2.3
             ex:9
-                   Exercise 7 (January 16, 2021). What is 7 + 7? This replaced the exercise
-                   from 2020, which was asking about 6 + 6: look in the source code to find it.
+                   Exercise 7 (January 16, 2021). What is 7 + 7? This replaced the exercise from 2020, which was
+                   asking about 6 + 6: look in the source code to find it.
                    Go to: solution[9] .
 ex:2022-01-16-01
            ex:10
-                   Exercise 8 (January 16, 2022). What is 8 + 8? This will replace the exercise
-                   from 2023, which will ask about 9 + 9: look in the source code to find it.
+                   Exercise 8 (January 16, 2022). What is 8 + 8? This will replace the exercise from 2023, which
+                   will ask about 9 + 9: look in the source code to find it.
                    Go to: solution[10] .
 ex:2024-01-16-01
            ex:12
-                   Exercise 9 (January 16, 2024). What is 10 + 10? This exercise was sup-
-                   posed to be replaced by the exercise from 2025, namely Exercise 10[11] , but
-                   such replacement will not happen until 2026.
+                   Exercise 9 (January 16, 2024). What is 10 + 10? This exercise was supposed to be replaced by
+                   the exercise from 2025, namely Exercise 10[11] , but such replacement will not happen until 2026.
                    Go to: solution[12] .
 ex:2025-01-16-01
            ex:13
-                   Exercise 10 (January 16, 2025). What is 11 + 11? This exercise will be
-                   replaced by the exercise from 2026, but such replacement will happen only in
-                   2026. Unfortunately I can’t show usage of \cref{ex:2026-01-16-01} here,
-                   because this exercise does not exist yet, but look into the source code to find it.
+                   Exercise 10 (January 16, 2025). What is 11 + 11? This exercise will be replaced by the exercise
+                   from 2026, but such replacement will happen only in 2026. Unfortunately I can’t show usage of
+                   \cref{ex:2026-01-16-01} here, because this exercise does not exist yet, but look into the source
+                   code to find it.
                    Go to: solution[13] .
-          ex:15
-                   Exercise 11. This is an extra exercise that refers to chapter A[14] , chapters A
-                   and B[15] , chapters A to C[16] , but also to chapter A[17] and chapters A and B[18]
-                   and chapters A to C[19] with ‘and’ instead of commas. Furthermore it refers
-                   to Exercise 1[20] , Exercises 1 and 4[21] , Exercises 1, 4 and 8[22] , but also to
-                   Exercise 1[23] and Exercises 1 and 4[24] and Exercises 1, 4 and 8[25] with ‘and’
-                   instead of commas.
+           ex:15
+                   Exercise 11. This is an extra exercise that refers to chapter A[14] , chapters A and B[15] , chapters A
+                   to C[16] , but also to chapter A[17] and chapters A and B[18] and chapters A to C[19] with ‘and’ instead
+                   of commas. Furthermore it refers to Exercise 1[20] , Exercises 1 and 4[21] , Exercises 1, 4 and 8[22] ,
+                   but also to Exercise 1[23] and Exercises 1 and 4[24] and Exercises 1, 4 and 8[25] with ‘and’ instead
+                   of commas.
                    Go to: solution[26] .
            chap:2
 
@@ -94,8 +91,8 @@ ex:2025-01-16-01
 
 
                     1 First section[29]
-          sec:2.1
-            sol:2
+         sec:2.1
+           sol:2
                     Exercise 2[30] . 1 + 1 = 2
                     Go to: additional information[31] .
 
@@ -107,7 +104,7 @@ ex:2025-01-16-01
 
 
                     2 Second section[35]
-          sec:2.2
+         sec:2.2
                     2.1    A subsection[36]
 sol:2020-01-14-01
         sec:2.2.1
@@ -126,7 +123,7 @@ sol:2020-01-15-01
                     Exercise 6[43] . It’s the sum of two numbers, and prints 10.
                       This solution is more verbose than the solution of Exercise 4[44] .
                     Go to: additional information[45] .
-                    2.3   A third subsection[46]
+                    2.3    A third subsection[46]
 sol:2021-01-16-01
         sec:2.2.3
             sol:9
@@ -144,14 +141,13 @@ sol:2024-01-16-01
 sol:2025-01-16-01
            sol:13
                     Exercise 10[54] . 11 + 11 = 22.
-                       Unfortunately I can’t show usage of \cref{sol:2026-01-16-01} here, be-
-                    cause that points to the solution of an exercise that does not exist yet.
+                       Unfortunately I can’t show usage of \cref{sol:2026-01-16-01} here, because that points to
+                    the solution of an exercise that does not exist yet.
                     Go to: additional information[55] .
            sol:15
-                    Exercise 11[56] . This refers to the solution of Exercise 1[57] , the solutions
-                    of Exercises 1 and 4[58] , the solutions of Exercises 1, 4 and 8[59] , but also to
-                    the solution of Exercise 1[60] and the solutions of Exercises 1 and 4[61] and the
-                    solutions of Exercises 1, 4 and 8[62] with ‘and’ instead of commas.
+                    Exercise 11[56] . This refers to the solution of Exercise 1[57] , the solutions of Exercises 1 and 4[58] ,
+                    the solutions of Exercises 1, 4 and 8[59] , but also to the solution of Exercise 1[60] and the solutions
+                    of Exercises 1 and 4[61] and the solutions of Exercises 1, 4 and 8[62] with ‘and’ instead of commas.
                     Go to: additional information[63] .
            chap:3
 
@@ -167,8 +163,8 @@ sol:2025-01-16-01
 
 
                     1 First section[66]
-          sec:3.1
-            add:2
+         sec:3.1
+           add:2
                     Exercise 2[67] . Open python and type 1 + 1
                     Go back to: solution[68] .
 
@@ -180,7 +176,7 @@ sol:2025-01-16-01
 
 
                     2 Second section[72]
-          sec:3.2
+         sec:3.2
                     2.1   A subsection[73]
 add:2020-01-14-01
         sec:3.2.1
@@ -192,16 +188,14 @@ add:2020-01-14-01
         sec:3.2.2
             add:5
                     Exercise 5[77] . Open python and type 4 + 4
-                        This additional information is really similar to the additional information
-                    for Exercise 1[78] .
+                      This additional information is really similar to the additional information for Exercise 1[78] .
 add:2020-01-15-01
             add:6   Go back to: solution[79] .
-                    Exercise 6[80] . Open python and type 5 + 5
-                        This additional information is really similar to the additional information
-                    for Exercise 4[81] .
-                    Go back to: solution[82] .
 
-                    2.3   A third subsection[83]
+                    Exercise 6[80] . Open python and type 5 + 5
+                      This additional information is really similar to the additional information for Exercise 4[81] .
+                    Go back to: solution[82] .
+                    2.3    A third subsection[83]
 add:2021-01-16-01
         sec:3.2.3
             add:9
@@ -214,22 +208,20 @@ add:2024-01-16-01
            add:12   Go back to: solution[87] .
 
                     Exercise 9[88] . Open python and type 10 + 10.
-                      The additional information that will replace this one is the additional infor-
-                    mation for Exercise 10[89] .
+                        The additional information that will replace this one is the additional information for Exer-
+                    cise 10[89] .
 add:2025-01-16-01
            add:13   Go back to: solution[90] .
 
                     Exercise 10[91] . Open python and type 11 + 11.
-                        Unfortunately I can’t show usage of \cref{sol:2026-01-16-01} here, be-
-                    cause that points to the additional information of an exercise that does not exist
-                    yet.
+                       Unfortunately I can’t show usage of \cref{sol:2026-01-16-01} here, because that points to
+                    the additional information of an exercise that does not exist yet.
            add:15   Go back to: solution[92] .
 
-                    Exercise 11[93] . This refers to the additional information for Exercise 1[94] ,
-                    the additional information for Exercises 1 and 4[95] , the additional informa-
-                    tion for Exercises 1, 4 and 8[96] , but also to the additional information for
-                    Exercise 1[97] and the additional information for Exercises 1 and 4[98] and the
-                    additional information for Exercises 1, 4 and 8[99] with ‘and’ instead of commas.
+                    Exercise 11[93] . This refers to the additional information for Exercise 1[94] , the additional infor-
+                    mation for Exercises 1 and 4[95] , the additional information for Exercises 1, 4 and 8[96] , but also to
+                    the additional information for Exercise 1[97] and the additional information for Exercises 1 and 4[98]
+                    and the additional information for Exercises 1, 4 and 8[99] with ‘and’ instead of commas.
                     Go back to: solution[100] .
     Link details
 
@@ -276,14 +268,12 @@ add:2025-01-16-01
 
 21. ex:1 (counter value 1) and ex:2020-01-14-01 (counter value 4)
 
-22. ex:1 (counter value 1), ex:2020-01-14-01 (counter value 4) and ex:2022-01-16-01 (counter value
-    10)
-23. ex:1 (counter value 1)
+22. ex:1 (counter value 1), ex:2020-01-14-01 (counter value 4) and ex:2022-01-16-01 (counter value 10)
 
-24. ex:1 (counter value 1) and ex:2020-01-14-01 (counter value 4)
+23. ex:1 (counter value 1)
+24. ex:1 (counter value 1) and ex:2020-01-14-01 (counter value 4)
 
-25. ex:1 (counter value 1), ex:2020-01-14-01 (counter value 4) and ex:2022-01-16-01 (counter value
-    10)
+25. ex:1 (counter value 1), ex:2020-01-14-01 (counter value 4) and ex:2022-01-16-01 (counter value 10)
 
 26. sol:15 (counter value 26)
 
@@ -341,9 +331,9 @@ add:2025-01-16-01
 51. ex:12 (counter value 12)
 
 52. sol:2025-01-16-01 (counter value 25)
-53. add:12 (counter value 9)
 
-54. ex:13 (counter value 13)
+53. add:12 (counter value 9)
+54. ex:13 (counter value 13)
 
 55. add:13 (counter value 10)
 
@@ -353,15 +343,13 @@ add:2025-01-16-01
 
 58. sol:1 (counter value 16) and sol:2020-01-14-01 (counter value 19)
 
-59. sol:1 (counter value 16), sol:2020-01-14-01 (counter value 19) and sol:2022-01-16-01 (counter
-    value 23)
+59. sol:1 (counter value 16), sol:2020-01-14-01 (counter value 19) and sol:2022-01-16-01 (counter value 23)
 
 60. sol:1 (counter value 16)
 
 61. sol:1 (counter value 16) and sol:2020-01-14-01 (counter value 19)
 
-62. sol:1 (counter value 16), sol:2020-01-14-01 (counter value 19) and sol:2022-01-16-01 (counter
-    value 23)
+62. sol:1 (counter value 16), sol:2020-01-14-01 (counter value 19) and sol:2022-01-16-01 (counter value 23)
 
 63. add:15 (counter value 11)
 
@@ -403,11 +391,11 @@ add:2025-01-16-01
 80. ex:6 (counter value 6)
 
 81. add:2020-01-14-01 (counter value 4)
- 82. sol:6 (counter value 21)
 
- 83. sec:1.2.3 (counter value 2.3)
+82. sol:6 (counter value 21)
 
- 84. ex:9 (counter value 9)
+83. sec:1.2.3 (counter value 2.3)
+ 84. ex:9 (counter value 9)
 
  85. sol:9 (counter value 22)
 
@@ -431,15 +419,13 @@ add:2025-01-16-01
 
  95. add:1 (counter value 1) and add:2020-01-14-01 (counter value 4)
 
- 96. add:1 (counter value 1), add:2020-01-14-01 (counter value 4) and add:2022-01-16-01 (counter
-     value 8)
+ 96. add:1 (counter value 1), add:2020-01-14-01 (counter value 4) and add:2022-01-16-01 (counter value 8)
 
  97. add:1 (counter value 1)
 
  98. add:1 (counter value 1) and add:2020-01-14-01 (counter value 4)
 
- 99. add:1 (counter value 1), add:2020-01-14-01 (counter value 4) and add:2022-01-16-01 (counter
-     value 8)
+ 99. add:1 (counter value 1), add:2020-01-14-01 (counter value 4) and add:2022-01-16-01 (counter value 8)
 
 100. sol:15 (counter value 26)
 

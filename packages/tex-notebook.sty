@@ -859,7 +859,8 @@ save_cells_as_notebook(all_cells, pytex)
     \exp_args:Nx \scantokens {
       {
         \begin_pycode \newline_other_cat
-        print("{\\color{gray}\\itshape\\begin{verbatim}" + cell_output + "\\end{verbatim}}", end="") \newline_other_cat
+        if~cell_output~!=~"": \newline_other_cat
+        \space print("{\\color{gray}\\itshape\\begin{verbatim}" + cell_output + "\\end{verbatim}}", end="") \newline_other_cat
         \end_pycode \newline_other_cat
       }
     }%
@@ -896,6 +897,10 @@ save_cells_as_notebook(all_cells, pytex)
 
 \NewDocumentEnvironment{pycell}{O{print=true} +c}
   {
+    % Customize pythontex lengths to avoid too much white space around code cells
+    \setlength{\topsep}{\parskip} % space above and below
+    \setlength{\partopsep}{\parskip} % extra space at paragraph start
+
     % Ensure that output verification has been caried out for the previous cell
     \pyc{assert~"cell_output"~not~in~python_state, f"""Missing~output~verification~for~cell~{all_cells[-1][1]}"""}
 

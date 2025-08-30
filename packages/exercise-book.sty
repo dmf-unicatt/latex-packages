@@ -26,6 +26,9 @@
 % Provides \externaldocument used in combination with the restart option
 \RequirePackage{xr-hyper}
 
+% For page configuration
+\RequirePackage{geometry}
+
 % Not required here, but used in the main document. These are put here because otherwise
 % the cleveref package import, which is required here, would fail with
 % ! Package cleveref Error: cleveref must be loaded after amsmath!.
@@ -35,12 +38,18 @@
 % To use \cref in the main document, with custom names for the exercise environments
 \RequirePackage[nameinlink]{cleveref}
 
-% Additional packages not really required here, but used in the main document.
+% Load enumitem and avoid big white spaces within enumerate and itemize
 \RequirePackage{enumitem}
+\setlist{nosep}
+
+% Load package for nicer small fractions
 \RequirePackage{nicefrac}
 
 % Load the tex-notebook package from this same repository for the pycell environment
 \RequirePackage{tex-notebook}
+
+% Disable headers
+\pagestyle{plain}
 
 %%% ================================================================
 %%%                           PACKAGE OPTIONS
@@ -145,13 +154,11 @@
 %%% Process side effects of options at the beginning of the document
 %%% ----------------------------------------------------------------
 
-\AtBeginDocument{
+\AtEndPreamble{
   % Load fullpage package if the option is provided
   \bool_if:NT \l_exercise_book_fullpage_bool
     {
-      \RequirePackage{fullpage}
-      \RequirePackage{fancyhdr}
-      \fancyhead{}
+      \geometry{left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm,heightrounded, includehead, includefoot}
     }
 
   % If blackboard is false, replace academic year with 9999, add watermark, and show labels for debugging

@@ -1,0 +1,36 @@
+\documentclass[oneside]{book}
+\usepackage[academic-year=2025,blackboard=false]{tests-exercise-book}
+
+\begin{document}
+
+\chapter{Exercises}
+
+\section{First section}
+
+\subsection{First subsection}
+
+\begin{exercise}[examdate={January 16, 2026}, examproblemnumber={1}, examproblemid={2026-01-16-01}]
+  What is \(12 + 12\)?
+
+  This is an exercise that in \texttt{test\_multiple\_exercises.tex} was not shown, because its academic year is in the future. However, in this file we use the \texttt{blackboard=false}, that automatically set \texttt{academic-year} to a very distant year, and adds a watermark on the background.
+\end{exercise}
+
+\begin{solution}
+  \(12 + 12 = 24\).
+\end{solution}
+
+\begin{additionalinformation}
+Open python and type 12 + 12
+\end{additionalinformation}
+
+\chapter{Solutions}
+\AssertPropertyInAllExercises{solution}
+\PrintExercisePropertySectionBySection{solution}
+
+\chapter{Additional information}
+\AssertPropertyInAllExercises{additionalinformation}
+\PrintExercisePropertySectionBySection{additionalinformation}
+
+% Must be the very last line of the file
+\SaveReplacements
+\end{document}

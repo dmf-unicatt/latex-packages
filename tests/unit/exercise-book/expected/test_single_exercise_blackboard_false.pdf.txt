@@ -1,0 +1,139 @@
+         chap:1
+
+
+
+
+                   Chapter A
+
+
+
+
+                 oa ad
+                   Exercises
+
+
+
+
+                      !
+               kb plo
+                   rd
+                   1     First section
+        sec:1.1
+                   1.1   First subsection
+ex:2026-01-16-01
+       sec:1.1.1
+            ex:1
+             ac u
+                   Exercise 1 (January 16, 2026). What is 12 + 12?
+                      This is an exercise that in test_multiple_exercises.tex was not shown,
+                   because its academic year is in the future. However, in this file we use the
+                   blackboard=false, that automatically set academic-year to a very distant
+                   year, and adds a watermark on the background.
+           bl ot
+                   Go to: solution[1] .
+              n
+Do
+   on
+           chap:2
+
+
+
+
+                    Chapter B
+
+
+
+
+                  oa ad
+                    Solutions
+
+
+
+
+                       !
+                kb plo
+                    rd
+                    1 First section[2]
+          sec:2.1
+                    1.1   First subsection[3]
+sol:2026-01-16-01
+        sec:2.1.1
+            sol:1
+              ac u
+                    Exercise 1[4] . 12 + 12 = 24.
+                    Go to: additional information[5] .
+            bl ot
+               n
+Do
+    on
+           chap:3
+
+
+
+
+                    Chapter C
+
+
+
+
+                  oa ad
+                    Additional information
+
+
+
+
+                       !
+                kb plo
+                    rd
+                    1 First section[6]
+          sec:3.1
+                    1.1   First subsection[7]
+add:2026-01-16-01
+        sec:3.1.1
+            add:1
+              ac u
+                    Exercise 1[8] . Open python and type 12 + 12
+                    Go back to: solution[9] .
+            bl ot
+               n
+Do
+    on
+   Link details
+
+
+
+
+       oa ad
+   Notes for chapter A
+
+
+
+
+            !
+     kb plo
+         rd
+ 1. sol:1 (counter value 2)
+
+
+
+   Notes for chapter B
+ 2. sec:1.1 (counter value 1)
+   ac u
+ 3. sec:1.1.1 (counter value 1.1)
+
+ 4. ex:1 (counter value 1)
+
+ 5. add:1 (counter value 1)
+ bl ot
+   Notes for chapter C
+ 6. sec:1.1 (counter value 1)
+    n
+
+ 7. sec:1.1.1 (counter value 1.1)
+
+ 8. ex:1 (counter value 1)
+
+ 9. sol:1 (counter value 2)
+Do
+on
+

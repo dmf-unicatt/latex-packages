@@ -34,7 +34,6 @@
 
 % Additional packages not really required here, but used in the main document.
 \RequirePackage{enumitem}
-\RequirePackage{fullpage}
 \RequirePackage{nicefrac}
 
 % Load the tex-notebook package from this same repository for the pycell environment
@@ -46,22 +45,60 @@
 
 \ExplSyntaxOn
 
+% Variables storing the package options
+\tl_new:N \l_exercise_book_academic_year_tl
+\bool_new:N \l_exercise_book_fullpage_bool
+\bool_new:N \l_exercise_book_blackboard_bool
+
+
 % Define keys and default values
 \keys_define:nn { exercise-book }
   {
     academic-year .tl_set:N = \l_exercise_book_academic_year_tl,
     academic-year .initial:n = {0},
+
+    fullpage .choice:,
+    fullpage / true  .code:n = { \bool_set_true:N  \l_exercise_book_fullpage_bool },
+    fullpage / false .code:n = { \bool_set_false:N \l_exercise_book_fullpage_bool },
+    fullpage .default:n = { true }, % when given without value
+    fullpage .initial:n = { false }, % default if not given
+
+    blackboard .choice:,
+    blackboard / true  .code:n = { \bool_set_true:N  \l_exercise_book_blackboard_bool },
+    blackboard / false .code:n = { \bool_set_false:N \l_exercise_book_blackboard_bool },
+    blackboard .default:n = { true }, % when given without value
+    blackboard .initial:n = { true }, % default if not given
   }
 
 % Set default values
-\keys_set:nn { exercise-book } { academic-year = 0 }
+\keys_set:nn { exercise-book }
+  { academic-year = 0, fullpage = false, blackboard = true }
 
 % Process unknown package options as key-values
 \DeclareOption*{
-  \edef\temp{\noexpand\keys_set:nn { exercise-book } { \CurrentOption }}
-  \temp
+  \edef\processoption{\noexpand\keys_set:nn { exercise-book } { \CurrentOption }}
+  \processoption
 }
 \ProcessOptions\relax
+
+% Process side effects of options
+\AtBeginDocument{
+  % Load fullpage package if the option is provided
+  \bool_if:NT \l_exercise_book_fullpage_bool
+    { \RequirePackage{fullpage} }
+
+  % If blackboard is false, replace academic year with 9999, add watermark, and show labels for debugging
+  \bool_if:NF \l_exercise_book_blackboard_bool
+    {
+      \tl_set:Nn \l_exercise_book_academic_year_tl { 9999 }
+      % Add watermark
+      \RequirePackage{draftwatermark}
+      \SetWatermarkText{Do~not~upload\\on~blackboard!}
+      \SetWatermarkScale{0.6}
+      % Show labels for debugging
+      \RequirePackage{showkeys}
+    }
+}
 
 \ExplSyntaxOff
 

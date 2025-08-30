@@ -11,7 +11,8 @@ do "$latexmkrcdir/tex-notebook.pl" or die "Can't load tex-notebook.pl: $!";
 # --- Clean up XSIM generated files and dirs ---
 $clean_ext .= " xsim-files-%R/* xsim-files-%R";
 push @generated_exts, 'xsim';
-push @generated_exts, 'xsimrepl';
+push @generated_exts, 'xsimlabelmap';
+push @generated_exts, 'xsimlast';
 
 # --- Let XSIM finish before generating notebooks ---
 sub mypythontex_with_xsim_check {

@@ -23,6 +23,9 @@
   bookmarksdepth=0     % Disable bookmarks
 }
 
+% For \externaldocument used in \includechapter
+\RequirePackage{xr-hyper}
+
 % interpret beamer frames for book output
 \RequirePackage[noamsthm]{beamerarticle}
 
@@ -154,7 +157,6 @@
 \renewcommand{\frametitle}[1]{}
 
 % Define \includechapter
-\RequirePackage{xr-hyper}
 \ExplSyntaxOn
 % Define a boolean for the aux-only option
 \bool_new:N \l__chapter_aux_only_bool

@@ -1,0 +1,39 @@
+\documentclass[oneside]{book}
+\usepackage[prefix={E.},restart={test_multiple_exercises}]{tests-exercise-book}
+
+\begin{document}
+
+\chapter{Extra exercises}
+
+\section{Extra section}
+
+\subsection{Extra subsection}
+
+\begin{exercise}[examdate={February 16, 2024}, examproblemnumber={1}, examproblemid={2024-02-16-01}]
+This is an extra exercise that refers to \cref{chap:1}, \cref{chap:1,chap:2}, \cref{chap:1,chap:2,chap:3} from the file \texttt{test\_multiple\_exercises.tex}.
+Furthermore it refers to \cref{ex:1}, \cref{ex:1,ex:2020-01-14-01}, \cref{ex:1,ex:2020-01-14-01,ex:2022-01-16-01}, also from the file \texttt{test\_multiple\_exercises.tex}.
+In addition, it refers to itself, either using the exercise number with prefix \cref{ex:E.1} or its date \cref{ex:2024-02-16-01}.
+Finally, one can mix references from this file and the previous file, for example \cref{ex:1,ex:E.1}, \cref{ex:1,ex:E.1,ex:2020-01-14-01,ex:2024-02-16-01}, \cref{ex:1,ex:E.1,ex:2020-01-14-01,ex:2022-01-16-01,ex:2024-02-16-01}.
+\end{exercise}
+
+\begin{solution}
+This refers to \cref{sol:1}, \cref{sol:1,sol:2020-01-14-01}, \cref{sol:1,sol:2020-01-14-01,sol:2022-01-16-01}, also from the file \texttt{test\_multiple\_exercises.tex}.
+In addition, it refers to itself, either using the exercise number with prefix \cref{sol:E.1} or its date \cref{sol:2024-02-16-01}.
+Finally, one can mix references from this file and the previous file, for example \cref{sol:1,sol:E.1}, \cref{sol:1,sol:E.1,sol:2020-01-14-01,sol:2024-02-16-01}, \cref{sol:1,sol:E.1,sol:2020-01-14-01,sol:2022-01-16-01,sol:2024-02-16-01}.
+\end{solution}
+
+\begin{additionalinformation}
+This refers to \cref{add:1}, \cref{add:1,add:2020-01-14-01}, \cref{add:1,add:2020-01-14-01,add:2022-01-16-01}, also from the file \texttt{test\_multiple\_exercises.tex}.
+In addition, it refers to itself, either using the exercise number with prefix \cref{add:E.1} or its date \cref{add:2024-02-16-01}.
+Finally, one can mix references from this file and the previous file, for example \cref{add:1,add:E.1}, \cref{add:1,add:E.1,add:2020-01-14-01,add:2024-02-16-01}, \cref{add:1,add:E.1,add:2020-01-14-01,add:2022-01-16-01,add:2024-02-16-01}.
+\end{additionalinformation}
+
+\chapter{Solutions}
+\AssertPropertyInAllExercises{solution}
+\PrintExercisePropertySectionBySection{solution}
+
+\chapter{Additional information}
+\AssertPropertyInAllExercises{additionalinformation}
+\PrintExercisePropertySectionBySection{additionalinformation}
+
+\end{document}

@@ -23,6 +23,9 @@
 % To link exercises and solutions
 \RequirePackage{hyperref}
 
+% Provides \externaldocument used in combination with the restart option
+\RequirePackage{xr-hyper}
+
 % Not required here, but used in the main document. These are put here because otherwise
 % the cleveref package import, which is required here, would fail with
 % ! Package cleveref Error: cleveref must be loaded after amsmath!.
@@ -50,6 +53,7 @@
 \bool_new:N \l_exercise_book_fullpage_bool
 \bool_new:N \l_exercise_book_blackboard_bool
 \tl_new:N \l_exercise_book_prefix_tl
+\tl_new:N \l_exercise_book_restart_tl
 
 % Define keys and default values
 \keys_define:nn { exercise-book }
@@ -71,11 +75,14 @@
 
     prefix .tl_set:N = \l_exercise_book_prefix_tl,
     prefix .initial:n = {}, % default is empty string
+
+    restart .tl_set:N = \l_exercise_book_restart_tl,
+    restart .initial:n = {}, % default is empty string
   }
 
 % Set default values
 \keys_set:nn { exercise-book }
-  { academic-year = 0, fullpage = false, blackboard = true, prefix = {} }
+  { academic-year = 0, fullpage = false, blackboard = true, prefix = {}, restart = {} }
 
 % Process unknown package options as key-values
 \DeclareOption*{
@@ -84,7 +91,60 @@
 }
 \ProcessOptions\relax
 
-% Process side effects of options
+\ExplSyntaxOff
+
+%%% ----------------------------------------------------------------
+%%% Restart capabilities
+%%% ----------------------------------------------------------------
+
+% Write the counters of the last exercise and the last printed exercise at end document
+\AtEndDocument{%
+  % Open the file
+  \newwrite\xsimlastfile
+  \immediate\openout\xsimlastfile=\jobname.xsimlast
+  % Write counter
+  \immediate\write\xsimlastfile{%
+    \string\gdef\string\lastprintedexercise{\arabic{printedexercises}}%
+  }%
+  % Close the file
+  \immediate\closeout\xsimlastfile
+}
+
+%%% ----------------------------------------------------------------
+%%% Label mapping capabilities
+%%% ----------------------------------------------------------------
+
+% Declare a new write stream that will be used by \LabelToExercisePrintedCounter
+\newwrite\xsimlabelmapfile
+
+% Open the file at begin document
+\AtBeginDocument{
+  \IfFileExists{\jobname.xsimlabelmap}
+    {
+      \input{\jobname.xsimlabelmap}
+    }
+    {}
+  \immediate\openout\xsimlabelmapfile=\jobname.xsimlabelmap
+}
+
+% Close the file at end document
+\AtEndDocument{%
+  \immediate\closeout\xsimlabelmapfile
+}
+
+%%% ----------------------------------------------------------------
+%%% Prefixing capabilities
+%%% ----------------------------------------------------------------
+
+\ExplSyntaxOn
+
+% Helper macro to print the prefix
+\cs_new:Npn \exercisebookprefix { \tl_use:N \l_exercise_book_prefix_tl }
+
+%%% ----------------------------------------------------------------
+%%% Process side effects of options at the beginning of the document
+%%% ----------------------------------------------------------------
+
 \AtBeginDocument{
   % Load fullpage package if the option is provided
   \bool_if:NT \l_exercise_book_fullpage_bool
@@ -101,10 +161,41 @@
       % Show labels for debugging
       \RequirePackage{showkeys}
     }
-}
 
-% Helper macro to print the prefix
-\cs_new:Npn \exercisebookprefix { \tl_use:N \l_exercise_book_prefix_tl }
+  % If restart is provided and not empty, load the aux file of the other file and start numbering from where
+  % the other file left off.
+  \tl_if_empty:NF \l_exercise_book_restart_tl
+    {
+      \IfFileExists{\l_exercise_book_restart_tl.aux}
+        {
+          \externaldocument{\l_exercise_book_restart_tl}
+        }
+        {
+          \PackageError{exercise-book}
+            {Missing~file~`\l_exercise_book_restart_tl.aux'}
+            {The~restart~mode~requires~the~.aux~file~of~the~previous~document~to~exist.}
+        }
+      \IfFileExists{\l_exercise_book_restart_tl.xsimlast}
+        {
+          \input{\l_exercise_book_restart_tl.xsimlast}
+          \setcounter{printedexercises}{\lastprintedexercise}
+        }
+        {
+          \PackageError{exercise-book}
+            {Missing~file~`\l_exercise_book_restart_tl.xsimlast'}
+            {The~restart~mode~requires~the~.xsimlast~file~of~the~previous~document~to~exist.}
+        }
+      \IfFileExists{\l_exercise_book_restart_tl.xsimlabelmap}
+        {
+          \input{\l_exercise_book_restart_tl.xsimlabelmap}
+        }
+        {
+          \PackageError{exercise-book}
+            {Missing~file~`\l_exercise_book_restart_tl.xsimlabelmap'}
+            {The~restart~mode~requires~the~.xsimlabelmap~file~of~the~previous~document~to~exist.}
+        }
+    }
+}
 \ExplSyntaxOff
 
 %%% ================================================================
@@ -129,12 +220,12 @@
 %%% ----------------------------------------------------------------
 
 % Display chapters as letters (e.g., "Chapter A")
-\renewcommand{\thechapter}{\Alph{chapter}}
+\renewcommand{\thechapter}{\exercisebookprefix\Alph{chapter}}
 
 % Automatically label chapters (e.g., \label{chap:1})
 \makeatletter
 \pretocmd{\@makechapterhead}{%
-  \label{chap:\arabic{chapter}}%
+  \label{chap:\exercisebookprefix\arabic{chapter}}%
 }{}{}
 \makeatother
 
@@ -150,7 +241,7 @@
     { \exercisebook@oldsection*{#2} }
     {
       \exercisebook@oldsection{#2}
-      \label{sec:\arabic{chapter}.\arabic{section}}
+      \label{sec:\exercisebookprefix\arabic{chapter}.\arabic{section}}
     }
 }
 \RenewDocumentCommand{\subsection}{sm}{
@@ -158,7 +249,7 @@
     { \exercisebook@oldsubsection*{#2} }
     {
       \exercisebook@oldsubsection{#2}
-      \label{sec:\arabic{chapter}.\arabic{section}.\arabic{subsection}}
+      \label{sec:\exercisebookprefix\arabic{chapter}.\arabic{section}.\arabic{subsection}}
     }
 }
 \makeatother
@@ -291,10 +382,12 @@
 %%% Custom heading for exercise and solution
 %%% ----------------------------------------------------------------
 
+\renewcommand{\theprintedexercises}{\exercisebookprefix\arabic{printedexercises}}
+
 % Custom exercise heading using paragraph style
 \newcommand{\exerciseHeading}[1]{%
   \paragraph{%
-    Exercise~\exercisebookprefix\theprintedexercises\normalfont%
+    Exercise~\theprintedexercises\normalfont%
     \ifhasSubtitle
       \space(\itshape\GetExerciseProperty{subtitle}).%
     \else
@@ -310,8 +403,8 @@
 
 % Custom solution heading with link back to the exercise
 \newcommand{\solutionHeading}[1]{%
-  \edef\exref{ex:\GetExerciseProperty{id}}%
-  \paragraph{\linktoxsimenv{\exref}{Exercise~\exercisebookprefix\GetExerciseProperty{printedcounter}}\normalfont.}%
+  \edef\exref{ex:\exercisebookprefix\GetExerciseProperty{id}}%
+  \paragraph{\linktoxsimenv{\exref}{Exercise~\GetExerciseProperty{printedcounter}}\normalfont.}%
 }
 \SetExerciseParameter{exercise}{solution-heading}{\solutionHeading}
 
@@ -352,7 +445,7 @@
 % Will be used with \cref, and requires at least two compilations.
 \makeatletter
 \newcommand{\LabelToExercisePrintedCounter}[1]{%
-  \immediate\write\@auxout{%
+  \immediate\write\xsimlabelmapfile{%
     \noexpand\expandafter
     \gdef\noexpand\csname exercisebook@printedcounter@#1\endcsname{%
       \GetExerciseProperty{printedcounter}%
@@ -377,14 +470,14 @@
       % PART 2: increment the printed exercise counter
       \stepcounter{pynotebook}% increment counter of tex-notebook package
       \stepcounter{printedexercises}%
-      \expanded{\SetExerciseProperty{printedcounter}{\number\value{printedexercises}}}%
+      \expanded{\SetExerciseProperty{printedcounter}{\exercisebookprefix\number\value{printedexercises}}}%
       %
       % PART 3: attach subsection value
       \expanded{\SetExerciseProperty{subsection-value}{\number\value{subsection}}}%
       %
       % PART 4: attach label(s)
-      \label{ex:\ExerciseID}%
-      \LabelToExercisePrintedCounter{ex:\ExerciseID}%
+      \label{ex:\exercisebookprefix\ExerciseID}%
+      \LabelToExercisePrintedCounter{ex:\exercisebookprefix\ExerciseID}%
       \GetExercisePropertyT{examproblemid}{%
         \edef\ExerciseExamProblemID{\GetExerciseProperty{examproblemid}}%
         \label{ex:\ExerciseExamProblemID}%
@@ -405,8 +498,8 @@
   solution/begin-hook = {%
     \IfExercisePrintT{\ExerciseType}{\ExerciseID}{%
       %
-      \label{sol:\ExerciseID}%
-      \LabelToExercisePrintedCounter{sol:\ExerciseID}%
+      \label{sol:\exercisebookprefix\ExerciseID}%
+      \LabelToExercisePrintedCounter{sol:\exercisebookprefix\ExerciseID}%
       \GetExercisePropertyT{examproblemid}{%
         \edef\ExerciseExamProblemID{\GetExerciseProperty{examproblemid}}%
         \label{sol:\ExerciseExamProblemID}%
@@ -663,7 +756,7 @@
     \edef\ExerciseID{\csname g_xsim_exercise_id_tl\endcsname}
 
     % Store the file containing the code as a property of the exercise
-    \edef\additionalinformationfilename{xsim-files-\jobname/\jobname-\ExerciseType-\ExerciseID-additional-solution.tex}
+    \edef\additionalinformationfilename{xsim-files-\jobname/\jobname-\ExerciseType-\exercisebookprefix\ExerciseID-additional-solution.tex}
     \edef\setexerciseproperty{\noexpand\SetExerciseProperty{additionalinformationfilename}{\additionalinformationfilename}}
     \setexerciseproperty
     \XSIMfilewritestart{\additionalinformationfilename}%
@@ -682,11 +775,11 @@
 %%% ----------------------------------------------------------------
 \xsimsetup{
   exercise/post-hook = {%
-    \edef\solref{sol:\GetExerciseProperty{id}}%
+    \edef\solref{sol:\exercisebookprefix\GetExerciseProperty{id}}%
     \noindent\textbf{Go to:} {\itshape\linktoxsimenv{\solref}{solution}}.%
   },
   solution/post-hook = {%
-    \edef\addref{add:\GetExerciseProperty{id}}%
+    \edef\addref{add:\exercisebookprefix\GetExerciseProperty{id}}%
     \noindent\textbf{Go to:} {\itshape\linktoxsimenv{\addref}{additional information}}.%
   }
 }
@@ -733,8 +826,8 @@
 % explicitly by end users.
 \newenvironment{additionalinformationinternal}[1]{
   \refstepcounter{printedadditionalinformation}%
-  \label{add:#1}%
-  \LabelToExercisePrintedCounter{add:#1}%
+  \label{add:\exercisebookprefix#1}%
+  \LabelToExercisePrintedCounter{add:\exercisebookprefix#1}%
   \GetExercisePropertyT{examproblemid}{%
     \edef\ExerciseExamProblemID{\GetExerciseProperty{examproblemid}}%
     \label{add:\ExerciseExamProblemID}%
@@ -750,9 +843,9 @@
     \setcounter{sec}{0}%
     \whileboolexpr{ test {\ifnumless{\value{sec}}{\numexpr\maxsec+1\relax}} }{%
       \ifnum\value{sec}>0%
-        \edef\secref{sec:\arabic{chap}.\arabic{sec}}%
+        \edef\secref{sec:\exercisebookprefix\arabic{chap}.\arabic{sec}}%
       \else%
-        \edef\secref{chap:\arabic{chap}}%
+        \edef\secref{chap:\exercisebookprefix\arabic{chap}}%
       \fi%
       \labelExists{\secref}{%
         \ifnum\value{sec}>0%
@@ -761,12 +854,12 @@
         \setcounter{subsec}{0}%
         \whileboolexpr{ test {\ifnumless{\value{subsec}}{\numexpr\maxsubsec+1\relax}} }{%
           \ifnum\value{subsec}>0%
-            \edef\subsecref{sec:\arabic{chap}.\arabic{sec}.\arabic{subsec}}%
+            \edef\subsecref{sec:\exercisebookprefix\arabic{chap}.\arabic{sec}.\arabic{subsec}}%
           \else%
             \ifnum\value{sec}>0%
-              \edef\subsecref{sec:\arabic{chap}.\arabic{sec}}%
+              \edef\subsecref{sec:\exercisebookprefix\arabic{chap}.\arabic{sec}}%
             \else%
-              \edef\subsecref{chap:\arabic{chap}}%
+              \edef\subsecref{chap:\exercisebookprefix\arabic{chap}}%
             \fi%
           \fi%
           \labelExists{\subsecref}{%
@@ -824,7 +917,7 @@
                         }%
                       \fi%
                       \end{additionalinformationinternal}
-                      \edef\solref{sol:\GetExerciseProperty{id}}%
+                      \edef\solref{sol:\exercisebookprefix\GetExerciseProperty{id}}%
                       \noindent\textbf{Go back to:} {\itshape\linktoxsimenv{\solref}{solution}}.%
                     }{%
                       \PackageError{exercise-book}{Unknown solution type '#1'}{Expected 'solution' or 'additionalinformation'}%
@@ -909,13 +1002,19 @@
   % Decide if we handle it (ex:/sol:/add:)%
   \def\singulartext{}\def\pluraltext{}\def\currentprefix{}%
   \ifboolexpr{ test {\IfBeginWith{\firstlabel}{ex:}} }{%
-    \def\singulartext{Exercise~}\def\pluraltext{Exercises~}\def\currentprefix{ex:}%
+    \def\singulartext{Exercise~}%
+    \def\pluraltext{Exercises~}%
+    \def\currentprefix{ex:}%
   }{%
   \ifboolexpr{ test {\IfBeginWith{\firstlabel}{sol:}} }{%
-    \def\singulartext{the solution of Exercise~}\def\pluraltext{the solutions of Exercises~}\def\currentprefix{sol:}%
+    \def\singulartext{the solution of Exercise~}%
+    \def\pluraltext{the solutions of Exercises~}%
+    \def\currentprefix{sol:}%
   }{%
   \ifboolexpr{ test {\IfBeginWith{\firstlabel}{add:}} }{%
-    \def\singulartext{the additional information for Exercise~}\def\pluraltext{the additional information for Exercises~}\def\currentprefix{add:}%
+    \def\singulartext{the additional information for Exercise~}%
+    \def\pluraltext{the additional information for Exercises~}%
+    \def\currentprefix{add:}%
   }{}%
   }}%
   % If not special, pass through untouched to original \cref/\Cref and stop%

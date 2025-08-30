@@ -25,6 +25,8 @@
 *.toc
 *.vrb
 *.xsim
+*.xsimlabelmap
+*.xsimlast
 .ipynb_checkpoints
 .virtual_documents
 _markdown_*

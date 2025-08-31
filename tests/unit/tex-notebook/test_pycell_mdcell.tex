@@ -265,4 +265,69 @@ a + b + c
 
 Unfortunately the \texttt{print} optional argument is not supported without \texttt{PythonTeX}.
 
+\chapter{Customizing printing and plotting}
+
+\section{\texttt{numpy} configuration}
+
+\begin{mdcell}
+The package internally sets `numpy` printing with the `precision = 3`, `suppress = False`, `edgeitems = 3`, `threshold = 12`. The user can still customize these choices by replacing them with `np.set_printoptions`. Furthermore, it omits types like `np.float64` or `np.int32` while printing the numerical results: this behavior cannot be disabled.
+\end{mdcell}
+
+\begin{pycell}
+import numpy as np
+pi = np.float64(np.pi)
+\end{pycell}
+
+\begin{pycell}
+pi
+\end{pycell}
+
+\begin{pyexpectedoutput}
+3.142
+\end{pyexpectedoutput}
+
+\begin{pycell}
+print(pi)
+\end{pycell}
+
+\begin{pyexpectedoutput}
+3.142
+\end{pyexpectedoutput}
+
+\begin{pycell}
+repr(pi)
+\end{pycell}
+
+\begin{pyexpectedoutput}
+'3.142'
+\end{pyexpectedoutput}
+
+\begin{pycell}
+pi123 = np.array([pi, 2 * pi, 3 * pi])
+\end{pycell}
+
+\begin{pycell}
+pi123
+\end{pycell}
+
+\begin{pyexpectedoutput}
+array([3.142, 6.283, 9.425])
+\end{pyexpectedoutput}
+
+\begin{pycell}
+print(pi123)
+\end{pycell}
+
+\begin{pyexpectedoutput}
+[3.142 6.283 9.425]
+\end{pyexpectedoutput}
+
+\begin{pycell}
+repr(pi123)
+\end{pycell}
+
+\begin{pyexpectedoutput}
+'array([3.142, 6.283, 9.425])'
+\end{pyexpectedoutput}
+
 \end{document}

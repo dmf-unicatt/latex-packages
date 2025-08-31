@@ -1,58 +1,32 @@
-    Chapter 1
+     Chapter 1
 
-    Case with numbers
+     Case with numbers
 
-    We start from the most simple case possible, the case of numbers.
-        Note that this content is typed in markdown, and then converted to LaTeX
-    via the markdown package.
-
-1   x = 1
-2   y = 2
-
-
-
-
-3   z = 3; n = 4
-
-
-
-
-4   l = 6
-5   m = 7
-
-
-
-
-        We can print a linear combination of the provided number from a pycell,
-    either directly...
-
-6   print(x + y + z + n - l - m)
-
-
-    -3
-
-         ... implicitly ...
-
-7   x + y + z + n - l - m
-     -3
-
+     We start from the most simple case possible, the case of numbers.
+         Note that this content is typed in markdown, and then converted to LaTeX
+     via the markdown package.
+1    x = 1
+2    y = 2
+3    z = 3; n = 4
+4    l = 6
+5    m = 7
+         We can print a linear combination of the provided number from a pycell,
+     either directly...
+6    print(x + y + z + n - l - m)
+     -3
+          ... implicitly ...
+7    x + y + z + n - l - m
+     -3
           ... or in both ways (with duplicated output)
-
 8    print(x + y + z + n - l - m + 1)
 9    x + y + z + n - l - m + 2
-
-
      -2
      -1
-
           One can also print lists of numbers
-
 10   x = [1, 2, 3]
 11   y = [4, 5, 6]
 12   print(f"{x}")
 13   print(f"{y}")
-
-
      [1, 2, 3]
      [4, 5, 6]
      Chapter 2
@@ -63,22 +37,11 @@
      One can print simple strings, possibly containing spaces
 1    x = "one"
 2    y = "two two"
-
-
-
-
 3    z = "three THREE_Three"; n = "FoUr_four quattro_cuatro"
-
-
-
-
 4    " ".join([x, y, z, n])
-
      'one two two three THREE_Three FoUr_four quattro_cuatro'
-
 5    print(" ".join([x, y]))
 6    print(" ".join([z, n]))
-
      one two two
      three THREE_Three FoUr_four quattro_cuatro
         One can also print multiline strings
@@ -87,23 +50,19 @@
 9    N = """FoUr_four
 10   quattro_cuatro"""
 11   print("\n".join([Z, N]))
-     three
+     three
      THREE_Three
      FoUr_four
      quattro_cuatro
-
-
 12   Z = '''three
 13   THREE_Three'''
 14   N = '''FoUr_four
 15   quattro_cuatro'''
 16   print("\n".join([Z, N]))
-
-
-     three
-     THREE_Three
-     FoUr_four
-     quattro_cuatro
+three
+THREE_Three
+FoUr_four
+quattro_cuatro
     Chapter 3
 
     Variable resets
@@ -113,10 +72,7 @@
 1   a = 1
 2   b = "this is a string"
 3   print(a, b)
-
-
     1 this is a string
-
         works, but trying to use the variable x from the previous chapter would not
     (see test_pycell_FAIL.tex).
     Chapter 4
@@ -125,7 +81,6 @@
 
     You can have plotly figures in the code cells. By outputting the figure in the
     last line of the code cell it will be automatically added to the document.
-
 1   import plotly.express as px
 2   fig = px.scatter(x=[1, 2, 3], y=[4, 5, 6])
 3   fig
@@ -134,14 +89,12 @@
 
 
        A figure appears also when other text outputs are present
-4   x = [10, 20, 30]
+4   x = [10, 20, 30]
 5   y = [40, 50, 60]
 6   print(f"x = {x}")
 7   print(f"y = {y}")
-8   fig = px.scatter(x=x, y=y)
+8   fig = px.scatter(x=x, y=y)
 9   fig
-
-
     x = [10, 20, 30]
     y = [40, 50, 60]
 Chapter 5
@@ -172,28 +125,42 @@ and `\ref{...}`{=tex} commands.
     a ...
         This is a text commenting the definition of the variable a. The text will
     appear in the notebook and in the pdf.
+
 1   a = 1
-
-
-
-
        ... then a cell with print=true, which defines the variable b ...
        This is a text commenting the definition of the variable b. The text will
     appear in the notebook and in the pdf.
 2   b = 2
-
-
-
-
        ... and finally a cell with print=false, which defines the variable c but will
     not show up in the pdf.
-
-
-
-        The variable c is still available, as we can see by summing a + b + c:
+       The variable c is still available, as we can see by summing a + b + c:
 3   a + b + c
-
     6
-
         Unfortunately the print optional argument is not supported without PythonTeX.
+    Chapter 7
+
+    Customizing printing and
+    plotting
+
+    7.1     numpy configuration
+    The package internally sets numpy printing with the precision = 3, suppress
+    = False, edgeitems = 3, threshold = 12. The user can still customize these
+    choices by replacing them with np.set_printoptions. Furthermore, it omits
+    types like np.float64 or np.int32 while printing the numerical results: this
+    behavior cannot be disabled.
+1   import numpy as np
+2   pi = np.float64(np.pi)
+3   pi
+    3.142
+4   print(pi)
+    3.142
+5   repr(pi)
+    '3.142'
+6   pi123 = np.array([pi, 2 * pi, 3 * pi])
+7   pi123
+    array([3.142, 6.283, 9.425])
+8   print(pi123)
+    [3.142 6.283 9.425]
+9   repr(pi123)
+    'array([3.142, 6.283, 9.425])'
 

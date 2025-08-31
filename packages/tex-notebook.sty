@@ -228,6 +228,91 @@ def check_markdown_math_delimiters(mdtext: str) -> None:
         )
 \end{pythontexcustomcode}
 
+% Function configure_numpy_printing: configure numpy printing globally for arrays and scalars
+\begin{pythontexcustomcode}[begin]{py}
+def configure_numpy_printing(
+    precision: int = 3, suppress: bool = False, edgeitems: int = 3, threshold : int = 12
+) -> None:
+    """
+    Configure numpy printing globally for arrays and scalars.
+
+    This function overrides the built-in `print` and `repr` for numpy scalar types.
+
+    Parameters
+    ----------
+    precision
+        Number of decimal places for floating point numbers. Default is 3.
+    suppress
+        If True, always use fixed-point notation; if False, scientific notation
+        may be used for very small or very large numbers. Default is False.
+    edgeitems
+        Number of array elements to display at the beginning and end of each dimension
+        when truncating long arrays. Default is 3.
+    threshold
+        Total number of array elements which triggers summarization. Default is 12.
+
+    Notes
+    -----
+    - This function overrides the built-in `print` and `repr` functions for
+      numpy scalar types (`np.floating` and `np.integer`) so that they are
+      formatted consistently with arrays according to the current numpy print options.
+    - Arrays are still printed according to `np.set_printoptions`.
+    - Scalars are wrapped in a 0-dimensional array internally to respect the
+      same formatting.
+    """
+    import builtins
+
+    import numpy as np
+
+    # Configure numpy array printing
+    np.set_printoptions(precision=precision, suppress=suppress, edgeitems=edgeitems, threshold=threshold)
+
+    # Save the original built-ins
+    _orig_print = builtins.print
+    _orig_repr = builtins.repr
+
+    def _format_scalar(x: any) -> str:
+        """
+        Format a numpy scalar using the current print options.
+
+        Parameters
+        ----------
+        x
+            The scalar to format.
+
+        Returns
+        -------
+        str
+            The formatted string representation.
+        """
+        opts = np.get_printoptions()
+        return np.array2string(
+            np.asarray(x),
+            precision=opts["precision"],
+            suppress_small=opts["suppress"],
+            edgeitems=opts["edgeitems"],
+            threshold=opts["threshold"]
+        )
+
+    def _print(*args, **kwargs) -> str:  # noqa: ANN002, ANN003
+        """Format numpy scalars like arrays in a call to print()."""
+        new_args = [
+            _format_scalar(a) if isinstance(a, np.floating | np.integer) else a
+            for a in args
+        ]
+        _orig_print(*new_args, **kwargs)
+
+    def _repr(x: any) -> str:
+        """Format numpy scalars like arrays in a call to repr()."""
+        if isinstance(x, np.floating | np.integer):
+            return _format_scalar(x)
+        return _orig_repr(x)
+
+    # Override built-in functions
+    builtins.print = _print
+    builtins.repr = _repr
+\end{pythontexcustomcode}
+
 % Function compare_images: compare two images using perceptual hashing and raise an error if they differ beyond a threshold
 \begin{pythontexcustomcode}[begin]{py}
 def compare_images(actual: str, expected: str, threshold: int = 5) -> None:
@@ -709,6 +794,10 @@ pytex.notebook_filename = os.path.join(f"notebooks-{pytex.jobname}", f"{pytex.id
 
 # Load references from previous compilation
 pytex.refs = read_labels_from_main_aux(f"{pytex.jobname}.aux")
+
+# Configure numpy printing with the default values. The user can still change them
+# by calling np.set_printoptions in a downstream package.
+configure_numpy_printing()
 \end{pythontexcustomcode}
 
 %%% ----------------------------------------------------------------

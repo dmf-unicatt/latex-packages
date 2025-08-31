@@ -187,9 +187,9 @@ def call_code(
         # Save Plotly figure to an in-memory buffer
         buffer = io.BytesIO()
         if cell_figure.layout.width is None:
-            fig.update_layout(width=pytex.plotly_default_width)
+            cell_figure.update_layout(width=pytex.plotly_default_width)
         if cell_figure.layout.height is None:
-            fig.update_layout(height=pytex.plotly_default_height)
+            cell_figure.update_layout(height=pytex.plotly_default_height)
         cell_figure.write_image(buffer, scale=pytex.plotly_default_scale)
         # Trim whitespace and save
         image = crop_image(buffer)

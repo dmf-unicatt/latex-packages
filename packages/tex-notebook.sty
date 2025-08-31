@@ -186,7 +186,11 @@ def call_code(
     if cell_figure is not None:
         # Save Plotly figure to an in-memory buffer
         buffer = io.BytesIO()
-        cell_figure.write_image(buffer, scale=2)
+        if cell_figure.layout.width is None:
+            fig.update_layout(width=pytex.plotly_default_width)
+        if cell_figure.layout.height is None:
+            fig.update_layout(height=pytex.plotly_default_height)
+        cell_figure.write_image(buffer, scale=pytex.plotly_default_scale)
         # Trim whitespace and save
         image = crop_image(buffer)
         cell_figure_path = os.path.join(f"pythontex-files-{pytex.jobname}", f"{pytex.id}_{pytex.instance}.png")
@@ -798,6 +802,12 @@ pytex.refs = read_labels_from_main_aux(f"{pytex.jobname}.aux")
 # Configure numpy printing with the default values. The user can still change them
 # by calling np.set_printoptions in a downstream package.
 configure_numpy_printing()
+
+# Configure plotly plotting with default values. The user can still change them
+# by modifying the attributes of the pytex object.
+pytex.plotly_default_width = 700
+pytex.plotly_default_height = 500
+pytex.plotly_default_scale = 2
 \end{pythontexcustomcode}
 
 %%% ----------------------------------------------------------------

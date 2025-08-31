@@ -163,4 +163,208 @@ and `\ref{...}`{=tex} commands.
     [3.142 6.283 9.425]
 9   repr(pi123)
     'array([3.142, 6.283, 9.425])'
+     7.2     plotly configuration
+     The package also does the following configuration for plotly images:
+
+       • The library trims white space from within the image to save space in the
+         LaTeX document: this behavior cannot be configured.
+       • If width and height are not assigned, a default value of plotly_default_width
+         = 700, plotly_default_height = 500 is assigned. The default value can
+         be changed by modifying pytex.plotly_default_width and pytex.plotly_default_height.
+       • Before saving, each dimension of the image is rescaled by a factor plotly_default_scale
+         = 2. The default value can be changed by modifying pytex.plotly_default_scale.
+
+        We prepare data for the visualization of the function f (x, y) = x2 + 2y 2 on
+     the domain D = [−1, 1]2 .
+
+10   x_plot = np.linspace(-1, 1, 100)
+11   y_plot = np.linspace(-1, 1, 100)
+12   X_plot, Y_plot = np.meshgrid(x_plot, y_plot)
+13   Z_plot = X_plot**2 + 2 * Y_plot**2
+        We next import plotly. We also add an auxiliary function to change the
+     background to black, so that white space trimming has no effect.
+14   import plotly.graph_objects as go
+15   def set_black_background(fig):
+16       """Set black background to a plotly figure."""
+17       fig.update_layout(
+18           paper_bgcolor="black",   # figure background
+19           plot_bgcolor="black",    # plot area background
+20           font=dict(color="white") # optional: make text white
+21       )
+
+22   def check_image_size(image_paths, expected_dimensions):
+23       """Ensure that the images have the expected dimensions."""
+24       import PIL.Image
+25       expected_width, expected_height = expected_dimensions
+26       for image_path in image_paths:
+27           img = PIL.Image.open(image_path)
+28           width, height = img.size
+29           assert width == expected_width, (
+30               f"Image {image_path} has width "
+31               f"{width} != {expected_width}"
+32           )
+33           assert height == expected_height, (
+34               f"Image {image_path} has height "
+35               f"{height} != {expected_height}"
+36           )
+       We save a contour plot using the default width and height.
+37   fig_path = os.path.join(
+38       f"pythontex-files-{pytex.jobname}",
+39       f"{pytex.id}_{pytex.instance}.png"
+40   )
+41   fig = go.Figure(data=[go.Contour(x=x_plot, y=y_plot, z=Z_plot)])
+42   fig.update_layout(title="Contour plot")
+43   fig
+
+
+
+
+44   check_image_size(
+45       [
+46           fig_path,
+47           os.path.join(
+48               "images",
+49               "contour_plot_"
+50               "default_width_height_"
+51               "white_background.png"
+52           )
+53       ],
+54       (1223, 740) # affected by white space trimming
+55   )
+56   fig_path = os.path.join(
+57       f"pythontex-files-{pytex.jobname}",
+58       f"{pytex.id}_{pytex.instance}.png"
+59   )
+60   fig = go.Figure(data=[go.Contour(x=x_plot, y=y_plot, z=Z_plot)])
+61   fig.update_layout(title="Contour plot")
+62   set_black_background(fig)
+63   fig
+
+
+
+
+64   check_image_size(
+65       [
+66           fig_path,
+67           os.path.join(
+68               "images",
+69               "contour_plot_"
+70               "default_width_height_"
+71               "black_background.png"
+72           )
+73       ],
+74       (1400, 1000) # default 700 * 500, multiplied by 2
+75   )
+       We next save a contour plot manually assigning width and height.
+76   fig_path = os.path.join(
+77       f"pythontex-files-{pytex.jobname}",
+78       f"{pytex.id}_{pytex.instance}.png"
+79   )
+80   fig = go.Figure(data=[go.Contour(x=x_plot, y=y_plot, z=Z_plot)])
+81   fig.update_layout(
+82       title="Contour plot", width=512, height=512, autosize=False
+83   )
+ 84   fig
+
+
+
+
+ 85   check_image_size(
+ 86       [
+ 87           fig_path,
+ 88           os.path.join(
+ 89               "images",
+ 90               "contour_plot_"
+ 91               "fixed_width_height_"
+ 92               "white_background.png"
+ 93           )
+ 94       ],
+ 95       (855, 764) # affected by white space trimming
+ 96   )
+
+ 97   fig_path = os.path.join(
+ 98       f"pythontex-files-{pytex.jobname}",
+ 99       f"{pytex.id}_{pytex.instance}.png"
+100   )
+101   fig = go.Figure(data=[go.Contour(x=x_plot, y=y_plot, z=Z_plot)])
+102   fig.update_layout(
+103       title="Contour plot", width=512, height=512, autosize=False
+104   )
+105   set_black_background(fig)
+106   fig
+
+
+
+
+107   check_image_size(
+108       [
+109           fig_path,
+110           os.path.join(
+111               "images",
+112               "contour_plot_"
+113               "fixed_width_height_"
+114               "black_background.png"
+115           )
+116       ],
+117       (1024, 1024) # assigned 512 * 512, multiplied by 2
+118   )
+         We finally change the default width, height and scale, and prepare new
+      contour plots.
+119   old_plotly_default_width = pytex.plotly_default_width
+120   pytex.plotly_default_width = 555
+121   old_plotly_default_height = pytex.plotly_default_height
+122   pytex.plotly_default_height = 333
+123   old_plotly_default_scale = pytex.plotly_default_scale
+124   pytex.plotly_default_scale = 3
+125   fig_path = os.path.join(
+126       f"pythontex-files-{pytex.jobname}",
+127       f"{pytex.id}_{pytex.instance}.png"
+128   )
+129   fig = go.Figure(data=[go.Contour(x=x_plot, y=y_plot, z=Z_plot)])
+130   fig.update_layout(title="Contour plot")
+131   fig
+
+
+
+
+132   check_image_size(
+133       [
+134           fig_path,
+135           os.path.join(
+136               "images",
+137               "contour_plot_"
+138               "new_default_width_height_"
+139               "white_background.png"
+140           )
+141       ],
+142       (1396, 608) # affected by white space trimming
+143   )
+144   fig_path = os.path.join(
+145       f"pythontex-files-{pytex.jobname}",
+146       f"{pytex.id}_{pytex.instance}.png"
+147   )
+148   fig = go.Figure(data=[go.Contour(x=x_plot, y=y_plot, z=Z_plot)])
+149   fig.update_layout(title="Contour plot")
+150   set_black_background(fig)
+151   fig
+
+
+
+
+152   check_image_size(
+153       [
+154           fig_path,
+155           os.path.join(
+156               "images",
+157               "contour_plot_"
+158               "new_default_width_height_"
+159               "black_background.png"
+160           )
+161       ],
+162       (1665, 999) # default 555 * 333, multiplied by 3
+163   )
+        We assign the defaults back.
+164   pytex.plotly_default_width = old_plotly_default_width
+165   pytex.plotly_default_height = old_plotly_default_height
+166   pytex.plotly_default_scale = old_plotly_default_scale
 

@@ -365,7 +365,7 @@ def set_black_background(fig):
     fig.update_layout(
         paper_bgcolor="black",   # figure background
         plot_bgcolor="black",    # plot area background
-        font=dict(color="white") # optional: make text white
+        font=dict(color="white") # make text white
     )
 \end{pycell}
 
@@ -373,17 +373,36 @@ def set_black_background(fig):
 def check_image_size(image_paths, expected_dimensions):
     """Ensure that the images have the expected dimensions."""
     import PIL.Image
-    expected_width, expected_height = expected_dimensions
+    if len(expected_dimensions) == 2:
+        expected_width, expected_height = expected_dimensions
+        expected_width_tolerance = 0
+        expected_height_tolerance = 0
+    else:
+        assert len(expected_dimensions) == 4
+        (
+            expected_width, expected_width_tolerance,
+            expected_height, expected_height_tolerance
+        ) = expected_dimensions
     for image_path in image_paths:
         img = PIL.Image.open(image_path)
         width, height = img.size
-        assert width == expected_width, (
+        assert (
+            abs(width - expected_width)
+            <= expected_width_tolerance
+        ), (
             f"Image {image_path} has width "
-            f"{width} != {expected_width}"
+            f"{width}, but expected width was "
+            f"{expected_width} with tolerance "
+            f"{expected_width_tolerance}"
         )
-        assert height == expected_height, (
+        assert (
+            abs(height - expected_height)
+            <= expected_height_tolerance
+        ), (
             f"Image {image_path} has height "
-            f"{height} != {expected_height}"
+            f"{height}, but expected height was "
+            f"{expected_height} with tolerance "
+            f"{expected_height_tolerance}"
         )
 \end{pycell}
 
@@ -413,7 +432,7 @@ check_image_size(
             "white_background.png"
         )
     ],
-    (1223, 740)  # affected by white space trimming
+    (1223, 4, 740, 4)  # affected by white space trimming
 )
 \end{pycell}
 
@@ -472,7 +491,7 @@ check_image_size(
             "white_background.png"
         )
     ],
-    (855, 764)  # affected by white space trimming
+    (855, 4, 764, 4)  # affected by white space trimming
 )
 \end{pycell}
 
@@ -540,7 +559,7 @@ check_image_size(
             "white_background.png"
         )
     ],
-    (1396, 608)  # affected by white space trimming
+    (1396, 4, 608, 4)  # affected by white space trimming
 )
 \end{pycell}
 

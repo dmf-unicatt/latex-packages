@@ -334,9 +334,10 @@ repr(pi123)
 
 \begin{mdcell}
 The package also does the following configuration for `plotly` images:
-- The library trims white space from within the image to save space in the LaTeX document: this behavior cannot be configured.
-- If width and height are not assigned, a default value of `plotly_default_width = 700`, `plotly_default_height = 500` is assigned. The default value can be changed by modifying `pytex.plotly_default_width` and `pytex.plotly_default_height`.
-- Before saving, each dimension of the image is rescaled by a factor `plotly_default_scale = 2`. The default value can be changed by modifying `pytex.plotly_default_scale`.
+
+* The library trims white space from within the image to save space in the LaTeX document: this behavior cannot be configured.
+* If width and height are not assigned, a default value of `plotly_default_width = 700`, `plotly_default_height = 500` is assigned. The default value can be changed by modifying `pytex.plotly_default_width` and `pytex.plotly_default_height`.
+* Before saving, each dimension of the image is rescaled by a factor `plotly_default_scale = 2`. The default value can be changed by modifying `pytex.plotly_default_scale`.
 \end{mdcell}
 
 \begin{mdcell}
@@ -578,6 +579,38 @@ We assign the defaults back.
 pytex.plotly_default_width = old_plotly_default_width
 pytex.plotly_default_height = old_plotly_default_height
 pytex.plotly_default_scale = old_plotly_default_scale
+\end{pycell}
+
+Notebooks are automatically produced from this chapter, but any cell containing \texttt{pytex} would not be runnable in a plain notebook, because the \texttt{pytex} object is internal. Running the produced notebook is not really the point of this test, hence we simply disable any code cell that includes the words \texttt{pytex} or \texttt{fig\_path}.
+
+\begin{pycell}
+original_save_cells_as_notebook = save_cells_as_notebook
+
+def save_cells_as_notebook(
+    all_cells: list[tuple[str, str]], pytex: any
+) -> None:
+    modified_all_cells = []
+    for cell in all_cells:
+        if cell[0] == "markdown":
+            modified_all_cells.append(cell)
+        else:
+            assert cell[0] == "code"
+            if "pytex" in cell[1]:
+                code = (
+                    "\nprint('This cell was disabled because "
+                    "it contains the command pytex')"
+                )
+            elif "fig_path" in cell[1]:
+                code = (
+                    "\nprint('This cell was disabled because "
+                    "it contains the variable fig_path')"
+                )
+            else:
+                code = cell[1]
+            modified_all_cells.append(("code", code))
+    return original_save_cells_as_notebook(
+        modified_all_cells, pytex
+    )
 \end{pycell}
 
 \end{document}

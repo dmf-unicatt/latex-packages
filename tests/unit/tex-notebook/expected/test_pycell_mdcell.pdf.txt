@@ -363,8 +363,42 @@ and `\ref{...}`{=tex} commands.
 161       ],
 162       (1665, 999) # default 555 * 333, multiplied by 3
 163   )
-        We assign the defaults back.
+         We assign the defaults back.
 164   pytex.plotly_default_width = old_plotly_default_width
 165   pytex.plotly_default_height = old_plotly_default_height
 166   pytex.plotly_default_scale = old_plotly_default_scale
+
+          Notebooks are automatically produced from this chapter, but any cell con-
+      taining pytex would not be runnable in a plain notebook, because the pytex
+      object is internal. Running the produced notebook is not really the point of
+      this test, hence we simply disable any code cell that includes the words pytex
+      or fig_path.
+167   original_save_cells_as_notebook = save_cells_as_notebook
+168
+
+169   def save_cells_as_notebook(
+170       all_cells: list[tuple[str, str]], pytex: any
+171   ) -> None:
+172       modified_all_cells = []
+173       for cell in all_cells:
+174           if cell[0] == "markdown":
+175               modified_all_cells.append(cell)
+176           else:
+177               assert cell[0] == "code"
+178               if "pytex" in cell[1]:
+179                   code = (
+180                       "\nprint('This cell was disabled because "
+181                       "it contains the command pytex')"
+182                   )
+183               elif "fig_path" in cell[1]:
+184                   code = (
+185                       "\nprint('This cell was disabled because "
+186                       "it contains the variable fig_path')"
+187                   )
+188               else:
+189                   code = cell[1]
+190               modified_all_cells.append(("code", code))
+191       return original_save_cells_as_notebook(
+192           modified_all_cells, pytex
+193       )
 

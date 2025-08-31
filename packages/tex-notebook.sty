@@ -190,7 +190,10 @@ def call_code(
             cell_figure.update_layout(width=pytex.plotly_default_width)
         if cell_figure.layout.height is None:
             cell_figure.update_layout(height=pytex.plotly_default_height)
-        cell_figure.write_image(buffer, scale=pytex.plotly_default_scale)
+        cell_figure.write_image(
+            buffer, width=cell_figure.layout.width, height=cell_figure.layout.height,
+            scale=pytex.plotly_default_scale
+        )
         # Trim whitespace and save
         image = crop_image(buffer)
         cell_figure_path = os.path.join(f"pythontex-files-{pytex.jobname}", f"{pytex.id}_{pytex.instance}.png")

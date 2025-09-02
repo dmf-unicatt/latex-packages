@@ -22,8 +22,9 @@ $ ^{2}$ Università~Cattolica~del~Sacro~Cuore,\\
 \usepgfplotslibrary{patchplots}
 \pgfplotsset{compat=1.18}
 
-% Load tabularx
+% Load tabularx and colortbl to typeset tables
 \RequirePackage{tabularx}
+\RequirePackage{colortbl}
 
 % Load package for nicer small fractions
 \RequirePackage{nicefrac}

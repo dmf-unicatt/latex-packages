@@ -235,6 +235,49 @@ def check_markdown_math_delimiters(mdtext: str) -> None:
         )
 \end{pythontexcustomcode}
 
+% Function configure_numpy_floating_point_errors: configure how numpy handles floating-point errors
+\begin{pythontexcustomcode}[begin]{py}
+def configure_numpy_floating_point_errors(
+    divide: str = "warn", over: str = "ignore", under: str = "ignore", invalid: str = "warn"
+) -> None:
+    """
+    Configure how numpy handles floating-point errors.
+
+    This function sets the behavior for division by zero, overflow,
+    underflow, and invalid floating-point operations.
+
+    Parameters
+    ----------
+    divide
+        Behavior when division by zero occurs. Options are
+        {"ignore", "warn", "raise", "call", "print", "log"}.
+        Default is "warn".
+    over
+        Behavior when floating-point overflow occurs. Options are
+        {"ignore", "warn", "raise", "call", "print", "log"}.
+        Default is "ignore".
+    under
+        Behavior when floating-point underflow occurs. Options are
+        {"ignore", "warn", "raise", "call", "print", "log"}.
+        Default is "ignore".
+    invalid
+        Behavior when invalid floating-point operations occur
+        (e.g., 0/0, sqrt(-1)). Options are
+        {"ignore", "warn", "raise", "call", "print", "log"}.
+        Default is "warn".
+
+    Notes
+    -----
+    - This function calls `numpy.seterr` internally to configure global
+      floating-point error handling.
+    - The change persists until modified again, or reset using
+      `np.seterr(divide="warn", over="warn", under="ignore", invalid="warn")`.
+    """
+    import numpy as np
+
+    np.seterr(divide=divide, over=over, under=under, invalid=invalid)
+\end{pythontexcustomcode}
+
 % Function configure_numpy_printing: configure numpy printing globally for arrays and scalars
 \begin{pythontexcustomcode}[begin]{py}
 def configure_numpy_printing(
@@ -805,6 +848,10 @@ pytex.refs = read_labels_from_main_aux(f"{pytex.jobname}.aux")
 # Configure numpy printing with the default values. The user can still change them
 # by calling np.set_printoptions in a downstream package.
 configure_numpy_printing()
+
+# Configure numpy floating point errors with the default values.
+# The user can still change them by calling np.seterr in a downstream package.
+configure_numpy_floating_point_errors()
 
 # Configure plotly plotting with default values. The user can still change them
 # by modifying the attributes of the pytex object.

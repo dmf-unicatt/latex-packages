@@ -25,6 +25,9 @@ $ ^{2}$ Università~Cattolica~del~Sacro~Cuore,\\
 % Load tabularx
 \RequirePackage{tabularx}
 
+% Load package for nicer small fractions
+\RequirePackage{nicefrac}
+
 % Allow to refer to environments defined in another file
 \RequirePackage{xr-hyper}
 \RequirePackage{luacode}

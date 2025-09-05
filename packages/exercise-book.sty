@@ -798,8 +798,10 @@
     \noindent\textbf{Go to:} {\itshape\linktoxsimenv{\solref}{solution}}.%
   },
   solution/post-hook = {%
-    \edef\addref{add:\exercisebookprefix\GetExerciseProperty{id}}%
-    \noindent\textbf{Go to:} {\itshape\linktoxsimenv{\addref}{additional information}}.%
+    \GetExercisePropertyT{additionalinformation}{%
+      \edef\addref{add:\exercisebookprefix\GetExerciseProperty{id}}%
+      \noindent\textbf{Go to:} {\itshape\linktoxsimenv{\addref}{additional information}}.%
+    }
   }
 }
 

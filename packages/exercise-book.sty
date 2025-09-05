@@ -925,21 +925,25 @@
                       \attachnotebooknametopythontex
                       \fi
                       \ifLaTeXTwentyFive%
-                        \GetExercisePropertyTF{additionalinformation}{%
+                        \GetExercisePropertyT{additionalinformation}{%
                           ####1%
-                        }{%
-                          \PackageError{exercise-book}{Missing additional information}{additional information is missing for ##1 ##2}%
                         }%
                       \else%
-                        \GetExercisePropertyTF{additionalinformationfilename}{%
+                        \GetExercisePropertyT{additionalinformationfilename}{%
                           \input{####1}%
-                        }{%
-                          \PackageError{exercise-book}{Missing additional information}{additional information is missing for ##1 ##2}%
                         }%
                       \fi%
                       \end{additionalinformationinternal}
                       \edef\solref{sol:\exercisebookprefix\GetExerciseProperty{id}}%
-                      \noindent\textbf{Go back to:} {\itshape\linktoxsimenv{\solref}{solution}}.%
+                      \ifLaTeXTwentyFive%
+                        \GetExercisePropertyT{additionalinformation}{%
+                          \noindent\textbf{Go back to:} {\itshape\linktoxsimenv{\solref}{solution}}.%
+                        }%
+                      \else%
+                        \GetExercisePropertyT{additionalinformationfilename}{%
+                          \noindent\textbf{Go back to:} {\itshape\linktoxsimenv{\solref}{solution}}.%
+                        }%
+                      \fi%
                     }{%
                       \PackageError{exercise-book}{Unknown solution type '#1'}{Expected 'solution' or 'additionalinformation'}%
                     }%

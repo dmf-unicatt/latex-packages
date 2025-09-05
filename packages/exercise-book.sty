@@ -29,6 +29,9 @@
 % For page configuration
 \RequirePackage{geometry}
 
+% To change table of content spacing
+\RequirePackage{tocloft}
+
 % Not required here, but used in the main document. These are put here because otherwise
 % the cleveref package import, which is required here, would fail with
 % ! Package cleveref Error: cleveref must be loaded after amsmath!.
@@ -264,6 +267,11 @@
     }
 }
 \makeatother
+
+% Increase width of the chapter, section, subsection number part of the table of content
+\setlength{\cftchapnumwidth}{3em}
+\setlength{\cftsecnumwidth}{3.8em}
+\setlength{\cftsubsecnumwidth}{4.7em}
 
 %%% ================================================================
 %%%                     INTEGRATION WITH XSIM

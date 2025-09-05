@@ -7,9 +7,9 @@
 
               Extra exercises
 
-              1     Extra section
+              E.1     Extra section
   sec:E.1.1
-              1.1   Extra subsection
+              E.1.1   Extra subsection
 sec:E.1.1.1
      ex:E.1
               Exercise E.1 (Simple Addition). What is 2 + 2?
@@ -23,9 +23,9 @@ sec:E.1.1.1
 
               Extra solutions
 
-              1 Extra section[2]
+              E.1     Extra section[2]
   sec:E.2.1
-              1.1   Extra subsection[3]
+              E.1.1 Extra subsection[3]
 sec:E.2.1.1
     sol:E.1
               Exercise E.1[4] . 2 + 2 = 4
@@ -39,9 +39,9 @@ sec:E.2.1.1
 
               Extra additional information
 
-              1 Extra section[6]
+              E.1    Extra section[6]
   sec:E.3.1
-              1.1   Extra subsection[7]
+              E.1.1 Extra subsection[7]
 sec:E.3.1.1
     add:E.1
               Exercise E.1[8] . Open python and type 2 + 2
@@ -54,9 +54,9 @@ sec:E.3.1.1
 
 
   Notes for chapter E.B
-2. sec:E.1.1 (counter value 1)
+2. sec:E.1.1 (counter value E.1)
 
-3. sec:E.1.1.1 (counter value 1.1)
+3. sec:E.1.1.1 (counter value E.1.1)
 
 4. ex:E.1 (counter value 1)
 
@@ -65,9 +65,9 @@ sec:E.3.1.1
 
 
   Notes for chapter E.C
-6. sec:E.1.1 (counter value 1)
+6. sec:E.1.1 (counter value E.1)
 
-7. sec:E.1.1.1 (counter value 1.1)
+7. sec:E.1.1.1 (counter value E.1.1)
 
 8. ex:E.1 (counter value 1)
 

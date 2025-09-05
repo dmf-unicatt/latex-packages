@@ -7,9 +7,9 @@
 
                    Extra exercises
 
-                   1     Extra section
+                   E.1     Extra section
        sec:E.1.1
-                   1.1   Extra subsection
+                   E.1.1    Extra subsection
 ex:2024-02-16-01
      sec:E.1.1.1
           ex:E.1
@@ -30,9 +30,9 @@ ex:2024-02-16-01
 
                     Solutions
 
-                    1 Extra section[13]
+                    E.1      Extra section[13]
         sec:E.2.1
-                    1.1    Extra subsection[14]
+                    E.1.1 Extra subsection[14]
 sol:2024-02-16-01
       sec:E.2.1.1
           sol:E.1
@@ -52,9 +52,9 @@ sol:2024-02-16-01
 
                     Additional information
 
-                    1 Extra section[25]
+                    E.1      Extra section[25]
         sec:E.3.1
-                    1.1    Extra subsection[26]
+                    E.1.1 Extra subsection[26]
 add:2024-02-16-01
       sec:E.3.1.1
           add:E.1
@@ -98,9 +98,9 @@ add:2024-02-16-01
 
 
     Notes for chapter E.B
-13. sec:E.1.1 (counter value 1)
+13. sec:E.1.1 (counter value E.1)
 
-14. sec:E.1.1.1 (counter value 1.1)
+14. sec:E.1.1.1 (counter value E.1.1)
 
 15. ex:E.1 (counter value 1)
 
@@ -126,9 +126,9 @@ add:2024-02-16-01
 
 
     Notes for chapter E.C
-25. sec:E.1.1 (counter value 1)
+25. sec:E.1.1 (counter value E.1)
 
-26. sec:E.1.1.1 (counter value 1.1)
+26. sec:E.1.1.1 (counter value E.1.1)
 
 27. ex:E.1 (counter value 1)
 

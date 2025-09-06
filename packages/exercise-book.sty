@@ -796,7 +796,10 @@
   exercise/post-hook = {%
     \edef\solref{sol:\exercisebookprefix\GetExerciseProperty{id}}%
     \noindent\textbf{Go to:} {\itshape\linktoxsimenv{\solref}{solution}}.%
-  },
+  }
+}
+\ifLaTeXTwentyFive
+\xsimsetup{
   solution/post-hook = {%
     \GetExercisePropertyT{additionalinformation}{%
       \edef\addref{add:\exercisebookprefix\GetExerciseProperty{id}}%
@@ -804,6 +807,16 @@
     }
   }
 }
+\else
+\xsimsetup{
+  solution/post-hook = {%
+    \GetExercisePropertyT{additionalinformationfilename}{%
+      \edef\addref{add:\exercisebookprefix\GetExerciseProperty{id}}%
+      \noindent\textbf{Go to:} {\itshape\linktoxsimenv{\addref}{additional information}}.%
+    }
+  }
+}
+\fi
 
 %%% ----------------------------------------------------------------
 %%% Helper: check if label exists

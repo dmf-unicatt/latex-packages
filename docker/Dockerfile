@@ -16,7 +16,11 @@ RUN set -e; \
     case "$BASE_IMAGE" in \
         *ubuntu*) \
             if apt update -y 2>&1 | grep -q "does not have a Release file"; then \
-                sed -i -E 's@http://(archive|security)\.ubuntu\.com/ubuntu@http://old-releases.ubuntu.com/ubuntu@g' /etc/apt/sources.list; \
+                if [ -f /etc/apt/sources.list.d/ubuntu.sources ]; then \
+                    sed -i -E 's@http://(archive|security)\.ubuntu\.com/ubuntu@http://old-releases.ubuntu.com/ubuntu@g' /etc/apt/sources.list.d/ubuntu.sources; \
+                else \
+                    sed -i -E 's@http://(archive|security)\.ubuntu\.com/ubuntu@http://old-releases.ubuntu.com/ubuntu@g' /etc/apt/sources.list; \
+                fi; \
                 apt update -y; \
             fi \
             ;; \

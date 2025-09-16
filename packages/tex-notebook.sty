@@ -802,6 +802,20 @@ def save_cells_as_notebook(all_cells: list[tuple[str, str]], pytex: any) -> None
 
     nb["cells"] = nb_cells
 
+    # Assign kernel metadata
+    nb.metadata.kernelspec = {
+        "display_name": "Python 3 (ipykernel)",
+        "language": "python",
+        "name": "python3"
+    }
+    nb.metadata.language_info = {
+        "name": "python",
+        "mimetype": "text/x-python",
+        "codemirror_mode": {"name": "ipython"},
+        "file_extension": ".py",
+        "nbconvert_exporter": "python"
+    }
+
     # Ensure output directory exists
     os.makedirs(os.path.dirname(pytex.notebook_filename), exist_ok=True)
 

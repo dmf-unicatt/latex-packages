@@ -27,6 +27,9 @@ jobs:
           - base-image: debian:13
             tag-name: debian-13
             expected-texlive-version: "2024.20250309-1"
+          - base-image: ubuntu:25.10
+            tag-name: ubuntu-25.10
+            expected-texlive-version: "2024.20250309-1"
           - base-image: debian:testing
             tag-name: debian-testing
             expected-texlive-version: "2025.20250927-4"

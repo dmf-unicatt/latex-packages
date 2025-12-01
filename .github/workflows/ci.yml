@@ -20,6 +20,7 @@ jobs:
           - tag-name: ubuntu-24.10
           - tag-name: ubuntu-25.04
           - tag-name: debian-13
+          - tag-name: ubuntu-25.10
           - tag-name: debian-testing
           - tag-name: debian-unstable
       fail-fast: false

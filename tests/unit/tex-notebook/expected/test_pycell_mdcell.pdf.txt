@@ -88,15 +88,92 @@ quattro_cuatro
 
 
 
-       A figure appears also when other text outputs are present
+       A figure appears also when other text outputs are present.
 4   x = [10, 20, 30]
 5   y = [40, 50, 60]
 6   print(f"x = {x}")
 7   print(f"y = {y}")
-8   fig = px.scatter(x=x, y=y)
-9   fig
-    x = [10, 20, 30]
-    y = [40, 50, 60]
+8    fig = px.scatter(x=x, y=y)
+9    fig
+     x = [10, 20, 30]
+     y = [40, 50, 60]
+
+
+
+
+       One can customize the figure labels using either HTML or LaTeX labels.
+10   import numpy as np
+11   import plotly.graph_objects as go
+12   x_plot = np.linspace(-4 * np.pi, 4 * np.pi, 200)
+13   y_plot = 3 * np.sqrt(2) * np.sin(x_plot)
+14
+
+15   def xlabel(k):
+16       """Prepare HTML labels on the x axis."""
+17       if k == 0:
+18           return "0"
+19       num = abs(k)
+20       s = f"{num}&#960;"
+21       s = s if k > 0 else f"-{s}"
+22       return s
+23
+
+24   def ylabel(k):
+25       """Prepare LaTeX labels on the y axis."""
+26       if k == 0:
+27           return "0"
+28       num = abs(k)
+29       s = str(num) + "\\sqrt{2}"
+30       s = s if k > 0 else f"-{s}"
+31       return "$" + s + "$"
+32
+
+33   xvals = [k * np.pi for k in range(-4, 5)]
+34   xlabels = [xlabel(k) for k in range(-4, 5)]
+35   yvals = [k * np.sqrt(2) for k in range(-3, 4)]
+36   ylabels = [ylabel(k) for k in range(-3, 4)]
+37   fig = go.Figure()
+38   fig.add_scatter(x=x_plot, y=y_plot)
+39   fig.update_layout(
+40       xaxis=dict(
+41           title="x",
+42           range=[-4 * np.pi, 4 * np.pi],
+43           tickmode="array",
+44           tickvals=xvals,
+45           ticktext=xlabels
+46       ),
+47       yaxis=dict(
+48           title="y",
+49           range=[-3 * np.sqrt(2), 3 * np.sqrt(2)],
+50           tickmode="array",
+51           tickvals=yvals,
+52           ticktext=ylabels
+53       )
+54   )
+55   fig
+
+
+
+
+56   fig = go.Figure()
+57   fig.add_scatter(x=y_plot, y=x_plot)
+58   fig.update_layout(
+59       xaxis=dict(
+60           title="y",
+61           range=[-3 * np.sqrt(2), 3 * np.sqrt(2)],
+62           tickmode="array",
+63           tickvals=yvals,
+64           ticktext=ylabels
+65       ),
+66       yaxis=dict(
+67           title="x",
+68           range=[-4 * np.pi, 4 * np.pi],
+69           tickmode="array",
+70           tickvals=xvals,
+71           ticktext=xlabels
+72       )
+73   )
+74   # fig # fails with kaleido>=1, incorrect x axis
 Chapter 5
 
 Interacting with the outer

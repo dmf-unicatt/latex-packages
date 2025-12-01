@@ -171,7 +171,7 @@ fig
 \pyexpectedfigure{images/scatter_123_456.png}
 
 \begin{mdcell}
-A figure appears also when other text outputs are present
+A figure appears also when other text outputs are present.
 \end{mdcell}
 
 \begin{pycell}
@@ -187,6 +187,86 @@ x = [10, 20, 30]
 y = [40, 50, 60]
 \end{pyexpectedoutput}
 \pyexpectedfigure{images/scatter_102030_405060.png}
+
+\begin{mdcell}
+One can customize the figure labels using either HTML or LaTeX labels.
+\end{mdcell}
+
+\begin{pycell}
+import numpy as np
+import plotly.graph_objects as go
+x_plot = np.linspace(-4 * np.pi, 4 * np.pi, 200)
+y_plot = 3 * np.sqrt(2) * np.sin(x_plot)
+
+def xlabel(k):
+    """Prepare HTML labels on the x axis."""
+    if k == 0:
+        return "0"
+    num = abs(k)
+    s = f"{num}&#960;"
+    s = s if k > 0 else f"-{s}"
+    return s
+
+def ylabel(k):
+    """Prepare LaTeX labels on the y axis."""
+    if k == 0:
+        return "0"
+    num = abs(k)
+    s = str(num) + "\\sqrt{2}"
+    s = s if k > 0 else f"-{s}"
+    return "$" + s + "$"
+
+xvals = [k * np.pi for k in range(-4, 5)]
+xlabels = [xlabel(k) for k in range(-4, 5)]
+yvals = [k * np.sqrt(2) for k in range(-3, 4)]
+ylabels = [ylabel(k) for k in range(-3, 4)]
+\end{pycell}
+
+\begin{pycell}
+fig = go.Figure()
+fig.add_scatter(x=x_plot, y=y_plot)
+fig.update_layout(
+    xaxis=dict(
+        title="x",
+        range=[-4 * np.pi, 4 * np.pi],
+        tickmode="array",
+        tickvals=xvals,
+        ticktext=xlabels
+    ),
+    yaxis=dict(
+        title="y",
+        range=[-3 * np.sqrt(2), 3 * np.sqrt(2)],
+        tickmode="array",
+        tickvals=yvals,
+        ticktext=ylabels
+    )
+)
+fig
+\end{pycell}
+\pyexpectedfigure{images/scatter_html_latex_labels.png}
+
+\begin{pycell}
+fig = go.Figure()
+fig.add_scatter(x=y_plot, y=x_plot)
+fig.update_layout(
+    xaxis=dict(
+        title="y",
+        range=[-3 * np.sqrt(2), 3 * np.sqrt(2)],
+        tickmode="array",
+        tickvals=yvals,
+        ticktext=ylabels
+    ),
+    yaxis=dict(
+        title="x",
+        range=[-4 * np.pi, 4 * np.pi],
+        tickmode="array",
+        tickvals=xvals,
+        ticktext=xlabels
+    )
+)
+fig
+\end{pycell}
+\pyexpectedfigure{images/scatter_html_latex_labels_swapped.png}
 
 \chapter{Interacting with the outer document}
 

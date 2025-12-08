@@ -49,6 +49,12 @@ jobs:
       - name: Setup act config
         run: |
           echo "-P ubuntu-latest=medium" > .actrc
+      - name: Move docker temporary folder to region with free disk space
+        run: |
+          sudo cp -rf /var/lib/docker /mnt/
+          sudo rm -rf /var/lib/docker
+          sudo ln -s /mnt/docker /var/lib/
+          sudo systemctl restart docker
       - name: Run tests under act
         run: |
           export PATH=$PWD/bin:$PATH

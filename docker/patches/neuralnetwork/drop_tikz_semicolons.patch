@@ -1,0 +1,38 @@
+--- /usr/share/texlive/texmf-dist/tex/latex/neuralnetwork/neuralnetwork.sty
++++ /usr/share/texlive/texmf-dist/tex/latex/neuralnetwork/neuralnetwork.sty
+@@ -41,16 +41,16 @@
+ \edef\nn@tikzpic@styled{\noexpand\begin{tikzpicture}[\nn@style]}
+ \nn@tikzpic@styled
+   \tikzstyle{neuron}=[circle,fill=black!25,minimum size=\nn@nodesize,inner sep=0pt]
+-  \tikzstyle{input neuron}=[neuron, fill=green!50];
+-  \tikzstyle{output neuron}=[neuron, fill=red!50];
+-  \tikzstyle{hidden neuron}=[neuron, fill=blue!40];
+-  \tikzstyle{bias neuron}=[neuron, fill=yellow!50];
+-  \tikzstyle{layertitle} = [text width=\nn@layerspacing - (1 em), text centered];
+-  \tikzstyle{layertitlewide} = [layertitle, text width=\nn@layerspacing + (2 em)];
+-  \tikzstyle{linkstitle} = [text centered, fill=white, text=darkgray, fill opacity=0.45, text opacity=1.0, inner sep=2pt, ellipse];
+-  \tikzstyle{linklabel} = [rectangle, fill=white, text opacity=1.0, text=black, text centered, inner sep=0pt];
+-  \tikzstyle{link} = [->, shorten <=0pt, shorten >=1pt, node distance=\nn@layerspacing, thin, draw=black!45];
+-  \tikzstyle{networktitle} = [rectangle, text=black, text centered, inner sep=0pt];
++  \tikzstyle{input neuron}=[neuron, fill=green!50]
++  \tikzstyle{output neuron}=[neuron, fill=red!50]
++  \tikzstyle{hidden neuron}=[neuron, fill=blue!40]
++  \tikzstyle{bias neuron}=[neuron, fill=yellow!50]
++  \tikzstyle{layertitle} = [text width=\nn@layerspacing - (1 em), text centered]
++  \tikzstyle{layertitlewide} = [layertitle, text width=\nn@layerspacing + (2 em)]
++  \tikzstyle{linkstitle} = [text centered, fill=white, text=darkgray, fill opacity=0.45, text opacity=1.0, inner sep=2pt, ellipse]
++  \tikzstyle{linklabel} = [rectangle, fill=white, text opacity=1.0, text=black, text centered, inner sep=0pt]
++  \tikzstyle{link} = [->, shorten <=0pt, shorten >=1pt, node distance=\nn@layerspacing, thin, draw=black!45]
++  \tikzstyle{networktitle} = [rectangle, text=black, text centered, inner sep=0pt]
+   \nn@var{layerindex}
+   \nn@var{lastlayerstart} \nn@var{thislayerstart}
+   \nn@var{lastlayercount} \nn@var{thislayercount}
+@@ -212,7 +212,7 @@
+       \foreach \nn@excluded in \nn@notto
+         \if \nn@excluded \nn@thisnode \global\def\nn@dontdraw{1} \breakforeach \fi;
+       \if \nn@dontdraw 0
+-        \link[from layer=\lastlayer, from node=\lastnode, to layer=\thislayer, to node=\thisnode, label=\nn@linkslabels, style=\nn@linksstyle];
++        \link[from layer=\lastlayer, from node=\lastnode, to layer=\thislayer, to node=\thisnode, label=\nn@linkslabels, style=\nn@linksstyle]
+       \fi
+     }
+   % Title

@@ -31,7 +31,7 @@
 
 % Load tikz
 \RequirePackage{tikz}
-\usetikzlibrary{calc,intersections,shapes.geometric}
+\usetikzlibrary{calc,decorations.pathmorphing,intersections,positioning,shapes.geometric}
 \RequirePackage{pgfplots}
 \usepgfplotslibrary{groupplots,patchplots}
 \pgfplotsset{compat=1.18}
@@ -45,6 +45,9 @@
 
 % Load package for nicer small fractions
 \RequirePackage{nicefrac}
+
+% Load package for neural networks
+\RequirePackage{neuralnetwork}
 
 % Load the tex-notebook package from this same repository for the pycell environment
 \RequirePackage{tex-notebook}

@@ -62,6 +62,10 @@ RUN if [ -s "/tmp/patches-markdown/mdcell-${BASE_IMAGE}.patch" ]; then \
     fi \
     && rm -rf /tmp/patches-markdown
 
+# Apply neuralnetwork patch to avoid LuaTeX warnings
+COPY patches/neuralnetwork/drop_tikz_semicolons.patch /tmp/drop_tikz_semicolons.patch
+RUN patch -p0 < /tmp/drop_tikz_semicolons.patch && rm /tmp/drop_tikz_semicolons.patch
+
 # Update LuaTeX font database
 RUN luaotfload-tool -u
 

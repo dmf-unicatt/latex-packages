@@ -17,7 +17,7 @@ $ ^{2}$ Università~Cattolica~del~Sacro~Cuore,\\
 
 % Load tikz
 \RequirePackage{tikz}
-\usetikzlibrary{calc,intersections,shapes.geometric}
+\usetikzlibrary{calc,decorations.pathmorphing,intersections,positioning,shapes.geometric}
 \RequirePackage{pgfplots}
 \usepgfplotslibrary{groupplots,patchplots}
 \pgfplotsset{compat=1.18}
@@ -28,6 +28,9 @@ $ ^{2}$ Università~Cattolica~del~Sacro~Cuore,\\
 
 % Load package for nicer small fractions
 \RequirePackage{nicefrac}
+
+% Load package for neural networks
+\RequirePackage{neuralnetwork}
 
 % Allow to refer to environments defined in another file
 \RequirePackage{xr-hyper}

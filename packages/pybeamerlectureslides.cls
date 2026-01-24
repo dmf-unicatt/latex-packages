@@ -19,7 +19,7 @@ $ ^{2}$ Università~Cattolica~del~Sacro~Cuore,\\
 \RequirePackage{tikz}
 \usetikzlibrary{calc,intersections,shapes.geometric}
 \RequirePackage{pgfplots}
-\usepgfplotslibrary{patchplots}
+\usepgfplotslibrary{groupplots,patchplots}
 \pgfplotsset{compat=1.18}
 
 % Load tabularx and colortbl to typeset tables

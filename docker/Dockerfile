@@ -64,7 +64,9 @@ RUN if [ -s "/tmp/patches-markdown/mdcell-${BASE_IMAGE}.patch" ]; then \
 
 # Apply neuralnetwork patch to avoid LuaTeX warnings
 COPY patches/neuralnetwork/drop_tikz_semicolons.patch /tmp/drop_tikz_semicolons.patch
-RUN patch -p0 < /tmp/drop_tikz_semicolons.patch && rm /tmp/drop_tikz_semicolons.patch
+COPY patches/neuralnetwork/add_if_false_branch.patch /tmp/add_if_false_branch.patch
+RUN patch -p0 < /tmp/drop_tikz_semicolons.patch && rm /tmp/drop_tikz_semicolons.patch && \
+    patch -p0 < /tmp/add_if_false_branch.patch && rm /tmp/add_if_false_branch.patch
 
 # Update LuaTeX font database
 RUN luaotfload-tool -u

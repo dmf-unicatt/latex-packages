@@ -1,0 +1,42 @@
+--- /usr/share/texlive/texmf-dist/tex/latex/neuralnetwork/neuralnetwork.sty
++++ /usr/share/texlive/texmf-dist/tex/latex/neuralnetwork/neuralnetwork.sty
+@@ -127,29 +127,29 @@
+       \if \nn@toprow 1
+         \def\nn@biaspos{top row}
+       \fi
+-    }
++    }{}
+     \nn@if{\nn@biaspos}{top row} {
+       \pgfmathsetlengthmacro{\nn@node@y} {-\nn@titles}
+       \pgfmathsetlengthmacro{\nn@node@xb} {\nn@node@x}
+       \def\nn@bias@own@row{1}
+-    }
++    }{}
+     % Does the bias node have its own row ("top" or "top row")?
+     \nn@if{\nn@bias@own@row}{0} {
+       \pgfmathsetlengthmacro{\nn@offset} {\nn@offset - (\nn@nodespacing / 2)}
+       \pgfmathsetlengthmacro{\nn@node@y} {-(\nn@nodespacing * ((\nn@nodecount+1)/2 - \nn@startindex@draw) + \nn@offset)}
+-    }
++    }{}
+     % Centered vertical position
+     % The "dummy" line is necessary to overcome some LaTeX bug, the first line in the list below always seems to get ignored by the parser.
+-    \nn@if{\nn@biaspos}{dummy} { \pgfmathsetlengthmacro{\nn@node@xb} {\nn@node@x} }
+-    \nn@if{\nn@biaspos}{center} { \pgfmathsetlengthmacro{\nn@node@xb} {\nn@node@x} }
+-    \nn@if{\nn@biaspos}{center right} { \pgfmathsetlengthmacro{\nn@node@xb} {\nn@node@x + (1*\nn@layerspacing / 4)} }
+-    \nn@if{\nn@biaspos}{center left} { \pgfmathsetlengthmacro{\nn@node@xb} {\nn@node@x - (1*\nn@layerspacing / 4)} }
+-    \nn@if{\nn@biaspos}{center right right} { \pgfmathsetlengthmacro{\nn@node@xb} {\nn@node@x + (2*\nn@layerspacing / 3)} }
+-    \nn@if{\nn@biaspos}{center left left} { \pgfmathsetlengthmacro{\nn@node@xb} {\nn@node@x - (2*\nn@layerspacing / 3)} }
++    \nn@if{\nn@biaspos}{dummy} { \pgfmathsetlengthmacro{\nn@node@xb} {\nn@node@x} }{}
++    \nn@if{\nn@biaspos}{center} { \pgfmathsetlengthmacro{\nn@node@xb} {\nn@node@x} }{}
++    \nn@if{\nn@biaspos}{center right} { \pgfmathsetlengthmacro{\nn@node@xb} {\nn@node@x + (1*\nn@layerspacing / 4)} }{}
++    \nn@if{\nn@biaspos}{center left} { \pgfmathsetlengthmacro{\nn@node@xb} {\nn@node@x - (1*\nn@layerspacing / 4)} }{}
++    \nn@if{\nn@biaspos}{center right right} { \pgfmathsetlengthmacro{\nn@node@xb} {\nn@node@x + (2*\nn@layerspacing / 3)} }{}
++    \nn@if{\nn@biaspos}{center left left} { \pgfmathsetlengthmacro{\nn@node@xb} {\nn@node@x - (2*\nn@layerspacing / 3)} }{}
+     % Error check
+     \nn@if{\nn@node@xb}{} {
+       \PackageError{neuralnetwork}{Unknown bias node position: "\nn@biaspos"}
+-    }
++    }{}
+     % Draw node
+     \node[bias neuron] (L\nn@layerindex-0) at (\nn@node@xb, \nn@node@y) {\nn@nodecaption{\nn@layerindex}{0}};
+   \fi

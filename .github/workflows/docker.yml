@@ -35,7 +35,7 @@ jobs:
             expected-texlive-version: "2025.20251127-1"
           - base-image: debian:unstable
             tag-name: debian-unstable
-            expected-texlive-version: "2025.20251127-1"
+            expected-texlive-version: "2025.20260124-1"
       fail-fast: false
     runs-on: ubuntu-latest
     defaults:

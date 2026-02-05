@@ -153,15 +153,26 @@ def call_code(
         len(lines) > 0 and           # The code is not empty
         len(lines[-1].strip()) > 0   # The last line is not just whitespace
     ):
-      try:
-          # Try to parse last line as an expression
-          ast.parse(lines[-1], mode="eval")
-      except SyntaxError:
-          # Not an expression, do nothing
-          pass
-      else:
-          # It is an expression, so capture implicit output
-          lines[-1] = "_last_line_output = " + lines[-1]
+        try:
+            # Try to parse code
+            tree = ast.parse(code, mode="exec")
+        except SyntaxError:
+            # Invalid code, do nothing
+            pass
+        else:
+            # It is an expression, so capture implicit output
+            if tree.body and isinstance(tree.body[-1], ast.Expr):
+                last_expr = tree.body[-1]
+                start = last_expr.lineno - 1
+                end = last_expr.end_lineno
+
+                # Extract the original expression source
+                expr_source = "\n".join(lines[start:end])
+
+                # Replace it with an assignment
+                replacement = "_last_line_output = " + expr_source
+
+                lines[start:end] = [replacement]
 
     # Execute the code
     output_buffer = io.StringIO()

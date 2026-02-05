@@ -60,6 +60,22 @@ x + y + z + n - l - m + 2
 -1
 \end{pyexpectedoutput}
 
+Implicit variable display also works when the instruction is split in multiple cells
+\begin{pycell}
+print(
+    x + y + z + n
+    - l - m + 1
+)
+(
+    x + y + z + n
+    - l - m + 2
+)
+\end{pycell}
+\begin{pyexpectedoutput}
+-2
+-1
+\end{pyexpectedoutput}
+
 \begin{mdcell}
 One can also print lists of numbers
 \end{mdcell}
@@ -264,7 +280,7 @@ fig.update_layout(
         ticktext=xlabels
     )
 )
-# fig  # fails with kaleido>=1, incorrect x axis
+del fig  # fails with kaleido>=1, incorrect x axis
 \end{pycell}
 % \pyexpectedfigure{images/scatter_html_latex_labels_swapped.png}
 

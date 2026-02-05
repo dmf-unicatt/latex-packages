@@ -1,32 +1,47 @@
-     Chapter 1
+    Chapter 1
 
-     Case with numbers
+    Case with numbers
 
-     We start from the most simple case possible, the case of numbers.
-         Note that this content is typed in markdown, and then converted to LaTeX
-     via the markdown package.
-1    x = 1
-2    y = 2
-3    z = 3; n = 4
-4    l = 6
-5    m = 7
-         We can print a linear combination of the provided number from a pycell,
-     either directly...
-6    print(x + y + z + n - l - m)
-     -3
-          ... implicitly ...
-7    x + y + z + n - l - m
-     -3
-          ... or in both ways (with duplicated output)
-8    print(x + y + z + n - l - m + 1)
-9    x + y + z + n - l - m + 2
+    We start from the most simple case possible, the case of numbers.
+        Note that this content is typed in markdown, and then converted to LaTeX
+    via the markdown package.
+1   x = 1
+2   y = 2
+3   z = 3; n = 4
+4   l = 6
+5   m = 7
+        We can print a linear combination of the provided number from a pycell,
+    either directly...
+6   print(x + y + z + n - l - m)
+    -3
+         ... implicitly ...
+7   x + y + z + n - l - m
+    -3
+         ... or in both ways (with duplicated output)
+
+8   print(x + y + z + n - l - m + 1)
+9   x + y + z + n - l - m + 2
+    -2
+    -1
+        Implicit variable display also works when the instruction is split in multiple
+    cells
+10   print(
+11       x + y + z + n
+12       - l - m + 1
+13   )
+14   (
+15       x + y + z + n
+16       - l - m + 2
+17   )
+
      -2
      -1
           One can also print lists of numbers
-10   x = [1, 2, 3]
-11   y = [4, 5, 6]
-12   print(f"{x}")
-13   print(f"{y}")
+18   x = [1, 2, 3]
+19   y = [4, 5, 6]
+20   print(f"{x}")
+21   print(f"{y}")
+
      [1, 2, 3]
      [4, 5, 6]
      Chapter 2
@@ -173,7 +188,7 @@ quattro_cuatro
 71           ticktext=xlabels
 72       )
 73   )
-74   # fig # fails with kaleido>=1, incorrect x axis
+74   del fig # fails with kaleido>=1, incorrect x axis
 Chapter 5
 
 Interacting with the outer

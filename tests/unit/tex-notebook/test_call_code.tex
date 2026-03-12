@@ -17,17 +17,21 @@ local_variables = {}
 Then we run several tests.
 
 \begin{pycell}
-cell_output, cell_figure_path = call_code(
-"""
+cell_output, cell_figure_path = call_code(  # ty: ignore[unresolved-reference]
+    """
 x = 1
 y = 2
 """,
-all_codes, local_variables, pytex)
+    all_codes,
+    local_variables,
+    pytex,  # ty: ignore[unresolved-reference]
+)
 assert len(all_codes) == 1
 assert len(all_codes[0]) == 2
 assert all_codes[0][0] == "code"
 assert (
-    all_codes[0][1] == """
+    all_codes[0][1]
+    == """
 x = 1
 y = 2
 """
@@ -43,17 +47,20 @@ assert local_variables["y"] == 2
 \end{pycell}
 
 \begin{pycell}
-cell_output, cell_figure_path = call_code(
-"""
+cell_output, cell_figure_path = call_code(  # ty: ignore[unresolved-reference]
+    """
 z = 3; n = 4
-"""
-,
-all_codes, local_variables, pytex)
+""",
+    all_codes,
+    local_variables,
+    pytex,  # ty: ignore[unresolved-reference]
+)
 assert len(all_codes) == 2
 assert len(all_codes[0]) == 2
 assert all_codes[0][0] == "code"
 assert (
-    all_codes[0][1] == """
+    all_codes[0][1]
+    == """
 x = 1
 y = 2
 """
@@ -61,7 +68,8 @@ y = 2
 assert len(all_codes[1]) == 2
 assert all_codes[1][0] == "code"
 assert (
-    all_codes[1][1] == """
+    all_codes[1][1]
+    == """
 z = 3; n = 4
 """
 )
@@ -80,77 +88,91 @@ assert local_variables["n"] == 4
 \end{pycell}
 
 \begin{pycell}
-cell_output, _ = call_code(
-"""
+cell_output, _ = call_code(  # ty: ignore[unresolved-reference]
+    """
 print(x + y + z + n)
-"""
-,
-all_codes, local_variables, pytex)
+""",
+    all_codes,
+    local_variables,
+    pytex,  # ty: ignore[unresolved-reference]
+)
 assert cell_output == "10"
 \end{pycell}
 
 \begin{pycell}
-cell_output, _ = call_code(
-"""
+cell_output, _ = call_code(  # ty: ignore[unresolved-reference]
+    """
 x + y + z + n
-"""
-,
-all_codes, local_variables, pytex)
+""",
+    all_codes,
+    local_variables,
+    pytex,  # ty: ignore[unresolved-reference]
+)
 assert cell_output == "10"
 \end{pycell}
 
 \begin{pycell}
-cell_output, _ = call_code(
-"""
+cell_output, _ = call_code(  # ty: ignore[unresolved-reference]
+    """
 print(x + y + z + n + 1)
 x + y + z + n + 2
-"""
-,
-all_codes, local_variables, pytex)
+""",
+    all_codes,
+    local_variables,
+    pytex,  # ty: ignore[unresolved-reference]
+)
 assert cell_output == "11\n12"
 \end{pycell}
 
 \begin{pycell}
-cell_output, _ = call_code(
-"""
+cell_output, _ = call_code(  # ty: ignore[unresolved-reference]
+    """
 x = "one"
 y = "two two"
-"""
-,
-all_codes, local_variables, pytex)
+""",
+    all_codes,
+    local_variables,
+    pytex,  # ty: ignore[unresolved-reference]
+)
 assert cell_output == ""
 \end{pycell}
 
 \begin{pycell}
-cell_output, _ = call_code(
-"""
+cell_output, _ = call_code(  # ty: ignore[unresolved-reference]
+    """
 z = "three THREE_Three"; n = "FoUr_four quattro_cuatro"
-"""
-,
-all_codes, local_variables, pytex)
+""",
+    all_codes,
+    local_variables,
+    pytex,  # ty: ignore[unresolved-reference]
+)
 assert cell_output == ""
 \end{pycell}
 
 \begin{pycell}
-cell_output, _ = call_code(
-"""
+cell_output, _ = call_code(  # ty: ignore[unresolved-reference]
+    """
 " ".join([x, y, z, n])
-"""
-,
-all_codes, local_variables, pytex)
+""",
+    all_codes,
+    local_variables,
+    pytex,  # ty: ignore[unresolved-reference]
+)
 assert cell_output == (
     "'one two two three THREE_Three FoUr_four quattro_cuatro'"
 )
 \end{pycell}
 
 \begin{pycell}
-cell_output, _ = call_code(
-"""
+cell_output, _ = call_code(  # ty: ignore[unresolved-reference]
+    """
 print(" ".join([x, y]))
 print(" ".join([z, n]))
-"""
-,
-all_codes, local_variables, pytex)
+""",
+    all_codes,
+    local_variables,
+    pytex,  # ty: ignore[unresolved-reference]
+)
 assert cell_output == (
     "one two two\nthree THREE_Three FoUr_four quattro_cuatro"
 )
@@ -158,12 +180,14 @@ assert cell_output == (
 
 \begin{pycell}
 try:
-    call_code(
-"""
+    call_code(  # ty: ignore[unresolved-reference]
+        """
 raise RuntimeError("a runtime error")
-"""
-,
-all_codes, local_variables, pytex)
+""",
+        all_codes,
+        local_variables,
+        pytex,  # ty: ignore[unresolved-reference]
+    )
 except RuntimeError as e:
     assert str(e) == "a runtime error"
 else:
@@ -171,14 +195,16 @@ else:
 \end{pycell}
 
 \begin{pycell}
-cell_output, cell_figure_path = call_code(
-"""
+cell_output, cell_figure_path = call_code(  # ty: ignore[unresolved-reference]
+    """
 import plotly.express as px
 fig = px.scatter(x=[1, 2, 3], y=[4, 5, 6])
 fig
-"""
-,
-all_codes, local_variables, pytex)
+""",
+    all_codes,
+    local_variables,
+    pytex,  # ty: ignore[unresolved-reference]
+)
 assert cell_output == ""
 assert cell_figure_path == (
     "pythontex-files-test_call_code/py_default_1_79.png"
@@ -188,16 +214,28 @@ assert cell_figure_path == (
 Notebooks are automatically produced from this file, but they would not be runnable because they would miss the definition of \texttt{call\_code}, which is defined internally by this package. This is not really the point of this test, so we simply mock \texttt{save\_cells\_as\_notebook}, also defined internally by this package, to write a mock notebook instead of the actual one.
 
 \begin{pycell}
-original_save_cells_as_notebook = save_cells_as_notebook
+import typing
+
+original_save_cells_as_notebook = save_cells_as_notebook  # ty: ignore[unresolved-reference]
+
 
 def save_cells_as_notebook(
-    all_cells: list[tuple[str, str]], pytex: any
+    all_cells: list[tuple[str, str]],
+    pytex: typing.Any,  # noqa: ANN401
 ) -> None:
+    """Write a mock notebook instead of the actual one."""
     return original_save_cells_as_notebook(
         [
             ("markdown", "This notebook was disabled"),
-            ("code", "\nprint('This notebook was disabled')")
-        ], pytex
+            (
+                "code",
+                """
+# fmt: off
+print('This notebook was disabled')  # noqa: Q000
+# fmt: on""",
+            ),
+        ],
+        pytex,
     )
 \end{pycell}
 

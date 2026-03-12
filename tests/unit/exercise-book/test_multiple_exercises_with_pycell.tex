@@ -93,8 +93,10 @@ The results are obviously the same.
 A more elaborated solution with functions:
 
 \begin{pycell}
-def my_sum(a, b):
+def my_sum(a: int, b: int) -> int:
+    """Return the sum of a and b."""
     return a + b
+
 
 print(my_sum(4, 4))
 \end{pycell}
@@ -135,10 +137,8 @@ Then plot their cumulative sum.
 
 \begin{pycell}
 import plotly.express as px
-fig = px.scatter(
-    x=[1, 2],
-    y=[numbers[0], numbers[0] + numbers[1]]
-)
+
+fig = px.scatter(x=[1, 2], y=[numbers[0], numbers[0] + numbers[1]])
 fig
 \end{pycell}
 \pyexpectedfigure{images/scatter_12_510.png}

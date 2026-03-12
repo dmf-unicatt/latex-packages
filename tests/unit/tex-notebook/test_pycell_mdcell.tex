@@ -17,11 +17,13 @@ y = 2
 \end{pycell}
 
 \begin{pycell}
-z = 3; n = 4
+# fmt: off
+z = 3; n = 4  # noqa: E702
+# fmt: on
 \end{pycell}
 
 \begin{pycell}
-l = 6
+l = 6  # noqa: E741
 m = 7
 \end{pycell}
 
@@ -62,14 +64,8 @@ x + y + z + n - l - m + 2
 
 Implicit variable display also works when the instruction is split in multiple cells
 \begin{pycell}
-print(
-    x + y + z + n
-    - l - m + 1
-)
-(
-    x + y + z + n
-    - l - m + 2
-)
+print(x + y + z + n - l - m + 1)
+(x + y + z + n - l - m + 2)
 \end{pycell}
 \begin{pyexpectedoutput}
 -2
@@ -103,19 +99,21 @@ y = "two two"
 \end{pycell}
 
 \begin{pycell}
-z = "three THREE_Three"; n = "FoUr_four quattro_cuatro"
+# fmt: off
+z = "three THREE_Three"; n = "FoUr_four quattro_cuatro"  # noqa: E702
+# fmt: on
 \end{pycell}
 
 \begin{pycell}
-" ".join([x, y, z, n])
+f"{x} {y} {z} {n}"
 \end{pycell}
 \begin{pyexpectedoutput}
 'one two two three THREE_Three FoUr_four quattro_cuatro'
 \end{pyexpectedoutput}
 
 \begin{pycell}
-print(" ".join([x, y]))
-print(" ".join([z, n]))
+print(f"{x} {y}")
+print(f"{z} {n}")
 \end{pycell}
 \begin{pyexpectedoutput}
 one two two
@@ -131,7 +129,7 @@ Z = """three
 THREE_Three"""
 N = """FoUr_four
 quattro_cuatro"""
-print("\n".join([Z, N]))
+print(f"{Z}\n{N}")
 \end{pycell}
 \begin{pyexpectedoutput}
 three
@@ -141,11 +139,13 @@ quattro_cuatro
 \end{pyexpectedoutput}
 
 \begin{pycell}
+# fmt: off
 Z = '''three
-THREE_Three'''
+THREE_Three'''  # noqa: Q001
 N = '''FoUr_four
-quattro_cuatro'''
-print("\n".join([Z, N]))
+quattro_cuatro'''  # noqa: Q001
+# fmt: on
+print(f"{Z}\n{N}")
 \end{pycell}
 \begin{pyexpectedoutput}
 three
@@ -181,6 +181,7 @@ You can have plotly figures in the code cells. By outputting the figure in the l
 
 \begin{pycell}
 import plotly.express as px
+
 fig = px.scatter(x=[1, 2, 3], y=[4, 5, 6])
 fig
 \end{pycell}
@@ -211,10 +212,12 @@ One can customize the figure labels using either HTML or LaTeX labels.
 \begin{pycell}
 import numpy as np
 import plotly.graph_objects as go
+
 x_plot = np.linspace(-4 * np.pi, 4 * np.pi, 200)
 y_plot = 3 * np.sqrt(2) * np.sin(x_plot)
 
-def xlabel(k):
+
+def xlabel(k: float | int) -> str:
     """Prepare HTML labels on the x axis."""
     if k == 0:
         return "0"
@@ -223,7 +226,8 @@ def xlabel(k):
     s = s if k > 0 else f"-{s}"
     return s
 
-def ylabel(k):
+
+def ylabel(k: float | int) -> str:
     """Prepare LaTeX labels on the y axis."""
     if k == 0:
         return "0"
@@ -231,6 +235,7 @@ def ylabel(k):
     s = str(num) + "\\sqrt{2}"
     s = s if k > 0 else f"-{s}"
     return "$" + s + "$"
+
 
 xvals = [k * np.pi for k in range(-4, 5)]
 xlabels = [xlabel(k) for k in range(-4, 5)]
@@ -247,15 +252,15 @@ fig.update_layout(
         range=[-4 * np.pi, 4 * np.pi],
         tickmode="array",
         tickvals=xvals,
-        ticktext=xlabels
+        ticktext=xlabels,
     ),
     yaxis=dict(
         title="y",
         range=[-3 * np.sqrt(2), 3 * np.sqrt(2)],
         tickmode="array",
         tickvals=yvals,
-        ticktext=ylabels
-    )
+        ticktext=ylabels,
+    ),
 )
 fig
 \end{pycell}
@@ -270,15 +275,15 @@ fig.update_layout(
         range=[-3 * np.sqrt(2), 3 * np.sqrt(2)],
         tickmode="array",
         tickvals=yvals,
-        ticktext=ylabels
+        ticktext=ylabels,
     ),
     yaxis=dict(
         title="x",
         range=[-4 * np.pi, 4 * np.pi],
         tickmode="array",
         tickvals=xvals,
-        ticktext=xlabels
-    )
+        ticktext=xlabels,
+    ),
 )
 del fig  # fails with kaleido>=1, incorrect x axis
 \end{pycell}
@@ -371,6 +376,7 @@ The package internally sets `numpy` printing with the `precision = 3`, `suppress
 
 \begin{pycell}
 import numpy as np
+
 pi = np.float64(np.pi)
 \end{pycell}
 
@@ -452,23 +458,26 @@ We next import `plotly`. We also add an auxiliary function to change the backgro
 \end{mdcell}
 
 \begin{pycell}
-import plotly.graph_objects as go
+import plotly.graph_objects as go  # noqa: I001, RUF100
 \end{pycell}
 
 \begin{pycell}
-def set_black_background(fig):
+def set_black_background(fig: go.Figure) -> None:
     """Set black background to a plotly figure."""
     fig.update_layout(
-        paper_bgcolor="black",   # figure background
-        plot_bgcolor="black",    # plot area background
-        font=dict(color="white") # make text white
+        paper_bgcolor="black",  # figure background
+        plot_bgcolor="black",  # plot area background
+        font=dict(color="white"),  # make text white
     )
 \end{pycell}
 
 \begin{pycell}
-def check_image_size(image_paths, expected_dimensions):
+def check_image_size(
+    image_paths: list[str], expected_dimensions: tuple[int, ...]
+) -> None:
     """Ensure that the images have the expected dimensions."""
     import PIL.Image
+
     if len(expected_dimensions) == 2:
         expected_width, expected_height = expected_dimensions
         expected_width_tolerance = 0
@@ -476,25 +485,21 @@ def check_image_size(image_paths, expected_dimensions):
     else:
         assert len(expected_dimensions) == 4
         (
-            expected_width, expected_width_tolerance,
-            expected_height, expected_height_tolerance
+            expected_width,
+            expected_width_tolerance,
+            expected_height,
+            expected_height_tolerance,
         ) = expected_dimensions
     for image_path in image_paths:
         img = PIL.Image.open(image_path)
         width, height = img.size
-        assert (
-            abs(width - expected_width)
-            <= expected_width_tolerance
-        ), (
+        assert abs(width - expected_width) <= expected_width_tolerance, (
             f"Image {image_path} has width "
             f"{width}, but expected width was "
             f"{expected_width} with tolerance "
             f"{expected_width_tolerance}"
         )
-        assert (
-            abs(height - expected_height)
-            <= expected_height_tolerance
-        ), (
+        assert abs(height - expected_height) <= expected_height_tolerance, (
             f"Image {image_path} has height "
             f"{height}, but expected height was "
             f"{expected_height} with tolerance "
@@ -507,9 +512,9 @@ We save a contour plot using the default width and height.
 \end{mdcell}
 
 \begin{pycell}
-fig_path = os.path.join(
-    f"pythontex-files-{pytex.jobname}",
-    f"{pytex.id}_{pytex.instance}.png"
+fig_path = os.path.join(  # ty: ignore[unresolved-reference]
+    f"pythontex-files-{pytex.jobname}",  # ty: ignore[unresolved-reference]
+    f"{pytex.id}_{pytex.instance}.png",  # ty: ignore[unresolved-reference]
 )
 fig = go.Figure(data=[go.Contour(x=x_plot, y=y_plot, z=Z_plot)])
 fig.update_layout(title="Contour plot")
@@ -521,21 +526,18 @@ fig
 check_image_size(
     [
         fig_path,
-        os.path.join(
-            "images",
-            "contour_plot_"
-            "default_width_height_"
-            "white_background.png"
-        )
+        os.path.join(  # ty: ignore[unresolved-reference]
+            "images", "contour_plot_default_width_height_white_background.png"
+        ),
     ],
-    (1223, 4, 740, 4)  # affected by white space trimming
+    (1223, 4, 740, 4),  # affected by white space trimming
 )
 \end{pycell}
 
 \begin{pycell}
-fig_path = os.path.join(
-    f"pythontex-files-{pytex.jobname}",
-    f"{pytex.id}_{pytex.instance}.png"
+fig_path = os.path.join(  # ty: ignore[unresolved-reference]
+    f"pythontex-files-{pytex.jobname}",  # ty: ignore[unresolved-reference]
+    f"{pytex.id}_{pytex.instance}.png",  # ty: ignore[unresolved-reference]
 )
 fig = go.Figure(data=[go.Contour(x=x_plot, y=y_plot, z=Z_plot)])
 fig.update_layout(title="Contour plot")
@@ -548,14 +550,11 @@ fig
 check_image_size(
     [
         fig_path,
-        os.path.join(
-            "images",
-            "contour_plot_"
-            "default_width_height_"
-            "black_background.png"
-        )
+        os.path.join(  # ty: ignore[unresolved-reference]
+            "images", "contour_plot_default_width_height_black_background.png"
+        ),
     ],
-    (1400, 1000)  # default 700 * 500, multiplied by 2
+    (1400, 1000),  # default 700 * 500, multiplied by 2
 )
 \end{pycell}
 
@@ -564,14 +563,12 @@ We next save a contour plot manually assigning width and height.
 \end{mdcell}
 
 \begin{pycell}
-fig_path = os.path.join(
-    f"pythontex-files-{pytex.jobname}",
-    f"{pytex.id}_{pytex.instance}.png"
+fig_path = os.path.join(  # ty: ignore[unresolved-reference]
+    f"pythontex-files-{pytex.jobname}",  # ty: ignore[unresolved-reference]
+    f"{pytex.id}_{pytex.instance}.png",  # ty: ignore[unresolved-reference]
 )
 fig = go.Figure(data=[go.Contour(x=x_plot, y=y_plot, z=Z_plot)])
-fig.update_layout(
-    title="Contour plot", width=512, height=512, autosize=False
-)
+fig.update_layout(title="Contour plot", width=512, height=512, autosize=False)
 fig
 \end{pycell}
 \pyexpectedfigure{images/contour_plot_fixed_width_height_white_background.png}
@@ -580,26 +577,21 @@ fig
 check_image_size(
     [
         fig_path,
-        os.path.join(
-            "images",
-            "contour_plot_"
-            "fixed_width_height_"
-            "white_background.png"
-        )
+        os.path.join(  # ty: ignore[unresolved-reference]
+            "images", "contour_plot_fixed_width_height_white_background.png"
+        ),
     ],
-    (855, 4, 764, 4)  # affected by white space trimming
+    (855, 4, 764, 4),  # affected by white space trimming
 )
 \end{pycell}
 
 \begin{pycell}
-fig_path = os.path.join(
-    f"pythontex-files-{pytex.jobname}",
-    f"{pytex.id}_{pytex.instance}.png"
+fig_path = os.path.join(  # ty: ignore[unresolved-reference]
+    f"pythontex-files-{pytex.jobname}",  # ty: ignore[unresolved-reference]
+    f"{pytex.id}_{pytex.instance}.png",  # ty: ignore[unresolved-reference]
 )
 fig = go.Figure(data=[go.Contour(x=x_plot, y=y_plot, z=Z_plot)])
-fig.update_layout(
-    title="Contour plot", width=512, height=512, autosize=False
-)
+fig.update_layout(title="Contour plot", width=512, height=512, autosize=False)
 set_black_background(fig)
 fig
 \end{pycell}
@@ -609,14 +601,11 @@ fig
 check_image_size(
     [
         fig_path,
-        os.path.join(
-            "images",
-            "contour_plot_"
-            "fixed_width_height_"
-            "black_background.png"
-        )
+        os.path.join(  # ty: ignore[unresolved-reference]
+            "images", "contour_plot_fixed_width_height_black_background.png"
+        ),
     ],
-    (1024, 1024)  # assigned 512 * 512, multiplied by 2
+    (1024, 1024),  # assigned 512 * 512, multiplied by 2
 )
 \end{pycell}
 
@@ -625,18 +614,18 @@ We finally change the default width, height and scale, and prepare new contour p
 \end{mdcell}
 
 \begin{pycell}
-old_plotly_default_width = pytex.plotly_default_width
-pytex.plotly_default_width = 555
-old_plotly_default_height = pytex.plotly_default_height
-pytex.plotly_default_height = 333
-old_plotly_default_scale = pytex.plotly_default_scale
-pytex.plotly_default_scale = 3
+old_plotly_default_width = pytex.plotly_default_width  # ty: ignore[unresolved-reference]
+pytex.plotly_default_width = 555  # ty: ignore[unresolved-reference]
+old_plotly_default_height = pytex.plotly_default_height  # ty: ignore[unresolved-reference]
+pytex.plotly_default_height = 333  # ty: ignore[unresolved-reference]
+old_plotly_default_scale = pytex.plotly_default_scale  # ty: ignore[unresolved-reference]
+pytex.plotly_default_scale = 3  # ty: ignore[unresolved-reference]
 \end{pycell}
 
 \begin{pycell}
-fig_path = os.path.join(
-    f"pythontex-files-{pytex.jobname}",
-    f"{pytex.id}_{pytex.instance}.png"
+fig_path = os.path.join(  # ty: ignore[unresolved-reference]
+    f"pythontex-files-{pytex.jobname}",  # ty: ignore[unresolved-reference]
+    f"{pytex.id}_{pytex.instance}.png",  # ty: ignore[unresolved-reference]
 )
 fig = go.Figure(data=[go.Contour(x=x_plot, y=y_plot, z=Z_plot)])
 fig.update_layout(title="Contour plot")
@@ -648,21 +637,19 @@ fig
 check_image_size(
     [
         fig_path,
-        os.path.join(
+        os.path.join(  # ty: ignore[unresolved-reference]
             "images",
-            "contour_plot_"
-            "new_default_width_height_"
-            "white_background.png"
-        )
+            "contour_plot_new_default_width_height_white_background.png",
+        ),
     ],
-    (1396, 4, 608, 4)  # affected by white space trimming
+    (1396, 4, 608, 4),  # affected by white space trimming
 )
 \end{pycell}
 
 \begin{pycell}
-fig_path = os.path.join(
-    f"pythontex-files-{pytex.jobname}",
-    f"{pytex.id}_{pytex.instance}.png"
+fig_path = os.path.join(  # ty: ignore[unresolved-reference]
+    f"pythontex-files-{pytex.jobname}",  # ty: ignore[unresolved-reference]
+    f"{pytex.id}_{pytex.instance}.png",  # ty: ignore[unresolved-reference]
 )
 fig = go.Figure(data=[go.Contour(x=x_plot, y=y_plot, z=Z_plot)])
 fig.update_layout(title="Contour plot")
@@ -675,14 +662,12 @@ fig
 check_image_size(
     [
         fig_path,
-        os.path.join(
+        os.path.join(  # ty: ignore[unresolved-reference]
             "images",
-            "contour_plot_"
-            "new_default_width_height_"
-            "black_background.png"
-        )
+            "contour_plot_new_default_width_height_black_background.png",
+        ),
     ],
-    (1665, 999)  # default 555 * 333, multiplied by 3
+    (1665, 999),  # default 555 * 333, multiplied by 3
 )
 \end{pycell}
 
@@ -691,19 +676,24 @@ We assign the defaults back.
 \end{mdcell}
 
 \begin{pycell}
-pytex.plotly_default_width = old_plotly_default_width
-pytex.plotly_default_height = old_plotly_default_height
-pytex.plotly_default_scale = old_plotly_default_scale
+pytex.plotly_default_width = old_plotly_default_width  # ty: ignore[unresolved-reference]
+pytex.plotly_default_height = old_plotly_default_height  # ty: ignore[unresolved-reference]
+pytex.plotly_default_scale = old_plotly_default_scale  # ty: ignore[unresolved-reference]
 \end{pycell}
 
 Notebooks are automatically produced from this chapter, but any cell containing \texttt{pytex} would not be runnable in a plain notebook, because the \texttt{pytex} object is internal. Running the produced notebook is not really the point of this test, hence we simply disable any code cell that includes the words \texttt{pytex} or \texttt{fig\_path}.
 
 \begin{pycell}
-original_save_cells_as_notebook = save_cells_as_notebook
+import typing
+
+original_save_cells_as_notebook = save_cells_as_notebook  # ty: ignore[unresolved-reference]
+
 
 def save_cells_as_notebook(
-    all_cells: list[tuple[str, str]], pytex: any
+    all_cells: list[tuple[str, str]],
+    pytex: typing.Any,  # noqa: ANN401
 ) -> None:
+    """Disable code cells containing pytex or fig_path."""
     modified_all_cells = []
     for cell in all_cells:
         if cell[0] == "markdown":
@@ -711,21 +701,23 @@ def save_cells_as_notebook(
         else:
             assert cell[0] == "code"
             if "pytex" in cell[1]:
-                code = (
-                    "\nprint('This cell was disabled because "
-                    "it contains the command pytex')"
-                )
+                code = """
+# fmt: off
+print(
+    'This cell was disabled because it contains the command pytex'  # noqa: Q000
+)
+# fmt: on"""
             elif "fig_path" in cell[1]:
-                code = (
-                    "\nprint('This cell was disabled because "
-                    "it contains the variable fig_path')"
-                )
+                code = """
+# fmt: off
+print(
+    'This cell was disabled because it contains the variable fig_path'  # noqa: Q000
+)
+# fmt: on"""  # noqa: E501
             else:
                 code = cell[1]
             modified_all_cells.append(("code", code))
-    return original_save_cells_as_notebook(
-        modified_all_cells, pytex
-    )
+    return original_save_cells_as_notebook(modified_all_cells, pytex)
 \end{pycell}
 
 \end{document}

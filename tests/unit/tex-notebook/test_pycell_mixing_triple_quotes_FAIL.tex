@@ -12,7 +12,7 @@ Z = """three
 THREE_Three"""
 N = """FoUr_four
 quattro_cuatro"""
-print("\n".join([Z, N]))
+print(f"{Z}\n{N}")
 \end{pycell}
 \begin{pyexpectedoutput}
 three
@@ -22,11 +22,13 @@ quattro_cuatro
 \end{pyexpectedoutput}
 
 \begin{pycell}
+# fmt: off
 Z = '''three
-THREE_Three'''
+THREE_Three'''  # noqa: Q001
 N = '''FoUr_four
-quattro_cuatro'''
-print("\n".join([Z, N]))
+quattro_cuatro'''  # noqa: Q001
+# fmt: on
+print(f"{Z}\n{N}")
 \end{pycell}
 \begin{pyexpectedoutput}
 three
@@ -39,9 +41,11 @@ However, one cannot mix the two, because it would not be possible to quote the c
 \begin{pycell}
 Z = """three
 THREE_Three"""
+# fmt: off
 N = '''FoUr_four
-quattro_cuatro'''
-print("\n".join([Z, N]))
+quattro_cuatro'''  # noqa: Q001
+# fmt: on
+print(f"{Z}\n{N}")
 \end{pycell}
 
 \ifPythonTeXLoaded

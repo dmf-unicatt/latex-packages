@@ -19,17 +19,20 @@ jobs:
       - name: Install dependencies
         run: |
           export DEBIAN_FRONTEND="noninteractive"
-          sudo apt-get -qq update
-          sudo apt-get install -qq python3-pip
-          rm -f /usr/lib/python3.*/EXTERNALLY-MANAGED
-          python3 -m pip install ruff
+          sudo apt-get -y -qq update
+          sudo apt-get install -y -qq python3-pip
+          sudo python3 -m pip install nbclient nbformat numpy pillow plotly sympy
+          sudo python3 -m pip install ruff ty
       - name: Run ruff
         run: |
+          python3 scripts/pytexlint.py ruff format --check .
           python3 -m ruff format --check .
+          python3 scripts/pytexlint.py ruff check .
           python3 -m ruff check .
-      - name: Run mypy
+      - name: Run ty
         run: |
-          python3 -m mypy .
+          python3 scripts/pytexlint.py ty check .
+          python3 -m ty check .
 
   test-packages-in-docker:
     strategy:

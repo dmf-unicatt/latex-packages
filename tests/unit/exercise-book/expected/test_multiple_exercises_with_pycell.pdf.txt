@@ -182,11 +182,14 @@ add:2020-01-14-01
         sec:3.2.2
             add:3
                     Exercise 3[46] .   A more elaborated solution with functions:
-               1    def my_sum(a, b):
-               2        return a + b
-               3
+               1    def my_sum(a: int, b: int) -> int:
+               2        """Return the sum of a and b."""
+               3        return a + b
+               4
 
-               4    print(my_sum(4, 4))
+               5
+
+               6    print(my_sum(4, 4))
                     8
                       This additional information is very different to the additional information for Exercise 1[47] .
 add:2020-01-15-01
@@ -196,14 +199,13 @@ add:2020-01-15-01
                1    numbers = [5, 5]
                         Then plot their cumulative sum.
                2    import plotly.express as px
-               3    fig = px.scatter(
-               4        x=[1, 2],
-               5        y=[numbers[0], numbers[0] + numbers[1]]
-               6    )
-               7    fig
+               3
+
+               4    fig = px.scatter(x=[1, 2], y=[numbers[0], numbers[0] + numbers[1]])
+               5    fig
                          You can plot again the figure if you want.
-               8    print(sum(numbers))
-               9    fig
+               6    print(sum(numbers))
+               7    fig
                     10
 
 

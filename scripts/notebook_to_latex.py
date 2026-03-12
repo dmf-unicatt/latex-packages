@@ -34,7 +34,7 @@ def notebook_to_latex(input_path: str, output_path: str) -> None:
         be saved.
     """
     # Load notebook
-    nb = nbformat.read(input_path, as_version=4)  # type: ignore[no-untyped-call]
+    nb = nbformat.read(input_path, as_version=4)
 
     # Execute the notebook
     client = nbclient.NotebookClient(nb)

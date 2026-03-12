@@ -322,6 +322,7 @@ def configure_numpy_printing(
       same formatting.
     """
     import builtins
+    import typing
 
     import numpy as np
 
@@ -332,7 +333,7 @@ def configure_numpy_printing(
     _orig_print = builtins.print
     _orig_repr = builtins.repr
 
-    def _format_scalar(x: any) -> str:
+    def _format_scalar(x: typing.Any) -> str:
         """
         Format a numpy scalar using the current print options.
 

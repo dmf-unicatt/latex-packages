@@ -8,20 +8,15 @@ select = [
 ]
 ignore = []
 
+[tool.ruff.lint.per-file-ignores]
+"tests/unit/tex-notebook/test_call_code.tex" = ["F821"]
+"tests/unit/tex-notebook/test_pycell_mdcell.tex" = ["F821"]
+
 [tool.ruff.lint.pycodestyle]
 max-doc-length = 80
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"
 
-[tool.mypy]
-check_untyped_defs = true
-disallow_any_unimported = true
-disallow_untyped_defs = true
-implicit_reexport = true
-no_implicit_optional = true
-pretty = true
-show_error_codes = true
-strict = true
-warn_return_any = true
-warn_unused_ignores = true
+[tool.ty.environment]
+python-version = "3.12"

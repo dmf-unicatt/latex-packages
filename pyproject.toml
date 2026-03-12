@@ -1,0 +1,27 @@
+[tool.ruff]
+line-length = 80
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "ANN", "D", "E", "F", "FLY", "I", "ICN", "N", "Q", "RUF", "UP", "W"
+]
+ignore = []
+
+[tool.ruff.lint.pycodestyle]
+max-doc-length = 80
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.mypy]
+check_untyped_defs = true
+disallow_any_unimported = true
+disallow_untyped_defs = true
+implicit_reexport = true
+no_implicit_optional = true
+pretty = true
+show_error_codes = true
+strict = true
+warn_return_any = true
+warn_unused_ignores = true

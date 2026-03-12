@@ -1,13 +1,15 @@
-#!/usr/bin/env python3
+"""Run docker.yml workflow locally using act."""
+
 import json
 import os
 import subprocess
 import sys
 import tempfile
 
+
 def main() -> None:
     """
-    Run GitHub Actions locally using act, optionally passing matrix tags.
+    Run docker.yml workflow locally using act, optionally passing matrix tags.
 
     Usage
     -----
@@ -17,7 +19,15 @@ def main() -> None:
     os.chdir("..")
 
     # Common args
-    args = ["act", "workflow_dispatch", "--rm", "-W", ".github/workflows/docker.yml", "-j", "build"]
+    args = [
+        "act",
+        "workflow_dispatch",
+        "--rm",
+        "-W",
+        ".github/workflows/docker.yml",
+        "-j",
+        "build",
+    ]
 
     # Attach workflow dispatch inputs in a temporary event file
     event = {"inputs": {"publish": "false"}}

@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-from __future__ import annotations
+"""Run unit tests."""
 
 import copy
 import glob
@@ -9,6 +8,8 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import typing
+
 
 # Configuration: colors
 def use_color() -> bool:
@@ -16,10 +17,13 @@ def use_color() -> bool:
     Determine if it is safe to enable colored output in the current environment.
 
     This function enables color only if all the following are true:
-    - The output stream (stdout) is connected to a terminal (TTY), so ANSI codes will be interpreted correctly.
-    - The environment is not a CI environment that disables color, with special handling for GitHub Actions:
+    - The output stream (stdout) is connected to a terminal (TTY), so ANSI codes
+      will be interpreted correctly.
+    - The environment is not a CI environment that disables color, with special
+      handling for GitHub Actions:
         - Color is disabled on real GitHub Actions runners.
-        - Color is enabled on Nektos Act (local GitHub Actions runner) if the environment variable ACT="true".
+        - Color is enabled on Nektos Act (local GitHub Actions runner)
+          if the environment variable ACT="true".
 
     Returns
     -------
@@ -44,6 +48,7 @@ def use_color() -> bool:
     # Default to enabling color in all other environments
     return True
 
+
 USE_COLOR = use_color()
 
 # Configuration: python
@@ -55,9 +60,19 @@ PDFTOTEXT_CMD = ["pdftotext", "-layout"]
 CLEAN_CMD = ["latexmk", "-C"]
 
 # Configuration: diff
-DIFF_CMD = ["diff", "-u", "-w", "--color=always" if USE_COLOR else "--color=never"]
+DIFF_CMD = [
+    "diff",
+    "-u",
+    "-w",
+    "--color=always" if USE_COLOR else "--color=never",
+]
 NBDIFF_CMD = [
-    "nbdiff", "--color-words" if USE_COLOR else "--no-color", "--ignore-outputs", "--ignore-metadata", "--ignore-id"]
+    "nbdiff",
+    "--color-words" if USE_COLOR else "--no-color",
+    "--ignore-outputs",
+    "--ignore-metadata",
+    "--ignore-id",
+]
 
 # Configuration: pytest-like FAIL, XFAIL and PASS
 if USE_COLOR:
@@ -91,11 +106,13 @@ def run_command(command: list[str], cwd: str) -> tuple[int, str, str]:
     -------
     A tuple of (return_code, stdout, stderr).
     """
-    result = subprocess.run(command, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    result = subprocess.run(command, cwd=cwd, capture_output=True)
     return result.returncode, result.stdout.decode(), result.stderr.decode()
 
 
-def check_ordered_subsequence_with_missing(expected_lines: list[str], actual_lines: list[str]) -> bool:
+def check_ordered_subsequence_with_missing(
+    expected_lines: list[str], actual_lines: list[str]
+) -> bool:
     """
     Check if expected_lines appear in actual_lines in order.
 
@@ -103,17 +120,20 @@ def check_ordered_subsequence_with_missing(expected_lines: list[str], actual_lin
     -------
     A boolean to indicate success or not.
     """
-    expected_lines = [normalize_text(line)[0] for line in expected_lines if line.strip()]
-    actual_lines = [normalize_text(line)[0] for line in actual_lines if line.strip()]
+    expected_lines = [
+        normalize_text(line)[0] for line in expected_lines if line.strip()
+    ]
+    actual_lines = [
+        normalize_text(line)[0] for line in actual_lines if line.strip()
+    ]
 
     expected_idx = 0
-    missing = []
     for line in actual_lines:
         if expected_idx >= len(expected_lines):
             break
         if expected_lines[expected_idx] in line:
             expected_idx += 1
-    return (expected_idx == len(expected_lines))
+    return expected_idx == len(expected_lines)
 
 
 def merge_lines_with_continuation(lines: list[str]) -> list[str]:
@@ -156,7 +176,8 @@ def normalize_text(text: str) -> list[str]:
 
     This function:
       - Splits the text into lines.
-      - Removes **all** whitespace characters (spaces, tabs, etc.) from each line.
+      - Removes **all** whitespace characters (spaces, tabs, etc.) from
+        each line.
       - Discards any lines that become empty after whitespace removal.
 
     Parameters
@@ -167,12 +188,13 @@ def normalize_text(text: str) -> list[str]:
     Returns
     -------
     :
-        List of normalized lines with all whitespace removed and empty lines discarded.
+        List of normalized lines with all whitespace removed and empty lines
+        discarded.
     """
     return ["".join(line.split()) for line in text.splitlines() if line.strip()]
 
 
-def normalize_notebook(nb: dict[str, any]) -> dict[str, any]:
+def normalize_notebook(nb: dict[str, typing.Any]) -> dict[str, typing.Any]:
     """
     Normalize a Jupyter notebook dictionary for robust comparison.
 
@@ -215,7 +237,7 @@ def normalize_notebook(nb: dict[str, any]) -> dict[str, any]:
     return nb
 
 
-def notebook_has_code_cells(nb: dict[str, any]) -> bool:
+def notebook_has_code_cells(nb: dict[str, typing.Any]) -> bool:
     """
     Determine whether a Jupyter notebook contains at least one code cell.
 
@@ -238,10 +260,9 @@ def notebook_has_code_cells(nb: dict[str, any]) -> bool:
     return any(cell.get("cell_type") == "code" for cell in nb.get("cells", []))
 
 
-
 def remove_hidden_files_and_directories(directory: str) -> None:
     """
-    Recursively delete all hidden files and directories (starting with '.') in a directory.
+    Recursively delete all hidden files and directories (starting with '.').
 
     Parameters
     ----------
@@ -263,6 +284,7 @@ def remove_hidden_files_and_directories(directory: str) -> None:
                 full_path = os.path.join(root, filename)
                 os.remove(full_path)
 
+
 class FailureCounter:
     """
     Counter for tracking the number of test failures, with a maximum limit.
@@ -274,6 +296,7 @@ class FailureCounter:
     maxfail
         Maximum allowed failures before exiting the program.
     """
+
     def __init__(self, maxfail: int) -> None:
         """
         Initialize a FailureCounter.
@@ -286,7 +309,7 @@ class FailureCounter:
         self.count = 0
         self.maxfail = maxfail
 
-    def __iadd__(self, n: int) -> FailureCounter:
+    def __iadd__(self, n: int) -> typing.Self:
         """
         Increment the counter by a given number.
 
@@ -302,17 +325,21 @@ class FailureCounter:
 
         Notes
         -----
-        This method exits the program with status 1 if `count` exceeds `maxfail`.
+        This method exits the program with status 1 if `count` exceeds
+        `maxfail`.
         """
         self.count += n
         if self.count >= self.maxfail:
-            print(f"Maximum number of failures ({self.maxfail}) reached, stopping.")
+            print(
+                f"Maximum number of failures ({self.maxfail}) reached, "
+                "stopping."
+            )
             sys.exit(1)
         return self
 
-    def __eq__(self, other: int | FailureCounter) -> bool:
+    def __eq__(self, other: object) -> bool:
         """
-        Check equality with an integer or another FailureCounter.
+        Check equality with an integer or a FailureCounter.
 
         Parameters
         ----------
@@ -324,13 +351,16 @@ class FailureCounter:
         :
             True if counts are equal, False otherwise.
         """
-        if isinstance(other, FailureCounter):
+        if not isinstance(other, (int, FailureCounter)):
+            return NotImplemented
+        elif isinstance(other, FailureCounter):
             return self.count == other.count
-        return self.count == other
+        else:
+            return self.count == other
 
-    def __lt__(self, other: int | FailureCounter) -> bool:
+    def __lt__(self, other: int | typing.Self) -> bool:
         """
-        Less-than comparison with an integer or another FailureCounter.
+        Less-than comparison with an integer or a FailureCounter.
 
         Parameters
         ----------
@@ -344,11 +374,12 @@ class FailureCounter:
         """
         if isinstance(other, FailureCounter):
             return self.count < other.count
-        return self.count < other
+        else:
+            return self.count < other
 
-    def __le__(self, other: int | FailureCounter) -> bool:
+    def __le__(self, other: int | typing.Self) -> bool:
         """
-        Less-than-or-equal comparison with an integer or another FailureCounter.
+        Less-than-or-equal comparison with an integer or a FailureCounter.
 
         Parameters
         ----------
@@ -358,15 +389,17 @@ class FailureCounter:
         Returns
         -------
         :
-            True if self.count is less than or equal to `other`, False otherwise.
+            True if self.count is less than or equal to `other`,
+            False otherwise.
         """
         if isinstance(other, FailureCounter):
             return self.count <= other.count
-        return self.count <= other
+        else:
+            return self.count <= other
 
-    def __gt__(self, other: int | FailureCounter) -> bool:
+    def __gt__(self, other: int | typing.Self) -> bool:
         """
-        Greater-than comparison with an integer or another FailureCounter.
+        Greater-than comparison with an integer or a FailureCounter.
 
         Parameters
         ----------
@@ -380,11 +413,12 @@ class FailureCounter:
         """
         if isinstance(other, FailureCounter):
             return self.count > other.count
-        return self.count > other
+        else:
+            return self.count > other
 
-    def __ge__(self, other: int | FailureCounter) -> bool:
+    def __ge__(self, other: int | typing.Self) -> bool:
         """
-        Greater-than-or-equal comparison with an integer or another FailureCounter.
+        Greater-than-or-equal comparison with an integer or a FailureCounter.
 
         Parameters
         ----------
@@ -394,11 +428,13 @@ class FailureCounter:
         Returns
         -------
         :
-            True if self.count is greater than or equal to `other`, False otherwise.
+            True if self.count is greater than or equal to `other`,
+            False otherwise.
         """
         if isinstance(other, FailureCounter):
             return self.count >= other.count
-        return self.count >= other
+        else:
+            return self.count >= other
 
     def __int__(self) -> int:
         """
@@ -445,7 +481,8 @@ def run_latex_tests(tex_tests: list[str], maxfail: int, regold: bool) -> None:
     maxfail
         Maximum number of failing tests allowed before stopping.
     regold
-        If True, automatically overwrite files in the expected directory with new outputs.
+        If True, automatically overwrite files in the expected directory with
+        new outputs.
 
     Exits
     -----
@@ -468,35 +505,46 @@ def run_latex_tests(tex_tests: list[str], maxfail: int, regold: bool) -> None:
         # Determine any required file
         requires = []
         if os.path.exists(os.path.join(test_dir, base + ".requires")):
-            with open(os.path.join(test_dir, base + ".requires"), "r", encoding="utf-8") as f:
+            with open(
+                os.path.join(test_dir, base + ".requires"),
+                encoding="utf-8",
+            ) as f:
                 for line in f:
                     require_tex_relative = line.strip()
                     if not require_tex_relative:
                         continue
                     dirname = os.path.dirname(require_tex_relative)
-                    dirname = os.path.join(test_dir, dirname) if dirname else test_dir
+                    dirname = (
+                        os.path.join(test_dir, dirname) if dirname else test_dir
+                    )
                     basename = os.path.basename(require_tex_relative)
                     requires.append((dirname, basename))
 
         # Clean up
-        run_command(CLEAN_CMD + [tex_file], cwd=test_dir)
+        run_command([*CLEAN_CMD, tex_file], cwd=test_dir)
         for require in requires:
-            run_command(CLEAN_CMD + [require[1]], cwd=require[0])
+            run_command([*CLEAN_CMD, require[1]], cwd=require[0])
 
         # Compile with latexmk any required file
         for require in requires:
-            ret, out, err = run_command(LATEXMK_CMD + [require[1]], cwd=require[0])
+            ret, out, err = run_command(
+                [*LATEXMK_CMD, require[1]], cwd=require[0]
+            )
             if ret != 0:
-                print(f"{FAIL} - LaTeX compile error when building requirement {require}")
+                print(
+                    f"{FAIL} - LaTeX compile error when building "
+                    f"requirement {require}"
+                )
                 print(out + err)
                 failure_counter += 1
                 continue
 
         # Compile with latexmk the current tex file
-        ret, out, err = run_command(LATEXMK_CMD + [tex_file], cwd=test_dir)
+        ret, out, err = run_command([*LATEXMK_CMD, tex_file], cwd=test_dir)
 
         if is_fail_test:
-            # For expected fail tests, compilation should fail or PDF not generated
+            # For expected fail tests, compilation should fail or PDF
+            # not generated
             if ret == 0:
                 print(f"{FAIL} - Expected failure but compilation succeeded")
                 failure_counter += 1
@@ -505,28 +553,57 @@ def run_latex_tests(tex_tests: list[str], maxfail: int, regold: bool) -> None:
             # Compare with expected error
             expected_err_txt = os.path.join("expected", base + ".err.txt")
             if os.path.exists(os.path.join(test_dir, expected_err_txt)):
-                with open(os.path.join(test_dir, expected_err_txt), "r", encoding="utf-8") as exp_f:
-                    expected_lines = [line.strip() for line in exp_f if line.strip()]
+                with open(
+                    os.path.join(test_dir, expected_err_txt),
+                    encoding="utf-8",
+                ) as exp_f:
+                    expected_lines = [
+                        line.strip() for line in exp_f if line.strip()
+                    ]
                     actual_lines = [*out.splitlines(), *err.splitlines()]
                     actual_lines = merge_lines_with_continuation(actual_lines)
-                    if check_ordered_subsequence_with_missing(expected_lines, actual_lines):
+                    if check_ordered_subsequence_with_missing(
+                        expected_lines, actual_lines
+                    ):
                         print(f"{XFAIL}")
                     else:
-                        with tempfile.NamedTemporaryFile("w", encoding="utf-8") as tmpf:
+                        with tempfile.NamedTemporaryFile(
+                            "w", encoding="utf-8"
+                        ) as tmpf:
                             tmpf.write("\n".join(actual_lines))
                             tmpf.flush()
-                            print(f"{FAIL} - Expected error lines not found (ignoring whitespaces, entire log):")
+                            print(
+                                f"{FAIL} - Expected error lines not found "
+                                "(ignoring whitespaces, entire log):"
+                            )
                             _, out, err = run_command(
-                                DIFF_CMD + [expected_err_txt, tmpf.name]
-                                + ["-L", os.path.join(test_dir, expected_err_txt), "-L", "full log"],
-                                cwd=test_dir)
+                                [
+                                    *DIFF_CMD,
+                                    expected_err_txt,
+                                    tmpf.name,
+                                    "-L",
+                                    os.path.join(test_dir, expected_err_txt),
+                                    "-L",
+                                    "full log",
+                                ],
+                                cwd=test_dir,
+                            )
                             print(out + err)
-                            print("Do not add the entire log, only add a few relevant lines")
+                            print(
+                                "Do not add the entire log, only add a few "
+                                "relevant lines"
+                            )
                             failure_counter += 1
                             continue
             else:
-                print(f"{FAIL} - No expected output {os.path.join(test_dir, expected_err_txt)} . ")
-                print(f"Suggestion: search ! in the log file {os.path.join(test_dir, base + '.log')} .")
+                print(
+                    f"{FAIL} - No expected output "
+                    f"{os.path.join(test_dir, expected_err_txt)} . "
+                )
+                print(
+                    f"Suggestion: search ! in the log file "
+                    f"{os.path.join(test_dir, base + '.log')} ."
+                )
                 failure_counter += 1
                 continue
         else:
@@ -544,7 +621,9 @@ def run_latex_tests(tex_tests: list[str], maxfail: int, regold: bool) -> None:
                 continue
 
             # Convert PDF to text
-            ret, out, err = run_command(PDFTOTEXT_CMD + [pdf_file, out_txt], cwd=test_dir)
+            ret, out, err = run_command(
+                [*PDFTOTEXT_CMD, pdf_file, out_txt], cwd=test_dir
+            )
             if ret != 0:
                 print(f"{FAIL} - pdftotext failed")
                 print(out + err)
@@ -552,10 +631,13 @@ def run_latex_tests(tex_tests: list[str], maxfail: int, regold: bool) -> None:
                 continue
 
             # Check for "?? PythonTeX ??" markers in output text
-            with open(os.path.join(test_dir, out_txt), "r", encoding="utf-8") as f:
+            with open(os.path.join(test_dir, out_txt), encoding="utf-8") as f:
                 content = f.read()
                 if "?? PythonTeX ??" in content:
-                    print(f"{FAIL} - '?? PythonTeX ??' found in output (unprocessed PythonTeX code)")
+                    print(
+                        f"{FAIL} - '?? PythonTeX ??' found in output "
+                        "(unprocessed PythonTeX code)"
+                    )
                     failure_counter += 1
                     continue
 
@@ -563,28 +645,57 @@ def run_latex_tests(tex_tests: list[str], maxfail: int, regold: bool) -> None:
             expected_txt = os.path.join("expected", base + ".pdf.txt")
             if os.path.exists(os.path.join(test_dir, expected_txt)):
                 with (
-                    open(os.path.join(test_dir, expected_txt), "r", encoding="utf-8") as exp_f,
-                    open(os.path.join(test_dir, out_txt), "r", encoding="utf-8") as out_f
+                    open(
+                        os.path.join(test_dir, expected_txt),
+                        encoding="utf-8",
+                    ) as exp_f,
+                    open(
+                        os.path.join(test_dir, out_txt), encoding="utf-8"
+                    ) as out_f,
                 ):
                     actual = normalize_text(out_f.read().strip())
                     expected = normalize_text(exp_f.read().strip())
                     if actual != expected:
                         _, out, err = run_command(
-                            DIFF_CMD + [expected_txt, out_txt]
-                            + ["-L", os.path.join(test_dir, expected_txt), "-L", os.path.join(test_dir, out_txt)],
-                            cwd=test_dir)
-                        print(f"{FAIL if not regold else REGOLDED} - Output differs (ignoring whitespaces)")
+                            [
+                                *DIFF_CMD,
+                                expected_txt,
+                                out_txt,
+                                "-L",
+                                os.path.join(test_dir, expected_txt),
+                                "-L",
+                                os.path.join(test_dir, out_txt),
+                            ],
+                            cwd=test_dir,
+                        )
+                        print(
+                            f"{FAIL if not regold else REGOLDED} - "
+                            "Output differs (ignoring whitespaces)"
+                        )
                         if not regold:
                             print(out + err)
                         else:
-                            shutil.copy(os.path.join(test_dir, out_txt), os.path.join(test_dir, expected_txt))
+                            shutil.copy(
+                                os.path.join(test_dir, out_txt),
+                                os.path.join(test_dir, expected_txt),
+                            )
                         failure_counter += 1
                         continue
             else:
-                print(f"{FAIL if not regold else REGOLDED} - No expected output {os.path.join(test_dir, expected_txt)}. ")
+                print(
+                    f"{FAIL if not regold else REGOLDED} - No expected output "
+                    f"{os.path.join(test_dir, expected_txt)}. "
+                )
                 print("Copied current one for review. ")
-                print(f"Suggestion: git add {os.path.join(test_dir, expected_txt)} after verifying it.")
-                shutil.copy(os.path.join(test_dir, out_txt), os.path.join(test_dir, expected_txt))
+                print(
+                    "Suggestion: git add "
+                    f"{os.path.join(test_dir, expected_txt)} "
+                    "after verifying it."
+                )
+                shutil.copy(
+                    os.path.join(test_dir, out_txt),
+                    os.path.join(test_dir, expected_txt),
+                )
                 failure_counter += 1
                 continue
 
@@ -592,72 +703,124 @@ def run_latex_tests(tex_tests: list[str], maxfail: int, regold: bool) -> None:
             ipynb_dir = f"notebooks-{base}"
             if os.path.isdir(os.path.join(test_dir, ipynb_dir)):
                 generated_ipynbs = [
-                    f for f in os.listdir(os.path.join(test_dir, ipynb_dir)) if f.endswith(".ipynb")]
+                    f
+                    for f in os.listdir(os.path.join(test_dir, ipynb_dir))
+                    if f.endswith(".ipynb")
+                ]
                 expected_ipynbs = [
-                    f"{base}.{generated_ipynb}" for generated_ipynb in generated_ipynbs]
+                    f"{base}.{generated_ipynb}"
+                    for generated_ipynb in generated_ipynbs
+                ]
 
                 failed_ipynbs = []
-                for generated_ipynb, expected_ipynb in zip(generated_ipynbs, expected_ipynbs):
+                for generated_ipynb, expected_ipynb in zip(
+                    generated_ipynbs, expected_ipynbs
+                ):
                     generated_ipynb = os.path.join(ipynb_dir, generated_ipynb)
                     expected_ipynb = os.path.join("expected", expected_ipynb)
 
-                    if not os.path.exists(os.path.join(test_dir, expected_ipynb)):
+                    if not os.path.exists(
+                        os.path.join(test_dir, expected_ipynb)
+                    ):
                         failure = (
-                            f"No expected notebook {os.path.join(test_dir, expected_ipynb)}. "
+                            "No expected notebook "
+                            f"{os.path.join(test_dir, expected_ipynb)}. "
                             f"Copied current one for review. "
-                            f"Suggestion: git add {os.path.join(test_dir, expected_ipynb)} after verifying it.")
+                            "Suggestion: git add "
+                            f"{os.path.join(test_dir, expected_ipynb)} "
+                            "after verifying it."
+                        )
                         failed_ipynbs.append(failure)
-                        shutil.copy(os.path.join(test_dir, generated_ipynb), os.path.join(test_dir, expected_ipynb))
+                        shutil.copy(
+                            os.path.join(test_dir, generated_ipynb),
+                            os.path.join(test_dir, expected_ipynb),
+                        )
 
                     # Compare contents
                     with (
-                        open(os.path.join(test_dir, expected_ipynb), "r", encoding="utf-8") as exp_f,
-                        open(os.path.join(test_dir, generated_ipynb), "r", encoding="utf-8") as gen_f,
+                        open(
+                            os.path.join(test_dir, expected_ipynb),
+                            encoding="utf-8",
+                        ) as exp_f,
+                        open(
+                            os.path.join(test_dir, generated_ipynb),
+                            encoding="utf-8",
+                        ) as gen_f,
                     ):
                         exp_nb = normalize_notebook(json.load(exp_f))
                         gen_nb = normalize_notebook(json.load(gen_f))
 
                         if exp_nb != gen_nb:
-                            _, out, err = run_command(NBDIFF_CMD + [expected_ipynb, generated_ipynb], cwd=test_dir)
+                            _, out, err = run_command(
+                                [*NBDIFF_CMD, expected_ipynb, generated_ipynb],
+                                cwd=test_dir,
+                            )
                             out = out.replace(
-                                f"--- {expected_ipynb}", f"--- {os.path.join(test_dir, expected_ipynb)}")
+                                f"--- {expected_ipynb}",
+                                f"--- {os.path.join(test_dir, expected_ipynb)}",
+                            )
                             out = out.replace(
-                                f"+++ {generated_ipynb}", f"+++ {os.path.join(test_dir, generated_ipynb)}")
+                                f"+++ {generated_ipynb}",
+                                f"+++ {os.path.join(test_dir, generated_ipynb)}",  # noqa: E501
+                            )
                             failure = (
-                                f"Notebook {os.path.join(test_dir, generated_ipynb)} differs "
-                                "from the expected output:\n" + out + err
+                                "Notebook "
+                                f"{os.path.join(test_dir, generated_ipynb)} "
+                                "differs from the expected output:\n"
+                                + out
+                                + err
                             )
                             failed_ipynbs.append(failure)
                             if regold:
-                                shutil.copy(os.path.join(test_dir, generated_ipynb), os.path.join(test_dir, expected_ipynb))
+                                shutil.copy(
+                                    os.path.join(test_dir, generated_ipynb),
+                                    os.path.join(test_dir, expected_ipynb),
+                                )
 
                 if len(failed_ipynbs) > 0:
                     if not regold:
                         print(
-                            f"{FAIL} - Comparison to expected notebooks failed for the following reasons:\n"
-                            + "\n".join(failed_ipynbs))
+                            f"{FAIL} - Comparison to expected notebooks failed "
+                            "for the following reasons:\n"
+                            + "\n".join(failed_ipynbs)
+                        )
                     else:
-                        print(f"{REGOLDED} - Comparison to expected notebooks failed")
+                        print(
+                            f"{REGOLDED} - Comparison to expected notebooks "
+                            "failed"
+                        )
                     failure_counter += 1
                     continue
 
                 current_expected_ipynbs = [
-                    f for f in os.listdir(os.path.join(test_dir, "expected"))
-                    if f.startswith(f"{base}.") and f.endswith(".ipynb")]
+                    f
+                    for f in os.listdir(os.path.join(test_dir, "expected"))
+                    if f.startswith(f"{base}.") and f.endswith(".ipynb")
+                ]
                 expected_ipynbs_set = set(expected_ipynbs)
                 current_expected_ipynbs_set = set(current_expected_ipynbs)
-                missing_expected_ipynbs = expected_ipynbs_set - current_expected_ipynbs_set
-                spurious_expected_ipynbs = current_expected_ipynbs_set - expected_ipynbs_set
+                missing_expected_ipynbs = (
+                    expected_ipynbs_set - current_expected_ipynbs_set
+                )
+                spurious_expected_ipynbs = (
+                    current_expected_ipynbs_set - expected_ipynbs_set
+                )
                 if missing_expected_ipynbs or spurious_expected_ipynbs:
-                    print(f"{FAIL} - Mismatch between expected and actual notebooks:")
+                    print(
+                        f"{FAIL} - Mismatch between expected and actual "
+                        "notebooks:"
+                    )
                     if missing_expected_ipynbs:
                         print("  Missing expected notebooks:")
-                        for f in missing_expected_ipynbs:
-                            print(f"    - {f}")
+                        for name in missing_expected_ipynbs:
+                            print(f"    - {name}")
                     if spurious_expected_ipynbs:
-                        print("  Spurious expected notebooks (no corresponding .ipynb):")
-                        for f in spurious_expected_ipynbs:
-                            print(f"    - {f}")
+                        print(
+                            "  Spurious expected notebooks (no corresponding "
+                            ".ipynb):"
+                        )
+                        for name in spurious_expected_ipynbs:
+                            print(f"    - {name}")
                     failure_counter += 1
                     continue
 
@@ -665,29 +828,40 @@ def run_latex_tests(tex_tests: list[str], maxfail: int, regold: bool) -> None:
                 run_nbval = False
                 for generated_ipynb in generated_ipynbs:
                     generated_ipynb = os.path.join(ipynb_dir, generated_ipynb)
-                    with open(os.path.join(test_dir, generated_ipynb), "r", encoding="utf-8") as gen_f:
+                    with open(
+                        os.path.join(test_dir, generated_ipynb),
+                        encoding="utf-8",
+                    ) as gen_f:
                         if notebook_has_code_cells(json.load(gen_f)):
                             run_nbval = True
                             break
                 if run_nbval:
-                    ret, out, err = run_command(["pytest", "--nbval"], cwd=os.path.join(test_dir, ipynb_dir))
+                    ret, out, err = run_command(
+                        ["pytest", "--nbval"],
+                        cwd=os.path.join(test_dir, ipynb_dir),
+                    )
                     if ret != 0:
-                        print(f"{FAIL} - pytest failed running notebooks in pythontex directory")
+                        print(
+                            f"{FAIL} - pytest failed running notebooks in "
+                            "pythontex directory"
+                        )
                         print(out + err)
                         failure_counter += 1
                         continue
 
-                # Clean up hidden files produced by nbval, otherwise latexmk will not be able to clean
-                # the notebook directory
-                remove_hidden_files_and_directories(os.path.join(test_dir, ipynb_dir))
+                # Clean up hidden files produced by nbval, otherwise latexmk
+                # will not be able to clean the notebook directory
+                remove_hidden_files_and_directories(
+                    os.path.join(test_dir, ipynb_dir)
+                )
 
             # If arrived here without existing it means that the test passed
             print(f"{PASS}")
 
         # Clean up
-        run_command(CLEAN_CMD + [tex_file], cwd=test_dir)
+        run_command([*CLEAN_CMD, tex_file], cwd=test_dir)
         for require in requires:
-            run_command(CLEAN_CMD + [require[1]], cwd=require[0])
+            run_command([*CLEAN_CMD, require[1]], cwd=require[0])
 
     # Print test summary
     if failure_counter > 0:
@@ -699,7 +873,7 @@ def run_latex_tests(tex_tests: list[str], maxfail: int, regold: bool) -> None:
 
 def is_in_xsim_files_dir(path: str) -> bool:
     """
-    Check if the given file path is inside any directory whose name starts with "xsim-files".
+    Check if the given file path is inside a "xsim-files" directory.
 
     Parameters
     ----------
@@ -709,7 +883,8 @@ def is_in_xsim_files_dir(path: str) -> bool:
     Returns
     -------
     :
-        True if the path contains a directory starting with "xsim-files", False otherwise.
+        True if the path contains a directory starting with "xsim-files",
+        False otherwise.
     """
     parts = path.split(os.sep)
     return any(part.startswith("xsim-files") for part in parts)
@@ -729,7 +904,8 @@ def main() -> None:
 
     Exits
     -----
-    Exits with code 1 if a specified file or directory does not exist, or if any test fails.
+    Exits with code 1 if a specified file or directory does not exist, or
+    if any test fails.
     """
     args = sys.argv[1:]
 
@@ -759,9 +935,15 @@ def main() -> None:
                 tex_tests.append(path)
             elif os.path.isdir(path):
                 # Directory provided: search recursively for test_*.tex files
-                found_files = sorted(glob.glob(os.path.join(path, "**", "test_*.tex"), recursive=True))
+                found_files = sorted(
+                    glob.glob(
+                        os.path.join(path, "**", "test_*.tex"), recursive=True
+                    )
+                )
                 # Filter out files in xsim-files directories
-                filtered_files = [f for f in found_files if not is_in_xsim_files_dir(f)]
+                filtered_files = [
+                    f for f in found_files if not is_in_xsim_files_dir(f)
+                ]
                 tex_tests.extend(filtered_files)
             else:
                 print(f"File or directory not found or unsupported: {path}")

@@ -1,11 +1,13 @@
-#!/usr/bin/env python3
+"""Run ci.yml workflow locally using act."""
+
 import os
 import subprocess
 import sys
 
+
 def main() -> None:
     """
-    Run GitHub Actions locally using act, optionally passing matrix tags.
+    Run ci.yml workflow locally using act, optionally passing matrix tags.
 
     Usage
     -----
@@ -15,7 +17,14 @@ def main() -> None:
     os.chdir("..")
 
     # Common args
-    args = ["act", "--rm", "-W", ".github/workflows/ci.yml", "-j", "test-packages-in-docker"]
+    args = [
+        "act",
+        "--rm",
+        "-W",
+        ".github/workflows/ci.yml",
+        "-j",
+        "test-packages-in-docker",
+    ]
 
     # Append matrix arg for each argument
     for arg in sys.argv[1:]:

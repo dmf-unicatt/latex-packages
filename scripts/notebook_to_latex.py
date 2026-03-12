@@ -1,3 +1,5 @@
+"""Execute a Jupyter notebook and transform it into a LaTeX-like format."""
+
 import argparse
 
 import nbclient
@@ -28,10 +30,11 @@ def notebook_to_latex(input_path: str, output_path: str) -> None:
     input_path
         Path to the input Jupyter notebook (.ipynb).
     output_path
-        Path to the output text file where the transformed notebook will be saved.
+        Path to the output text file where the transformed notebook will
+        be saved.
     """
     # Load notebook
-    nb = nbformat.read(input_path, as_version=4)
+    nb = nbformat.read(input_path, as_version=4)  # type: ignore[no-untyped-call]
 
     # Execute the notebook
     client = nbclient.NotebookClient(nb)
@@ -62,10 +65,17 @@ def notebook_to_latex(input_path: str, output_path: str) -> None:
                         out.write(text)
                         out.write("\n\\end{pyexpectedoutput}\n\n")
 
+
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Transform a Jupyter notebook into LaTeX cells.")
-    parser.add_argument("input_file", type=str, help="Path to the input notebook (.ipynb)")
-    parser.add_argument("output_file", type=str, help="Path to save the transformed output")
+    parser = argparse.ArgumentParser(
+        description="Transform a Jupyter notebook into LaTeX cells."
+    )
+    parser.add_argument(
+        "input_file", type=str, help="Path to the input notebook (.ipynb)"
+    )
+    parser.add_argument(
+        "output_file", type=str, help="Path to save the transformed output"
+    )
 
     args = parser.parse_args()
 

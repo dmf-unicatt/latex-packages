@@ -12,6 +12,25 @@ on:
   workflow_dispatch:
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install dependencies
+        run: |
+          export DEBIAN_FRONTEND="noninteractive"
+          sudo apt-get -qq update
+          sudo apt-get install -qq python3-pip
+          rm -f /usr/lib/python3.*/EXTERNALLY-MANAGED
+          python3 -m pip install ruff
+      - name: Run ruff
+        run: |
+          python3 -m ruff format --check .
+          python3 -m ruff check .
+      - name: Run mypy
+        run: |
+          python3 -m mypy .
+
   test-packages-in-docker:
     strategy:
       matrix:
@@ -27,7 +46,7 @@ jobs:
     container: ghcr.io/dmf-unicatt/latex-packages:latest-${{ matrix.tag-name }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Show texlive version
         run: dpkg -s texlive-base | grep Version
       - name: Ensure that \LaTeXTwentyFivefalse at the end of packages/if-latex-twentyfive.sty is always commented when committing
@@ -42,7 +61,7 @@ jobs:
   test-packages-in-act:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Install act
         run: |
           curl -s https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash

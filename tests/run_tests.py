@@ -136,37 +136,71 @@ def check_ordered_subsequence_with_missing(
     return expected_idx == len(expected_lines)
 
 
-def merge_lines_with_continuation(lines: list[str]) -> list[str]:
+def merge_lines_with_continuation(
+    lines: list[str],
+    continuation_character: str,
+    continuation_character_position: typing.Literal["begin_line", "end_line"],
+) -> list[str]:
     """
-    Merge consecutive lines that end with the continuation character ~.
+    Merge consecutive lines that begin/end with the continuation character.
 
     Parameters
     ----------
     lines
-        The input lines. Lines ending with ~ indicate that the next line
-        should be concatenated to the current one.
+        The input lines.
+    continuation_character
+        Lines starting/ending (depending on continuation_character_position)
+        with this character indicate that the previous/next line should be
+        concatenated to the current one.
+    continuation_character_position
+        String equal to either "end_line" or "begin_line".
+        If "end_line", the continuation character appears at the end of the
+        line, and any white space after that is discarded. The current line
+        is then continued with the next line.
+        If "begin_line", the continuation character appears at the beginning
+        of the line, and any white space before that is discarded. The previous
+        is line is continued with the current line.
 
     Returns
     -------
     merged_lines
-        The resulting lines after merging continuation lines. The ~
+        The resulting lines after merging continuation lines. The continuation
         characters are removed in the merged output.
     """
     merged_lines = []
     buffer = ""
-    for line in lines:
-        line = line.rstrip()  # remove trailing spaces
-        if line.endswith("~"):
-            buffer += line[:-1]  # append without the '~'
-        else:
-            if buffer:
-                buffer += line
-                merged_lines.append(buffer)
-                buffer = ""
+
+    if continuation_character_position == "end_line":
+        for line in lines:
+            stripped = line.rstrip()
+
+            if stripped.endswith(continuation_character):
+                buffer += stripped[: -len(continuation_character)]
             else:
-                merged_lines.append(line)
-    if buffer:
-        merged_lines.append(buffer)
+                merged_line = buffer + line
+                merged_lines.append(merged_line)
+                buffer = ""
+
+        if buffer:
+            merged_lines.append(buffer)
+    elif continuation_character_position == "begin_line":
+        for line in lines:
+            stripped = line.lstrip()
+
+            if stripped.startswith(continuation_character):
+                buffer += stripped[len(continuation_character) :]
+            else:
+                if buffer:
+                    merged_lines.append(buffer)
+                buffer = line
+
+        if buffer:
+            merged_lines.append(buffer)
+    else:
+        raise ValueError(
+            "continuation_character_position must be 'begin_line' or 'end_line'"
+        )
+
     return merged_lines
 
 
@@ -561,7 +595,9 @@ def run_latex_tests(tex_tests: list[str], maxfail: int, regold: bool) -> None:
                         line.strip() for line in exp_f if line.strip()
                     ]
                     actual_lines = [*out.splitlines(), *err.splitlines()]
-                    actual_lines = merge_lines_with_continuation(actual_lines)
+                    actual_lines = merge_lines_with_continuation(
+                        actual_lines, "~", "end_line"
+                    )
                     if check_ordered_subsequence_with_missing(
                         expected_lines, actual_lines
                     ):
@@ -655,6 +691,13 @@ def run_latex_tests(tex_tests: list[str], maxfail: int, regold: bool) -> None:
                 ):
                     actual = normalize_text(out_f.read().strip())
                     expected = normalize_text(exp_f.read().strip())
+                    code_continuation_character = ",\u2192"
+                    actual = merge_lines_with_continuation(
+                        actual, code_continuation_character, "begin_line"
+                    )
+                    expected = merge_lines_with_continuation(
+                        expected, code_continuation_character, "begin_line"
+                    )
                     if actual != expected:
                         _, out, err = run_command(
                             [

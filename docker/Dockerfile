@@ -68,6 +68,17 @@ COPY patches/neuralnetwork/add_if_false_branch.patch /tmp/add_if_false_branch.pa
 RUN patch -p0 < /tmp/drop_tikz_semicolons.patch && rm /tmp/drop_tikz_semicolons.patch && \
     patch -p0 < /tmp/add_if_false_branch.patch && rm /tmp/add_if_false_branch.patch
 
+# Apply latexmk patch on new latex versions due to ongoing externaldocument + beamer incompatibility
+# (on old latex versions the patch is left empty, and will not be applied)
+COPY patches/latexmk /tmp/patches-latexmk
+RUN if [ -s "/tmp/patches-latexmk/unreferenced-destination-warning-${BASE_IMAGE}.patch" ]; then \
+        echo "Applying patch unreferenced-destination-warning-${BASE_IMAGE}.patch"; \
+        patch -p0 < /tmp/patches-latexmk/unreferenced-destination-warning-${BASE_IMAGE}.patch; \
+    else \
+        echo "Patch file is empty, skipping."; \
+    fi \
+    && rm -rf /tmp/latexmk-latexmk
+
 # Update LuaTeX font database
 RUN luaotfload-tool -u
 

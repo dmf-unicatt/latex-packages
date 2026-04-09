@@ -1,0 +1,11 @@
+--- /usr/bin/latexmk
++++ /usr/bin/latexmk
+@@ -6382,7 +6382,7 @@
+ # V.2       if (/^LaTeX Warning: (Reference `([^']+)' on page .+ undefined on input line .*)\./) {
+         if ( /^LaTeX Warning: ((?:Hyper reference|Reference) `([^']+)' on page .+ undefined on input line .*)\./
+              || /^pdfTeX warning \(dest\): (name\{([^\}]+)\} has been referenced but does not exist, replaced by a fixed one)/
+-             || /^warning  (\(pdf backend\): unreferenced destination with name '([^']+)')/
++             || /^warning-TEMPORARILY-DISABLED  (\(pdf backend\): unreferenced destination with name '([^']+)')/
+         ) {
+             push @warning_list, $1;
+             push @undefined_references, $2;

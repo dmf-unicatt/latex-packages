@@ -15,6 +15,9 @@ $ ^{2}$ Università~Cattolica~del~Sacro~Cuore,\\
 \hspace{0.7em} and~Actuarial~Sciences, Milano,~Italy
 }
 
+% LaTeX3 programming layer
+\RequirePackage{expl3}
+
 % Load tikz
 \RequirePackage{tikz}
 \usetikzlibrary{arrows,automata,calc,decorations.pathmorphing,intersections,positioning,shapes.geometric}
@@ -32,9 +35,48 @@ $ ^{2}$ Università~Cattolica~del~Sacro~Cuore,\\
 % Load package for neural networks
 \RequirePackage{neuralnetwork}
 
-% Allow to refer to environments defined in another file
+% Load packages to refer to environments defined in another files
 \RequirePackage{xr-hyper}
 \RequirePackage{luacode}
+\RequirePackage{xstring}
+
+%%% ================================================================
+%%%                           PACKAGE OPTIONS
+%%% ================================================================
+
+\ExplSyntaxOn
+
+% Variables storing the package options
+\tl_new:N \l_chapter_file_prefix_tl
+\tl_new:N \l_slide_file_prefix_tl
+
+% Define keys and default values
+\keys_define:nn { py-beamer-lecture-slides }
+  {
+    chapter-file-prefix .tl_set:N = \l_chapter_file_prefix_tl,
+    chapter-file-prefix .initial:n = {}, % default is empty string
+
+    slide-file-prefix .tl_set:N = \l_slide_file_prefix_tl,
+    slide-file-prefix .initial:n = {}, % default is empty string
+  }
+
+% Set default values
+\keys_set:nn { py-beamer-lecture-slides }
+  { chapter-file-prefix = {}, slide-file-prefix = {} }
+
+% Process unknown package options as key-values
+\DeclareOption*{
+  \edef\processoption{\noexpand\keys_set:nn { py-beamer-lecture-slides } { \CurrentOption }}
+  \processoption
+}
+\ProcessOptions\relax
+
+\ExplSyntaxOff
+
+%%% ================================================================
+%%%                       HELPER TO INCLUDE CHAPTERS
+%%% ================================================================
+
 \begin{luacode*}
 function ExternalDocumentsFromFolder(folder, exclude)
   -- normalize folder path
@@ -103,3 +145,49 @@ end
     }%
     \include{chapters/\chapterfile}%
   }
+
+% Redirect hyperref external link to the actual file containing the label,
+% using the prefix specified in the package options. Inspired by
+% https://github.com/latex3/hyperref/issues/415
+\ExplSyntaxOn
+\AtBeginDocument{
+  \long\def\beamer@ref#1{%
+    \tl_if_empty:eTF{\tl_item:cn{r@#1}{5}}
+     {
+      \hyperlink{#1}{\beamer@origref{#1}}%
+     }
+     {
+      % Capture the external doc name (e.g., chapters/foo)
+      \tl_set:Nx \l_pb_ref_doc_tl { \tl_item:cn{r@#1}{5} }%
+      \edef\pbls@refdoc{\tl_use:N \l_pb_ref_doc_tl}%
+      \IfFileExists{\pbls@refdoc}{
+        % if the file exists, link to it
+        \typeout{label~`#1'~is~in~external~doc~(no~preprocessing~needed)~`\pbls@refdoc'}%
+        \hyper@linkfile{\beamer@origref{#1}}{\pbls@refdoc}{\tl_item:cn{r@#1}{4}}
+      }%
+      {
+        % Drop the leading chapters/ directory
+        \IfBeginWith{\pbls@refdoc}{chapters/}
+          {\StrBehind{\pbls@refdoc}{chapters/}[\pbls@refdoc]}
+          {}
+        % If a chapter-file-prefix is configured, strip it from the start
+        \tl_if_blank:VF \l_chapter_file_prefix_tl
+          {
+            \edef\pbls@chapterprefix{\tl_use:N \l_chapter_file_prefix_tl}%
+            \IfBeginWith{\pbls@refdoc}{\pbls@chapterprefix}
+              {\StrBehind{\pbls@refdoc}{\pbls@chapterprefix}[\pbls@refdoc]}
+              {}
+          }
+        % If a slide-file-prefix is configured, add it to the start
+        \tl_if_blank:VF \l_slide_file_prefix_tl
+          {
+            \edef\pbls@slideprefix{\tl_use:N \l_slide_file_prefix_tl}%
+            \edef\pbls@refdoc{\pbls@slideprefix\pbls@refdoc}%
+          }
+        \typeout{label~`#1'~is~in~external~doc~(after~processing)~`\pbls@refdoc'}%
+        \hyper@linkfile{\beamer@origref{#1}}{\pbls@refdoc}{\tl_item:cn{r@#1}{4}}%
+      }
+     }%
+  }
+}
+\ExplSyntaxOff

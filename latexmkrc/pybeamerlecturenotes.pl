@@ -2,10 +2,10 @@ use File::Basename;
 use Cwd 'abs_path';
 my $latexmkrcdir = dirname(abs_path(__FILE__));
 
-# --- pybeamernotebook uses tex-notebook ---
+# --- pybeamerlecturenotes uses tex-notebook ---
 do "$latexmkrcdir/tex-notebook.pl" or die "Can't load tex-notebook.pl: $!";
 
-# --- pybeamernotebook uses beamerthemeunicatt ---
+# --- pybeamerlecturenotes uses beamerthemeunicatt ---
 do "$latexmkrcdir/beamerthemeunicatt.pl" or die "Can't load beamerthemeunicatt.pl: $!";
 
 # --- Do not build tex files in chapters/ and slides/ ---

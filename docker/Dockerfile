@@ -48,8 +48,14 @@ RUN apt update -y -q && \
     apt clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Apply pythontex patch to avoid python warnings
-COPY patches/pythontex/PR_223.patch /tmp/PR_223.patch
-RUN patch -p0 < /tmp/PR_223.patch && rm /tmp/PR_223.patch
+COPY patches/pythontex /tmp/patches-pythontex
+RUN if [ -s "/tmp/patches-pythontex/PR_223-${BASE_IMAGE}.patch" ]; then \
+        echo "Applying patch PR_223-${BASE_IMAGE}.patch"; \
+        patch -p0 < /tmp/patches-pythontex/PR_223-${BASE_IMAGE}.patch; \
+    else \
+        echo "Patch file is empty, skipping."; \
+    fi \
+    && rm -rf /tmp/patches-pythontex
 
 # Apply mdcell patch on old latex versions
 # (on new latex versions the patch is left empty, and will not be applied)

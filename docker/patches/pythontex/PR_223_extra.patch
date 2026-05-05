@@ -1,0 +1,49 @@
+--- /usr/share/texlive/texmf-dist/scripts/pythontex/depythontex3.py
++++ /usr/share/texlive/texmf-dist/scripts/pythontex/depythontex3.py
+@@ -114,7 +114,7 @@ lexer_dict = dict()
+ 
+ def replace_code_cmd(name, arglist, linenum, code_replacement,
+                      code_replacement_mode, after, lexer, firstnumber):
+-    '''
++    r'''
+     Typeset code from a command with a command.
+ 
+     It is only ever called if there is indeed code to typeset.
+@@ -202,7 +202,7 @@ def replace_code_cmd(name, arglist, linenum, code_replacement,
+ 
+ def replace_code_env(name, arglist, linenum, code_replacement,
+                      code_replacement_mode, after, lexer, firstnumber):
+-    '''
++    r'''
+     Typeset code from an environment with an environment.
+ 
+     It is only ever called if there is indeed code to typeset.
+@@ -298,7 +298,7 @@ forced_double_space_list = list()
+ def replace_print_cmd(name, arglist, linenum,
+                       print_replacement, print_replacement_mode, source,
+                       after):
+-    '''
++    r'''
+     Typeset printed content from a command.
+ 
+     It is only ever called if there is indeed printed content to typeset.
+@@ -476,7 +476,7 @@ def replace_print_cmd(name, arglist, linenum,
+ def replace_print_env(name, arglist, linenum,
+                       print_replacement, print_replacement_mode, source,
+                       after):
+-    '''
++    r'''
+     Typeset printed content from an environment.
+ 
+     It is only ever called if there is indeed printed content to typeset.
+--- /usr/share/texlive/texmf-dist/scripts/pythontex/pythontex_utils.py
++++ /usr/share/texlive/texmf-dist/scripts/pythontex/pythontex_utils.py
+@@ -228,7 +228,7 @@ class PythonTeXUtils(object):
+ 
+     # Finally, create the actual interface to SymPy's LatexPrinter
+     def _make_sympy_latex(self):
+-        '''
++        r'''
+         Create a context-aware interface to SymPy's LatexPrinter class.
+ 
+         This is an interface to the LatexPrinter class, rather than

@@ -30,12 +30,15 @@ jobs:
           - base-image: ubuntu:25.10
             tag-name: ubuntu-25.10
             expected-texlive-version: "2024.20250309-1"
+          - base-image: ubuntu:26.04
+            tag-name: ubuntu-26.04
+            expected-texlive-version: "2025.20260124-1"
           - base-image: debian:testing
             tag-name: debian-testing
-            expected-texlive-version: "2025.20260124-1"
+            expected-texlive-version: "2026.20260328-4"
           - base-image: debian:unstable
             tag-name: debian-unstable
-            expected-texlive-version: "2025.20260124-1"
+            expected-texlive-version: "2026.20260328-4"
       fail-fast: false
     runs-on: ubuntu-latest
     defaults:

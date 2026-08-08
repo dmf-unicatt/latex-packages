@@ -80,13 +80,13 @@
 \newcustomblock{homework}
 \newcustomblock{proof}
 
-% only need to define proposition, algorithm, exercise, pyexercise, homework, and remark, because theorem, lemma, definition, example are already defined by beamer
-\newtheorem{proposition}[theorem]{Proposition}
-\newtheorem{algorithm}[theorem]{Algorithm}
-\newtheorem{exercise}[theorem]{Exercise}
-\newtheorem{pyexercise}[theorem]{Exercise}
+% only need to define proposition, algorithm, exercise, pyexercise, homework, and remark, because theorem, lemma, corollary, definition, example are already defined by beamer
+\newtheorem{proposition}[figure]{Proposition}
+\newtheorem{algorithm}[figure]{Algorithm}
+\newtheorem{exercise}[figure]{Exercise}
+\newtheorem{pyexercise}[figure]{Exercise}
 \newtheorem{homework}{Homework}
-\newtheorem{remark}[theorem]{Remark}
+\newtheorem{remark}[figure]{Remark}
 
 % define captions as numbered
 \setbeamertemplate{caption}[numbered]
@@ -96,6 +96,10 @@
 \setbeamertemplate{theorems}[numbered]
 \makeatletter
 \let\c@theorem\c@figure
+\let\c@definition\c@figure
+\let\c@example\c@figure
+\let\c@lemma\c@figure
+\let\c@corollary\c@figure
 \makeatother
 
 % prepend label numbering with chapter number, but only if chapter is used

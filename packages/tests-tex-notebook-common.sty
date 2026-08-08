@@ -1,0 +1,55 @@
+% Package with pytex test utilities required by both tests-tex-notebook and
+% tests-exercise-book, but moved here to avoid having to require the whole
+% tests-tex-notebook in tests-exercise-book.
+
+\RequirePackage{tex-notebook}
+
+\ifPythonTeXLoaded
+% Change the default image comparison threshold while testing on Ubuntu,
+% since the expected images are generated on Debian with chromium, while
+% Ubuntu runs Google Chrome. The two browsers render with slightly different
+% fonts, which results in an higher threshold needed when running on Ubuntu.
+\begin{pythontexcustomcode}[begin]{py}
+import platform
+import shutil
+
+os_release = platform.freedesktop_os_release()
+distro = os_release.get("ID")
+
+google_chrome = shutil.which("google-chrome")
+chromium = shutil.which("chromium")
+
+# Check that the browsers are installed as expected
+if distro == "ubuntu":
+    if google_chrome is None:
+        raise RuntimeError(
+            "Ubuntu testing expects google-chrome to be installed"
+        )
+    if chromium is not None:
+        raise RuntimeError(
+            f"Ubuntu testing expects chromium not to be installed, "
+            f"but found {chromium}"
+        )
+elif distro == "debian":
+    if chromium is None:
+        raise RuntimeError(
+            "Debian testing expects chromium to be installed"
+        )
+    if google_chrome is not None:
+        raise RuntimeError(
+            f"Debian testing expects google-chrome not to be installed, "
+            f"but found {google_chrome}"
+        )
+else:
+    if chromium is None and google_chrome is not None:
+        raise RuntimeError(
+            "Uknown distribution, and no browser found"
+        )
+
+# Raise image comparison tolerance on Ubuntu
+if distro == "ubuntu":
+    pytex.plotly_default_imagehash_threshold = 10
+else:
+    assert pytex.plotly_default_imagehash_threshold == 5
+\end{pythontexcustomcode}
+\fi

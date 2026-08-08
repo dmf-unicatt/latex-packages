@@ -51,7 +51,7 @@
 2    y = "two two"
 3    # fmt: off
 4    z = "three THREE_Three"; n = "FoUr_four quattro_cuatro"    # noqa:
-      ,→ E702
+      ↪→ E702
 5    # fmt: on
 6    f"{x} {y} {z} {n}"
      'one two two three THREE_Three FoUr_four quattro_cuatro'
@@ -315,14 +315,14 @@ and `\ref{...}`{=tex} commands.
 42           img = PIL.Image.open(image_path)
 43           width, height = img.size
 44           assert abs(width - expected_width) <=
-              ,→ expected_width_tolerance, (
+              ↪→ expected_width_tolerance, (
 45               f"Image {image_path} has width "
 46               f"{width}, but expected width was "
 47               f"{expected_width} with tolerance "
 48               f"{expected_width_tolerance}"
 49           )
 50           assert abs(height - expected_height) <=
-              ,→ expected_height_tolerance, (
+              ↪→ expected_height_tolerance, (
 51               f"Image {image_path} has height "
 52               f"{height}, but expected height was "
 53               f"{expected_height} with tolerance "
@@ -331,9 +331,9 @@ and `\ref{...}`{=tex} commands.
        We save a contour plot using the default width and height.
 56   fig_path = os.path.join( # ty: ignore[unresolved-reference]
 57       f"pythontex-files-{pytex.jobname}", # ty:
-          ,→ ignore[unresolved-reference]
+          ↪→ ignore[unresolved-reference]
 58       f"{pytex.id}_{pytex.instance}.png", # ty:
-          ,→ ignore[unresolved-reference]
+          ↪→ ignore[unresolved-reference]
 59   )
 60   fig = go.Figure(data=[go.Contour(x=x_plot, y=y_plot, z=Z_plot)])
 61   fig.update_layout(title="Contour plot")
@@ -343,16 +343,16 @@ and `\ref{...}`{=tex} commands.
 65           fig_path,
 66           os.path.join( # ty: ignore[unresolved-reference]
 67               "images",
-                  ,→ "contour_plot_default_width_height_white_background.png"
+                  ↪→ "contour_plot_default_width_height_white_background.png"
 68           ),
 69       ],
-70       (1223, 4, 740, 4), # affected by white space trimming
+70       (1223, 6, 740, 6), # affected by white space trimming
 71   )
 72   fig_path = os.path.join( # ty: ignore[unresolved-reference]
 73       f"pythontex-files-{pytex.jobname}", # ty:
-          ,→ ignore[unresolved-reference]
+          ↪→ ignore[unresolved-reference]
 74       f"{pytex.id}_{pytex.instance}.png", # ty:
-          ,→ ignore[unresolved-reference]
+          ↪→ ignore[unresolved-reference]
 75   )
 76   fig = go.Figure(data=[go.Contour(x=x_plot, y=y_plot, z=Z_plot)])
 77   fig.update_layout(title="Contour plot")
@@ -363,7 +363,7 @@ and `\ref{...}`{=tex} commands.
 82           fig_path,
 83           os.path.join( # ty: ignore[unresolved-reference]
 84               "images",
-                  ,→ "contour_plot_default_width_height_black_background.png"
+                  ↪→ "contour_plot_default_width_height_black_background.png"
 85           ),
 86       ],
 87       (1400, 1000), # default 700 * 500, multiplied by 2
@@ -372,33 +372,33 @@ and `\ref{...}`{=tex} commands.
        We next save a contour plot manually assigning width and height.
 89   fig_path = os.path.join( # ty: ignore[unresolved-reference]
 90       f"pythontex-files-{pytex.jobname}", # ty:
-          ,→ ignore[unresolved-reference]
+          ↪→ ignore[unresolved-reference]
 91       f"{pytex.id}_{pytex.instance}.png", # ty:
-          ,→ ignore[unresolved-reference]
+          ↪→ ignore[unresolved-reference]
 92   )
 93   fig = go.Figure(data=[go.Contour(x=x_plot, y=y_plot, z=Z_plot)])
 94   fig.update_layout(title="Contour plot", width=512, height=512,
-      ,→ autosize=False)
+      ↪→ autosize=False)
 95   fig
  96   check_image_size(
  97       [
  98           fig_path,
  99           os.path.join( # ty: ignore[unresolved-reference]
 100               "images",
-                   ,→ "contour_plot_fixed_width_height_white_background.png"
+                   ↪→ "contour_plot_fixed_width_height_white_background.png"
 101           ),
 102       ],
 103       (855, 4, 764, 4), # affected by white space trimming
 104   )
 105   fig_path = os.path.join( # ty: ignore[unresolved-reference]
 106       f"pythontex-files-{pytex.jobname}", # ty:
-           ,→ ignore[unresolved-reference]
+           ↪→ ignore[unresolved-reference]
 107       f"{pytex.id}_{pytex.instance}.png", # ty:
-           ,→ ignore[unresolved-reference]
+           ↪→ ignore[unresolved-reference]
 108   )
 109   fig = go.Figure(data=[go.Contour(x=x_plot, y=y_plot, z=Z_plot)])
 110   fig.update_layout(title="Contour plot", width=512, height=512,
-       ,→ autosize=False)
+       ↪→ autosize=False)
 111   set_black_background(fig)
 112   fig
 
@@ -410,7 +410,7 @@ and `\ref{...}`{=tex} commands.
 115           fig_path,
 116           os.path.join( # ty: ignore[unresolved-reference]
 117               "images",
-                   ,→ "contour_plot_fixed_width_height_black_background.png"
+                   ↪→ "contour_plot_fixed_width_height_black_background.png"
 118           ),
 119       ],
 120       (1024, 1024), # assigned 512 * 512, multiplied by 2
@@ -418,22 +418,22 @@ and `\ref{...}`{=tex} commands.
          We finally change the default width, height and scale, and prepare new
       contour plots.
 122   old_plotly_default_width = pytex.plotly_default_width # ty:
-       ,→ ignore[unresolved-reference]
+       ↪→ ignore[unresolved-reference]
 123   pytex.plotly_default_width = 555 # ty:
-       ,→ ignore[unresolved-reference]
+       ↪→ ignore[unresolved-reference]
 124   old_plotly_default_height = pytex.plotly_default_height # ty:
-       ,→ ignore[unresolved-reference]
+       ↪→ ignore[unresolved-reference]
 125   pytex.plotly_default_height = 333 # ty:
-       ,→ ignore[unresolved-reference]
+       ↪→ ignore[unresolved-reference]
 126   old_plotly_default_scale = pytex.plotly_default_scale # ty:
-       ,→ ignore[unresolved-reference]
+       ↪→ ignore[unresolved-reference]
 127   pytex.plotly_default_scale = 3 # ty:
-       ,→ ignore[unresolved-reference]
+       ↪→ ignore[unresolved-reference]
 128   fig_path = os.path.join( # ty: ignore[unresolved-reference]
 129       f"pythontex-files-{pytex.jobname}", # ty:
-           ,→ ignore[unresolved-reference]
+           ↪→ ignore[unresolved-reference]
 130       f"{pytex.id}_{pytex.instance}.png", # ty:
-           ,→ ignore[unresolved-reference]
+           ↪→ ignore[unresolved-reference]
 131   )
 132   fig = go.Figure(data=[go.Contour(x=x_plot, y=y_plot, z=Z_plot)])
 133   fig.update_layout(title="Contour plot")
@@ -449,16 +449,16 @@ and `\ref{...}`{=tex} commands.
 139               "images",
 140
 
-                  ,→   "contour_plot_new_default_width_height_white_background.png",
+                  ↪→   "contour_plot_new_default_width_height_white_background.png",
 141          ),
 142       ],
-143       (1396, 4, 608, 4),    # affected by white space trimming
+143       (1396, 7, 608, 7),    # affected by white space trimming
 144   )
 145   fig_path = os.path.join( # ty: ignore[unresolved-reference]
 146       f"pythontex-files-{pytex.jobname}", # ty:
-           ,→ ignore[unresolved-reference]
+           ↪→ ignore[unresolved-reference]
 147       f"{pytex.id}_{pytex.instance}.png", # ty:
-           ,→ ignore[unresolved-reference]
+           ↪→ ignore[unresolved-reference]
 148   )
 149   fig = go.Figure(data=[go.Contour(x=x_plot, y=y_plot, z=Z_plot)])
 150   fig.update_layout(title="Contour plot")
@@ -475,7 +475,7 @@ and `\ref{...}`{=tex} commands.
 157               "images",
 158
 
-                     ,→   "contour_plot_new_default_width_height_black_background.png",
+                     ↪→   "contour_plot_new_default_width_height_black_background.png",
 159             ),
 160        ],
 161        (1665, 999),    # default 555 * 333, multiplied by 3
@@ -483,11 +483,11 @@ and `\ref{...}`{=tex} commands.
           We assign the defaults back.
 
 163   pytex.plotly_default_width = old_plotly_default_width # ty:
-       ,→ ignore[unresolved-reference]
+       ↪→ ignore[unresolved-reference]
 164   pytex.plotly_default_height = old_plotly_default_height # ty:
-       ,→ ignore[unresolved-reference]
+       ↪→ ignore[unresolved-reference]
 165   pytex.plotly_default_scale = old_plotly_default_scale            # ty:
-       ,→ ignore[unresolved-reference]
+       ↪→ ignore[unresolved-reference]
           Notebooks are automatically produced from this chapter, but any cell con-
       taining pytex would not be runnable in a plain notebook, because the pytex
       object is internal. Running the produced notebook is not really the point of
@@ -497,7 +497,7 @@ and `\ref{...}`{=tex} commands.
 167
 
 168   original_save_cells_as_notebook = save_cells_as_notebook            # ty:
-       ,→ ignore[unresolved-reference]
+       ↪→ ignore[unresolved-reference]
 169
 
 170
@@ -518,7 +518,7 @@ and `\ref{...}`{=tex} commands.
 184   # fmt: off
 185   print(
 186       'This cell was disabled because it contains the command
-           ,→ pytex' # noqa: Q000
+           ↪→ pytex' # noqa: Q000
 187   )
 188   # fmt: on"""
 189               elif "fig_path" in cell[1]:
@@ -526,12 +526,12 @@ and `\ref{...}`{=tex} commands.
 191   # fmt: off
 192   print(
 193       'This cell was disabled because it contains the variable
-           ,→ fig_path' # noqa: Q000
+           ↪→ fig_path' # noqa: Q000
 194   )
 195   # fmt: on""" # noqa: E501
 196               else:
 197                   code = cell[1]
 198               modified_all_cells.append(("code", code))
 199       return original_save_cells_as_notebook(modified_all_cells,
-           ,→ pytex)
+           ↪→ pytex)
 

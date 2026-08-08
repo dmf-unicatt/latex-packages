@@ -15,7 +15,7 @@ jobs:
   lint:
     runs-on: ubuntu-26.04
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       - name: Install dependencies
         run: |
           export DEBIAN_FRONTEND="noninteractive"
@@ -50,7 +50,7 @@ jobs:
     container: ghcr.io/dmf-unicatt/latex-packages:latest-${{ matrix.tag-name }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       - name: Show texlive version
         run: dpkg -s texlive-base | grep Version
       - name: Ensure that \LaTeXTwentyFivefalse at the end of packages/if-latex-twentyfive.sty is always commented when committing
@@ -65,7 +65,7 @@ jobs:
   test-packages-in-act:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       - name: Install act
         run: |
           curl -s https://raw.githubusercontent.com/nektos/act/master/install.sh | sudo bash

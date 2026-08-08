@@ -26,6 +26,10 @@ def main() -> None:
         "test-packages-in-docker",
     ]
 
+    # Do not pull already available docker images: this is useful if one
+    # wants to generate docker images locally to test them later.
+    args.append("--pull=false")
+
     # Append matrix arg for each argument
     for arg in sys.argv[1:]:
         tag_name = arg.replace(":", "-")

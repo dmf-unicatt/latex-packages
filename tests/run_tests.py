@@ -90,6 +90,21 @@ REGOLDED = f"{YELLOW}REGOLDED{RESET}"
 PASS = f"{GREEN}PASS{RESET}"
 SUMMARY = f"{BOLD_BLACK}Test summary{RESET}"
 
+# Configuration: PDF text normalization
+PDF_TEXT_EQUIVALENTS = {
+    # qed symbols
+    "♦": "[qed]",
+    "♢": "[qed]",
+    "◆": "[qed]",
+    # line continuation symbols in codes:
+    # note that the remaining unicode character after replacement is then
+    # used as the continuation character in the call to the function
+    # merge_lines_with_continuation, so it will get actually removed
+    # from the lines in the comparison
+    ",→": "→",
+    "↪→": "→",
+}
+
 
 def run_command(command: list[str], cwd: str) -> tuple[int, str, str]:
     """
@@ -206,9 +221,10 @@ def merge_lines_with_continuation(
 
 def normalize_text(text: str) -> list[str]:
     """
-    Normalize a block of text for whitespace-insensitive comparisons.
+    Normalize a block of text for comparisons.
 
     This function:
+      - Map selected Unicode characters to ASCII equivalents.
       - Splits the text into lines.
       - Removes **all** whitespace characters (spaces, tabs, etc.) from
         each line.
@@ -222,9 +238,11 @@ def normalize_text(text: str) -> list[str]:
     Returns
     -------
     :
-        List of normalized lines with all whitespace removed and empty lines
-        discarded.
+        List of normalized lines with selected Unicode characters mapped to
+        ASCII equivalents and empty lines discarded.
     """
+    for old, new in PDF_TEXT_EQUIVALENTS.items():
+        text = text.replace(old, new)
     return ["".join(line.split()) for line in text.splitlines() if line.strip()]
 
 
@@ -691,7 +709,7 @@ def run_latex_tests(tex_tests: list[str], maxfail: int, regold: bool) -> None:
                 ):
                     actual = normalize_text(out_f.read().strip())
                     expected = normalize_text(exp_f.read().strip())
-                    code_continuation_character = ",\u2192"
+                    code_continuation_character = "→"
                     actual = merge_lines_with_continuation(
                         actual, code_continuation_character, "begin_line"
                     )

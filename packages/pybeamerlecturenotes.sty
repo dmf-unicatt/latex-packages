@@ -27,7 +27,7 @@
 \RequirePackage{xr-hyper}
 
 % interpret beamer frames for book output
-\RequirePackage[noamsthm]{beamerarticle}
+\RequirePackage[noamsthm,notheorems]{beamerarticle}
 
 % Load tikz
 \RequirePackage{tikz}
@@ -103,6 +103,12 @@
 %%% ================================================================
 %%%                     THEOREM LIKE ENVIRONMENTS
 %%% ================================================================
+
+% Add workaround for thmtools and texlive >= 2026 incompatibility.
+% Provided by https://github.com/muzimuzhi/thmtools/issues/75
+\@ifundefined{newcounteralias}{}{%
+  \renewcommand\thmt@autorefsetup{\@xa\def\csname\thmt@envname autorefname\@xa\endcsname\@xa{\thmt@thmname}}%
+}
 
 % Define theorem like environments
 \declaretheorem[qed=$\Diamond$,style=plain,numberlike=figure]{theorem}

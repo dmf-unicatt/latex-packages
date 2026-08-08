@@ -94,3 +94,21 @@
 \AtEndDocument{%
   \printendnotes
 }
+
+%%% ----------------------------------------------------------------
+%%% If blackboard mode is not enabled, change watermark angle to 0
+%%% (horizontal text) rather than the default diagonal text.
+%%% The issue is that the diagonal text produces a text file which
+%%% is difficult to parse in the tests because the letters of the
+%%% sentence "Do not upload on blackboard!" are scattered to the
+%%% extracted text lines one character per line.
+%%% ----------------------------------------------------------------
+
+\ExplSyntaxOn
+\AtEndPreamble{
+  \bool_if:NF \l_exercise_book_blackboard_bool
+    {
+      \SetWatermarkAngle{0}
+    }
+}
+\ExplSyntaxOff

@@ -293,7 +293,7 @@
 }
 
 % Inverse frames
-\newenvironment{inverseframe}{\begingroup%
+\newenvironment{inverseframe}[1][]{
 \setbeamercolor{normal text}{fg=white,bg=black!90}
 \usebeamercolor[fg]{normal text}
 
@@ -313,14 +313,8 @@
 \setbeamercolor*{itemize subitem}{fg=primary_color}
 \setbeamercolor*{enumerate subitem}{fg=primary_color}
 
-\setbeamercolor*{separation line}{}
-\setbeamercolor*{fine separation line}{}
-
-\setbeamercolor*{block title}{bg=secondary_color!70!white,fg=black}
-\setbeamercolor*{block body}{bg=secondary_color!20!white,fg=black}
-
-\begin{frame}%
-}{\end{frame}\endgroup}
+\begin{frame}[environment=inverseframe,#1]%
+}{\end{frame}}
 
 
 \mode<all>

@@ -51,6 +51,50 @@
 % Load the tex-notebook package from this same repository for the pycell environment
 \RequirePackage{tex-notebook}
 
+% XSIM with use-files may execute notebook cells from auxiliary files rather than
+% from the production .tex file. Capture the production location at each source
+% environment boundary and persist it as XSIM exercise properties.
+\DeclareExerciseProperty{texsync-exercise-source-file}
+\DeclareExerciseProperty{texsync-exercise-source-line}
+\DeclareExerciseProperty{texsync-solution-source-file}
+\DeclareExerciseProperty{texsync-solution-source-line}
+\DeclareExerciseProperty{texsync-additionalinformation-source-file}
+\DeclareExerciseProperty{texsync-additionalinformation-source-line}
+
+\newcommand{\texsyncExerciseSourceFile}{}
+\newcommand{\texsyncExerciseSourceLine}{0}
+\newcommand{\texsyncSolutionSourceFile}{}
+\newcommand{\texsyncSolutionSourceLine}{0}
+\newcommand{\texsyncAdditionalInformationSourceFile}{}
+\newcommand{\texsyncAdditionalInformationSourceLine}{0}
+
+\BeforeBeginEnvironment{exercise}{%
+  \xdef\texsyncExerciseSourceFile{\currfilepath}%
+  \xdef\texsyncExerciseSourceLine{\the\inputlineno}%
+}
+% Persist provenance immediately when the literal source environment starts.
+% This happens before any file-backed body can later be replayed by XSIM.
+\AtBeginEnvironment{exercise}{%
+  \edef\ExerciseType{\csname g_xsim_exercise_type_tl\endcsname}%
+  \edef\ExerciseID{\csname g_xsim_exercise_id_tl\endcsname}%
+  \expanded{\noexpand\SetExerciseProperty{texsync-exercise-source-file}{\texsyncExerciseSourceFile}}%
+  \expanded{\noexpand\SetExerciseProperty{texsync-exercise-source-line}{\texsyncExerciseSourceLine}}%
+}
+\BeforeBeginEnvironment{solution}{%
+  \xdef\texsyncSolutionSourceFile{\currfilepath}%
+  \xdef\texsyncSolutionSourceLine{\the\inputlineno}%
+}
+\AtBeginEnvironment{solution}{%
+  \edef\ExerciseType{\csname g_xsim_exercise_type_tl\endcsname}%
+  \edef\ExerciseID{\csname g_xsim_exercise_id_tl\endcsname}%
+  \expanded{\noexpand\SetExerciseProperty{texsync-solution-source-file}{\texsyncSolutionSourceFile}}%
+  \expanded{\noexpand\SetExerciseProperty{texsync-solution-source-line}{\texsyncSolutionSourceLine}}%
+}
+\BeforeBeginEnvironment{additionalinformation}{%
+  \xdef\texsyncAdditionalInformationSourceFile{\currfilepath}%
+  \xdef\texsyncAdditionalInformationSourceLine{\the\inputlineno}%
+}
+
 % Disable headers
 \pagestyle{plain}
 
@@ -505,7 +549,7 @@
       %
       % PART 5: attach notebook name to pythontex
       \ifPythonTeXLoaded
-      \edef\attachnotebooknametopythontex{\pyc{pytex.notebook_filename = os.path.join(f"notebooks-{pytex.jobname}", f"exercise_\GetExerciseProperty{printedcounter}.ipynb")}}
+      \edef\attachnotebooknametopythontex{\pyc{pytex.notebook_filename = os.path.join(f"notebooks-{pytex.jobname}", f"exercise_\GetExerciseProperty{printedcounter}.ipynb"); pytex.texsync_source_file_override = r"""\texsyncExerciseSourceFile"""; pytex.texsync_source_line_override = int("\texsyncExerciseSourceLine")}}
       \attachnotebooknametopythontex
       \fi
     }%
@@ -526,7 +570,7 @@
       }%
       %
       \ifPythonTeXLoaded
-      \edef\attachnotebooknametopythontex{\pyc{pytex.notebook_filename = os.path.join(f"notebooks-{pytex.jobname}", f"solution_\GetExerciseProperty{printedcounter}.ipynb")}}
+      \edef\attachnotebooknametopythontex{\pyc{pytex.notebook_filename = os.path.join(f"notebooks-{pytex.jobname}", f"solution_\GetExerciseProperty{printedcounter}.ipynb"); pytex.texsync_source_file_override = r"""\GetExerciseProperty{texsync-solution-source-file}"""; pytex.texsync_source_line_override = int("\GetExerciseProperty{texsync-solution-source-line}")}}
       \attachnotebooknametopythontex
       \fi
     }%
@@ -740,6 +784,8 @@
     % Store the current exercise type and ID
     \edef\ExerciseType{\csname g_xsim_exercise_type_tl\endcsname}
     \edef\ExerciseID{\csname g_xsim_exercise_id_tl\endcsname}
+    \expanded{\noexpand\SetExerciseProperty{texsync-additionalinformation-source-file}{\texsyncAdditionalInformationSourceFile}}%
+    \expanded{\noexpand\SetExerciseProperty{texsync-additionalinformation-source-line}{\texsyncAdditionalInformationSourceLine}}%
 
     % Store the code block as a property of the exercise
     \SetExerciseProperty{additionalinformation}
@@ -773,6 +819,8 @@
     % Store the current exercise type and ID
     \edef\ExerciseType{\csname g_xsim_exercise_type_tl\endcsname}
     \edef\ExerciseID{\csname g_xsim_exercise_id_tl\endcsname}
+    \expanded{\noexpand\SetExerciseProperty{texsync-additionalinformation-source-file}{\texsyncAdditionalInformationSourceFile}}%
+    \expanded{\noexpand\SetExerciseProperty{texsync-additionalinformation-source-line}{\texsyncAdditionalInformationSourceLine}}%
 
     % Store the file containing the code as a property of the exercise
     \edef\additionalinformationfilename{xsim-files-\jobname/\jobname-\ExerciseType-\exercisebookprefix\ExerciseID-additional-solution.tex}
@@ -934,7 +982,7 @@
                     \IfStrEq{#1}{additionalinformation}{%
                       \begin{additionalinformationinternal}{##2}
                       \ifPythonTeXLoaded
-                      \edef\attachnotebooknametopythontex{\pyc{pytex.notebook_filename = os.path.join(f"notebooks-{pytex.jobname}", f"additional_information_\GetExerciseProperty{printedcounter}.ipynb")}}
+                      \edef\attachnotebooknametopythontex{\pyc{pytex.notebook_filename = os.path.join(f"notebooks-{pytex.jobname}", f"additional_information_\GetExerciseProperty{printedcounter}.ipynb"); pytex.texsync_source_file_override = r"""\GetExerciseProperty{texsync-additionalinformation-source-file}"""; pytex.texsync_source_line_override = int("\GetExerciseProperty{texsync-additionalinformation-source-line}")}}
                       \attachnotebooknametopythontex
                       \fi
                       \ifLaTeXTwentyFive%

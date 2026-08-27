@@ -140,7 +140,7 @@
   postheadhook={%
     \ifPythonTeXLoaded
     \edef\writemarkdowntitle{%
-      \noexpand\pyc{all_cells.append(("markdown","\detokenize{##}\space Exercise \thetheorem"))}%
+      \noexpand\pyc{texsync_append_generated_cell(all_cells, "markdown", "\detokenize{##}\space Exercise \thetheorem", pytex, r"""\currfilepath""", \the\inputlineno, "pyexercise", "begin")}%
     }
     \writemarkdowntitle
     \fi

@@ -15,6 +15,9 @@
 % To include output images
 \RequirePackage{graphicx}
 
+% To track the source .tex file for notebook round-trip synchronization
+\RequirePackage{currfile}
+
 % The pythontex package is optional
 \newif\ifPythonTeXLoaded
 
@@ -111,7 +114,8 @@
 % Function call_code: execute a block of Python code, store the code in the provided list, and return the output
 \begin{pythontexcustomcode}[begin]{py}
 def call_code(
-    code: str, all_cells: list[tuple[str, str]], python_state: dict[str, any], pytex: any
+    code: str, all_cells: list[dict[str, any]], python_state: dict[str, any], pytex: any,
+    source_file: str, source_line: int
 ) -> tuple[str, str | None]:
     """
     Execute a block of Python code, store the code in the provided list, and return the output.
@@ -145,7 +149,9 @@ def call_code(
     import PIL.Image
 
     # Append current code
-    all_cells.append(("code", code))
+    texsync_append_source_cell(
+        all_cells, "code", code, pytex, source_file, source_line
+    )
 
     # Split by line, and capture implicit output on the last line
     lines = code.splitlines()
@@ -770,62 +776,247 @@ def replace_refs_in_md(mdtext: str, refs: dict[str, str]) -> str:
     return pattern.sub(repl, mdtext)
 \end{pythontexcustomcode}
 
-% Function save_cells_as_notebook: convert a list of code cell strings into a Jupyter Notebook file
+% Functions used by tex-notebook integrations to record source provenance and generated cells
 \begin{pythontexcustomcode}[begin]{py}
-def save_cells_as_notebook(all_cells: list[tuple[str, str]], pytex: any) -> None:
-    """
-    Convert a list of cell types and strings into a Jupyter Notebook file.
+def texsync_effective_source(pytex: any, source_file: str, source_line: int) -> tuple[str, int]:
+    """Resolve and normalize the original production TeX source."""
+    effective_file = getattr(pytex, "texsync_source_file_override", None)
+    if effective_file is None:
+        effective_file = source_file
+    if effective_file is None:
+        effective_file = f"{pytex.jobname}.tex"
+    effective_line = getattr(pytex, "texsync_source_line_override", None)
+    if effective_line is None:
+        effective_line = source_line
+    return os.path.normpath(str(effective_file)), int(effective_line)
 
-    Parameters
-    ----------
-    all_cells
-        Code cells as a tuple (type, content).
-        If a cell has type == "code", the content must start with an empty line from pycode_wrapper.
-        If a cell has type == "markdown", the content must have been already converted to markdown.
-    pytex
-        The PythonTeXUtils object, used to determine the notebook filename.
-    """
+
+def texsync_owner_occurrence(source_file: str, source_line: int, owner_environment: str | None) -> int | None:
+    """Return the 1-based occurrence of an owner environment before the generated cell."""
+    if not owner_environment or source_line <= 0:
+        return None
+
+    def strip_tex_comment(line: str) -> str:
+        for i, char in enumerate(line):
+            if char != "%":
+                continue
+            backslashes = 0
+            j = i - 1
+            while j >= 0 and line[j] == "\\":
+                backslashes += 1
+                j -= 1
+            if backslashes % 2 == 0:
+                return line[:i]
+        return line
+
+    try:
+        with open(source_file, "r", encoding="utf-8") as source:
+            lines = source.readlines()
+    except (OSError, UnicodeError):
+        return None
+
+    token = r"\begin{" + owner_environment + "}"
+    prefix = "".join(strip_tex_comment(line) for line in lines[:source_line])
+    count = prefix.count(token)
+    return count or None
+
+
+def texsync_append_source_cell(
+    all_cells: list[dict[str, any]], cell_type: str, content: str, pytex: any,
+    source_file: str, source_line: int
+) -> None:
+    """Append an mdcell/pycell that has a literal representation in the production TeX source."""
+    source_file, source_line = texsync_effective_source(pytex, source_file, source_line)
+    all_cells.append({
+        "type": cell_type,
+        "content": content,
+        "source_file": source_file,
+        "source_line": source_line,
+        "expected_output": None,
+        "expected_figure": None,
+        "tex_backed": True,
+        "read_only": False,
+        "owner_environment": None,
+        "owner_position": None,
+        "owner_line_hint": 0,
+    })
+
+
+def texsync_append_generated_cell(
+    all_cells: list[dict[str, any]], cell_type: str, content: str, pytex: any,
+    source_file: str, source_line: int, owner_environment: str | None = None,
+    owner_position: str | None = None
+) -> None:
+    """Append a notebook-only package-generated cell that must never be written back to TeX."""
+    if cell_type not in {"code", "markdown"}:
+        raise ValueError(f"Unsupported generated cell type: {cell_type}")
+    if owner_position not in {None, "begin", "end"}:
+        raise ValueError(f"Unsupported generated-cell owner position: {owner_position}")
+    source_file, source_line = texsync_effective_source(pytex, source_file, source_line)
+    owner_occurrence = texsync_owner_occurrence(source_file, source_line, owner_environment)
+    all_cells.append({
+        "type": cell_type,
+        "content": content,
+        "source_file": source_file,
+        "source_line": source_line,
+        "expected_output": None,
+        "expected_figure": None,
+        "tex_backed": False,
+        "read_only": True,
+        "owner_environment": owner_environment,
+        "owner_position": owner_position,
+        "owner_line_hint": source_line,
+        "owner_occurrence": owner_occurrence,
+    })
+\end{pythontexcustomcode}
+
+% Function replace_refs_in_md_with_metadata: render refs while recording how to restore them
+\begin{pythontexcustomcode}[begin]{py}
+def replace_refs_in_md_with_metadata(mdtext: str, refs: dict[str, str]) -> tuple[str, list[dict[str, any]]]:
+    r"""Render wrapped \ref/\eqref constructs and record reversible replacements."""
+    import re
+
+    # Reuse the existing validator/rendering function so behavior stays identical.
+    generated = replace_refs_in_md(mdtext, refs)
+    pattern = re.compile(r'`(\\(?:ref|eqref)\{([^}]+)\})`\{=tex\}')
+    replacements = []
+    generated_pos = 0
+    source_pos = 0
+    pieces = []
+    for match in pattern.finditer(mdtext):
+        prefix = mdtext[source_pos:match.start()]
+        pieces.append(prefix)
+        generated_pos += len(prefix)
+        macro = match.group(1)
+        label = match.group(2)
+        ref = refs[label]
+        rendered = ref if macro.startswith(r'\ref') else f"({ref})"
+        start = generated_pos
+        pieces.append(rendered)
+        generated_pos += len(rendered)
+        replacements.append({
+            "tex": match.group(0),
+            "rendered": rendered,
+            "generated_start": start,
+            "generated_end": generated_pos,
+        })
+        source_pos = match.end()
+    pieces.append(mdtext[source_pos:])
+    assert "".join(pieces) == generated
+    return generated, replacements
+\end{pythontexcustomcode}
+
+% Function texsync_notebook_filename: derive the mandatory synchronization notebook filename
+\begin{pythontexcustomcode}[begin]{py}
+def texsync_notebook_filename(production_filename: str) -> str:
+    """Return the _texsync.ipynb companion path for a production notebook path."""
+    import os
+
+    root, ext = os.path.splitext(production_filename)
+    if ext != ".ipynb":
+        raise RuntimeError(
+            "pytex.notebook_filename must end with .ipynb so that the synchronization "
+            "companion can use the mandatory _texsync.ipynb suffix."
+        )
+    if root.endswith("_texsync"):
+        raise RuntimeError(
+            "pytex.notebook_filename must name the clean production notebook, not an "
+            "_texsync.ipynb synchronization notebook."
+        )
+    return root + "_texsync" + ext
+\end{pythontexcustomcode}
+
+% Function save_cells_as_notebook: convert collected cells into clean and synchronization Jupyter Notebook files
+\begin{pythontexcustomcode}[begin]{py}
+def save_cells_as_notebook(all_cells: list[dict[str, any]], pytex: any) -> None:
+    """Write a clean production notebook and a metadata-rich _texsync companion."""
+    import copy
+    import hashlib
     import os
     import nbformat
 
-    # Do not create a notebook if the list is empty
     if len(all_cells) == 0:
         return
 
-    # Create a new empty notebook
-    nb = nbformat.v4.new_notebook()
-    nb_cells = []
+    # Check that all cells come from the same source file.
+    source_files = {record["source_file"] for record in all_cells}
+    if len(source_files) != 1:
+        raise RuntimeError(
+            "A generated notebook must contain cells from exactly one TeX source file; "
+            f"found {sorted(source_files)}"
+        )
+    source_file = next(iter(source_files))
+    production_filename = pytex.notebook_filename
+    sync_filename = texsync_notebook_filename(production_filename)
 
+    # First build the clean notebook.
+    clean_nb = nbformat.v4.new_notebook()
+    clean_cells = []
+    manifest_cells = []
     counter = {"code": 0, "markdown": 0}
-    for (type, content) in all_cells:
-        if type == "code":
-            lines = content.splitlines()
-            if lines:
-                # pycode_wrapper adds an empty first line; enforce and remove it
+
+    for ordinal, record in enumerate(all_cells):
+        cell_type = record["type"]
+        raw_content = record["content"]
+        if cell_type == "code":
+            lines = raw_content.splitlines()
+            if record.get("tex_backed", True) and lines:
+                # pycode_wrapper contributes one artificial empty first line for literal pycell entries.
                 assert lines[0] == "", "First line must be empty (added by pycode_wrapper)"
                 lines = lines[1:]
-            # Add processed code cell to the notebook
-            cell = nbformat.v4.new_code_cell("\n".join(lines))
-        elif type == "markdown":
-            content = replace_refs_in_md(content, pytex.refs)
-            check_markdown_math_delimiters(content)
-            cell = nbformat.v4.new_markdown_cell(content)
+            original_source = "\n".join(lines)
+            generated_source = original_source
+            ref_replacements = []
+            cell = nbformat.v4.new_code_cell(generated_source)
+            environment = "pycell"
+        elif cell_type == "markdown":
+            original_source = raw_content
+            generated_source, ref_replacements = replace_refs_in_md_with_metadata(original_source, pytex.refs)
+            check_markdown_math_delimiters(generated_source)
+            cell = nbformat.v4.new_markdown_cell(generated_source)
+            environment = "mdcell"
         else:
             raise ValueError("Invalid cell")
 
-        cell.id = f"{type}_cell_{counter[type]}"
-        counter[type] += 1
-        nb_cells.append(cell)
+        seed = (
+            f"{production_filename}\0{source_file}\0{record['source_line']}\0"
+            f"{ordinal}\0{cell_type}\0{original_source}"
+        ).encode("utf-8")
+        sync_id = "texnb-" + hashlib.sha256(seed).hexdigest()[:24]
 
-    nb["cells"] = nb_cells
+        # Preserve the package's pre-sync Jupyter cell-id convention in both files.
+        cell.id = f"{cell_type}_cell_{counter[cell_type]}"
+        counter[cell_type] += 1
+        clean_cells.append(cell)
 
-    # Assign kernel metadata
-    nb.metadata.kernelspec = {
+        manifest_cells.append({
+            "sync_id": sync_id,
+            "cell_type": cell_type,
+            "environment": environment,
+            "source_ordinal": ordinal,
+            "source_line_hint": int(record["source_line"]),
+            "original_source": original_source,
+            "generated_source": generated_source,
+            "ref_replacements": ref_replacements,
+            # These are semantic trailers of the ORIGINAL pycell. New notebook
+            # cells never receive them automatically.
+            "expected_output": record.get("expected_output"),
+            "expected_figure": record.get("expected_figure"),
+            "tex_backed": bool(record.get("tex_backed", True)),
+            "read_only": bool(record.get("read_only", False)),
+            "owner_environment": record.get("owner_environment"),
+            "owner_position": record.get("owner_position"),
+            "owner_line_hint": int(record.get("owner_line_hint", 0) or 0),
+            "owner_occurrence": record.get("owner_occurrence"),
+        })
+
+    clean_nb["cells"] = clean_cells
+    clean_nb.metadata.kernelspec = {
         "display_name": "Python 3 (ipykernel)",
         "language": "python",
         "name": "python3"
     }
-    nb.metadata.language_info = {
+    clean_nb.metadata.language_info = {
         "name": "python",
         "mimetype": "text/x-python",
         "codemirror_mode": {"name": "ipython"},
@@ -833,12 +1024,36 @@ def save_cells_as_notebook(all_cells: list[tuple[str, str]], pytex: any) -> None
         "nbconvert_exporter": "python"
     }
 
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(pytex.notebook_filename), exist_ok=True)
+    # The sync notebook is a copy of the clean notebook plus private provenance.
+    sync_nb = copy.deepcopy(clean_nb)
+    for cell, manifest_cell in zip(sync_nb.cells, manifest_cells, strict=True):
+        managed_read_only = bool(manifest_cell["read_only"] or not manifest_cell["tex_backed"])
+        cell.metadata["tex_notebook"] = {
+            "sync_id": manifest_cell["sync_id"],
+            "tex_backed": manifest_cell["tex_backed"],
+            "read_only": managed_read_only,
+            "managed_read_only": managed_read_only,
+        }
+        if managed_read_only:
+            # Standard Jupyter metadata provide a first layer of protection in compliant frontends.
+            cell.metadata["editable"] = False
+            cell.metadata["deletable"] = False
+    sync_nb.metadata["tex_notebook"] = {
+        "schema_version": 1,
+        "source_file": source_file,
+        "production_notebook_filename": production_filename,
+        "texsync_notebook_filename": sync_filename,
+        "cells": manifest_cells,
+    }
 
-    # Build notebook path and write the file
-    with open(pytex.notebook_filename, "w", encoding="utf-8") as f:
-        nbformat.write(nb, f)
+    output_dir = os.path.dirname(production_filename)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+
+    with open(production_filename, "w", encoding="utf-8") as f:
+        nbformat.write(clean_nb, f)
+    with open(sync_filename, "w", encoding="utf-8") as f:
+        nbformat.write(sync_nb, f)
 \end{pythontexcustomcode}
 
 %%% ----------------------------------------------------------------
@@ -1022,7 +1237,7 @@ save_cells_as_notebook(all_cells, pytex)
 
     % Build the full python code
     \tl_put_left:Nn \l__py_user_code_tl {cell_output, cell_figure_path = call_code(r\l__py_triple_quotes_tl^^J}
-    \tl_put_right:Nn \l__py_user_code_tl {^^J\l__py_triple_quotes_tl, all_cells, python_state, pytex)}
+    \tl_put_right:Nn \l__py_user_code_tl {^^J\l__py_triple_quotes_tl, all_cells, python_state, pytex, r"""\l__texsync_pycell_source_file_tl""", \int_use:N \l__texsync_pycell_source_line_int)}
 
     % Replace real newlines with custom newline token
     \tl_replace_all:Nnn \l__py_user_code_tl {^^J} {\newline_other_cat}
@@ -1070,6 +1285,9 @@ save_cells_as_notebook(all_cells, pytex)
 %%% Environment: pycell - runs python code and prints verbatim
 %%% with line numbers
 %%% ----------------------------------------------------------------
+\tl_new:N \l__texsync_pycell_source_file_tl
+\int_new:N \l__texsync_pycell_source_line_int
+
 \keys_define:nn {pycell}
   {
     print .bool_set:N = \l__pycell_print_bool,
@@ -1078,15 +1296,19 @@ save_cells_as_notebook(all_cells, pytex)
 
 \NewDocumentEnvironment{pycell}{O{print=true} +c}
   {
+    % Capture source provenance before entering any \scantokens stream
+    \tl_set:Nx \l__texsync_pycell_source_file_tl {\currfilepath}
+    \int_set:Nn \l__texsync_pycell_source_line_int {\inputlineno}
+
     % Customize pythontex lengths to avoid too much white space around code cells
     \setlength{\topsep}{\parskip} % space above and below
     \setlength{\partopsep}{\parskip} % extra space at paragraph start
 
     % Ensure that output verification has been caried out for the previous cell
-    \pyc{assert~"cell_output"~not~in~python_state, f"""Missing~output~verification~for~cell~{all_cells[-1][1]}"""}
+    \pyc{assert~"cell_output"~not~in~python_state, f"""Missing~output~verification~for~cell~{all_cells[-1]["content"]}"""}
 
     % Ensure that figure verification has been caried out for the previous cell
-    \pyc{assert~"cell_figure_path"~not~in~python_state, f"""Missing~figure~verification~for~cell~{all_cells[-1][1]}"""}
+    \pyc{assert~"cell_figure_path"~not~in~python_state, f"""Missing~figure~verification~for~cell~{all_cells[-1]["content"]}"""}
 
     % Process the print argument
     \keys_set:nn {pycell} {#1}
@@ -1135,10 +1357,10 @@ save_cells_as_notebook(all_cells, pytex)
 \begin{pythontexcustomcode}[end]{py}
 if len(all_cells) > 0:
     # Ensure that output verification has been caried out for the last cell
-    assert "cell_output" not in python_state, f"""Missing output verification for cell {all_cells[-1][1]}"""
+    assert "cell_output" not in python_state, f"""Missing output verification for cell {all_cells[-1]["content"]}"""
 
     # Ensure that figure verification has been caried out for the last cell
-    assert "cell_figure_path" not in python_state, f"""Missing figure verification for cell {all_cells[-1][1]}"""
+    assert "cell_figure_path" not in python_state, f"""Missing figure verification for cell {all_cells[-1]["content"]}"""
 \end{pythontexcustomcode}
 
 \ExplSyntaxOn
@@ -1155,12 +1377,22 @@ if len(all_cells) > 0:
 
     % Replace \obeyedline with real newlines
     \tl_replace_all:Nnn \l__py_expected_tl {\obeyedline} {^^J}
+    % Preserve the expected output as metadata of the original preceding pycell
+    \exp_args:Nx \scantokens {
+      {
+        \begin_pycode \newline_other_cat
+        assert~all_cells~and~all_cells[-1]["type"]~==~"code" \newline_other_cat
+        all_cells[-1]["expected_output"]~=~r"""\l__py_expected_tl""" \newline_other_cat
+        \end_pycode \newline_other_cat
+      }
+    }
+
 
     % Compare against the actual output
     \exp_args:Nx \scantokens {
       {
         \begin_pycode \newline_other_cat
-        assert~cell_output~==~"""\l__py_expected_tl""", f"""Unexpected~output~{cell_output}~for~cell~{all_cells[-1][1]},~was~expecting~""" + """\l__py_expected_tl""" \newline_other_cat
+        assert~cell_output~==~"""\l__py_expected_tl""", f"""Unexpected~output~{cell_output}~for~cell~{all_cells[-1]["content"]},~was~expecting~""" + """\l__py_expected_tl""" \newline_other_cat
         \end_pycode \newline_other_cat
       }
     }
@@ -1179,6 +1411,16 @@ if len(all_cells) > 0:
   {
     % Store the expect figure path in a temporary variable
     \tl_set:Nn \l__py_expected_tl {#1}
+    % Preserve the expected figure as metadata of the original preceding pycell
+    \exp_args:Nx \scantokens {
+      {
+        \begin_pycode \newline_other_cat
+        assert~all_cells~and~all_cells[-1]["type"]~==~"code" \newline_other_cat
+        all_cells[-1]["expected_figure"]~=~r"""\l__py_expected_tl""" \newline_other_cat
+        \end_pycode \newline_other_cat
+      }
+    }
+
 
     % Compare against the actual figure
     \exp_args:Nx \scantokens {
@@ -1237,7 +1479,7 @@ if len(all_cells) > 0:
     \exp_args:Nx \scantokens {
       {
         \begin_pycode \newline_other_cat
-        all_cells.append(("markdown", r"""\l__md_input_tl""")) \newline_other_cat
+        texsync_append_source_cell(all_cells, "markdown", r"""\l__md_input_tl""", pytex, r"""\currfilepath""", \the\inputlineno) \newline_other_cat
         \end_pycode \newline_other_cat
       }
     }

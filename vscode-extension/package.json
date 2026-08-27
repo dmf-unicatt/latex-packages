@@ -1,0 +1,26 @@
+{
+  "name": "tex-notebook-sync",
+  "displayName": "TeX Notebook Sync",
+  "description": "Sync edits, additions and deletions from _texsync Jupyter notebooks back to their LaTeX source.",
+  "version": "0.0.1",
+  "publisher": "local",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dmf-unicatt/latex-packages.git",
+    "directory": "vscode-extension"
+  },
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onNotebook:jupyter-notebook"
+  ],
+  "main": "./extension.js",
+  "scripts": {
+    "test": "node test/test-sync-core.js"
+  }
+}

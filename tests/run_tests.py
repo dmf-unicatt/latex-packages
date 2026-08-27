@@ -312,6 +312,53 @@ def notebook_has_code_cells(nb: dict[str, typing.Any]) -> bool:
     return any(cell.get("cell_type") == "code" for cell in nb.get("cells", []))
 
 
+def strip_texsync_metadata(nb: dict[str, typing.Any]) -> dict[str, typing.Any]:
+    """
+    Remove tex-notebook synchronization metadata from a notebook dictionary.
+
+    All ordinary Jupyter metadata and notebook contents are preserved. Metadata
+    used only to enforce read-only virtual tex-notebook cells is also removed.
+
+    Parameters
+    ----------
+    nb
+        A notebook parsed from a .ipynb file using `json.load()`.
+
+    Returns
+    -------
+    dict
+        A copy of the notebook with tex-notebook synchronization information
+        removed.
+    """
+    nb = copy.deepcopy(nb)
+
+    metadata = nb.get("metadata")
+    if isinstance(metadata, dict):
+        metadata.pop("tex_notebook", None)
+
+    for cell in nb.get("cells", []):
+        metadata = cell.get("metadata")
+        if not isinstance(metadata, dict):
+            continue
+
+        texsync_metadata = metadata.get("tex_notebook")
+
+        if isinstance(texsync_metadata, dict):
+            # Virtual/generated cells are made read-only only in the texsync
+            # notebook. These restrictions must disappear when comparing with
+            # or producing the production notebook.
+            if (
+                texsync_metadata.get("read_only") is True
+                or texsync_metadata.get("tex_backed") is False
+            ):
+                metadata.pop("editable", None)
+                metadata.pop("deletable", None)
+
+        metadata.pop("tex_notebook", None)
+
+    return nb
+
+
 def remove_hidden_files_and_directories(directory: str) -> None:
     """
     Recursively delete all hidden files and directories (starting with '.').
@@ -853,6 +900,72 @@ def run_latex_tests(tex_tests: list[str], maxfail: int, regold: bool) -> None:
                     failure_counter += 1
                     continue
 
+                # Check that every *_texsync.ipynb notebook becomes exactly
+                # equal to its production notebook after removing only the
+                # tex-notebook synchronization metadata.
+                texsync_failures = []
+                generated_ipynbs_set = set(generated_ipynbs)
+
+                for texsync_ipynb in generated_ipynbs:
+                    suffix = "_texsync.ipynb"
+                    if not texsync_ipynb.endswith(suffix):
+                        continue
+
+                    production_ipynb = (
+                        texsync_ipynb[: -len(suffix)] + ".ipynb"
+                    )
+
+                    if production_ipynb not in generated_ipynbs_set:
+                        texsync_failures.append(
+                            f"Synchronization notebook "
+                            f"{os.path.join(test_dir, ipynb_dir, texsync_ipynb)} "
+                            "has no corresponding production notebook "
+                            f"{os.path.join(test_dir, ipynb_dir, production_ipynb)}."
+                        )
+                        continue
+
+                    with (
+                        open(
+                            os.path.join(
+                                test_dir, ipynb_dir, texsync_ipynb
+                            ),
+                            encoding="utf-8",
+                        ) as sync_f,
+                        open(
+                            os.path.join(
+                                test_dir, ipynb_dir, production_ipynb
+                            ),
+                            encoding="utf-8",
+                        ) as prod_f,
+                    ):
+                        sync_nb = json.load(sync_f)
+                        prod_nb = json.load(prod_f)
+
+                    stripped_sync_nb = strip_texsync_metadata(sync_nb)
+
+                    if stripped_sync_nb != prod_nb:
+                        texsync_failures.append(
+                            f"Synchronization notebook "
+                            f"{os.path.join(test_dir, ipynb_dir, texsync_ipynb)} "
+                            "does not match its production notebook "
+                            f"{os.path.join(test_dir, ipynb_dir, production_ipynb)} "
+                            "after removing tex-notebook metadata."
+                        )
+
+                if texsync_failures:
+                    print(
+                        f"{FAIL} - TeX sync notebook consistency check "
+                        "failed for the following reasons:\n"
+                        + "\n".join(texsync_failures)
+                    )
+                    print("stripped_sync_nb")
+                    print(stripped_sync_nb)
+                    print("prod_nb")
+                    print(prod_nb)
+                    failure_counter += 1
+                    continue
+
+                # Check that the expected notebooks match the generated ones
                 current_expected_ipynbs = [
                     f
                     for f in os.listdir(os.path.join(test_dir, "expected"))

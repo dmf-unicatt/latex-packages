@@ -12,6 +12,9 @@ First of all we define a list that will contain all codes we test, and the local
 \begin{pycell}
 all_codes = []
 local_variables = {}
+
+source_file = "test_call_code.tex"
+source_line = 1  # mock line
 \end{pycell}
 
 Then we run several tests.
@@ -25,12 +28,16 @@ y = 2
     all_codes,
     local_variables,
     pytex,  # ty: ignore[unresolved-reference]
+    source_file,
+    source_line,
 )
 assert len(all_codes) == 1
-assert len(all_codes[0]) == 2
-assert all_codes[0][0] == "code"
+assert all_codes[0]["source_file"] == source_file
+assert all_codes[0]["source_line"] == source_line
+assert all_codes[0]["tex_backed"] is True
+assert all_codes[0]["type"] == "code"
 assert (
-    all_codes[0][1]
+    all_codes[0]["content"]
     == """
 x = 1
 y = 2
@@ -54,21 +61,21 @@ z = 3; n = 4
     all_codes,
     local_variables,
     pytex,  # ty: ignore[unresolved-reference]
+    source_file,
+    source_line,
 )
 assert len(all_codes) == 2
-assert len(all_codes[0]) == 2
-assert all_codes[0][0] == "code"
+assert all_codes[0]["type"] == "code"
 assert (
-    all_codes[0][1]
+    all_codes[0]["content"]
     == """
 x = 1
 y = 2
 """
 )
-assert len(all_codes[1]) == 2
-assert all_codes[1][0] == "code"
+assert all_codes[1]["type"] == "code"
 assert (
-    all_codes[1][1]
+    all_codes[1]["content"]
     == """
 z = 3; n = 4
 """
@@ -95,6 +102,8 @@ print(x + y + z + n)
     all_codes,
     local_variables,
     pytex,  # ty: ignore[unresolved-reference]
+    source_file,
+    source_line,
 )
 assert cell_output == "10"
 \end{pycell}
@@ -107,6 +116,8 @@ x + y + z + n
     all_codes,
     local_variables,
     pytex,  # ty: ignore[unresolved-reference]
+    source_file,
+    source_line,
 )
 assert cell_output == "10"
 \end{pycell}
@@ -120,6 +131,8 @@ x + y + z + n + 2
     all_codes,
     local_variables,
     pytex,  # ty: ignore[unresolved-reference]
+    source_file,
+    source_line,
 )
 assert cell_output == "11\n12"
 \end{pycell}
@@ -133,6 +146,8 @@ y = "two two"
     all_codes,
     local_variables,
     pytex,  # ty: ignore[unresolved-reference]
+    source_file,
+    source_line,
 )
 assert cell_output == ""
 \end{pycell}
@@ -145,6 +160,8 @@ z = "three THREE_Three"; n = "FoUr_four quattro_cuatro"
     all_codes,
     local_variables,
     pytex,  # ty: ignore[unresolved-reference]
+    source_file,
+    source_line,
 )
 assert cell_output == ""
 \end{pycell}
@@ -157,6 +174,8 @@ cell_output, _ = call_code(  # ty: ignore[unresolved-reference]
     all_codes,
     local_variables,
     pytex,  # ty: ignore[unresolved-reference]
+    source_file,
+    source_line,
 )
 assert cell_output == (
     "'one two two three THREE_Three FoUr_four quattro_cuatro'"
@@ -172,6 +191,8 @@ print(" ".join([z, n]))
     all_codes,
     local_variables,
     pytex,  # ty: ignore[unresolved-reference]
+    source_file,
+    source_line,
 )
 assert cell_output == (
     "one two two\nthree THREE_Three FoUr_four quattro_cuatro"
@@ -187,6 +208,8 @@ raise RuntimeError("a runtime error")
         all_codes,
         local_variables,
         pytex,  # ty: ignore[unresolved-reference]
+        source_file,
+        source_line,
     )
 except RuntimeError as e:
     assert str(e) == "a runtime error"
@@ -204,6 +227,8 @@ fig
     all_codes,
     local_variables,
     pytex,  # ty: ignore[unresolved-reference]
+    source_file,
+    source_line,
 )
 assert cell_output == ""
 assert cell_figure_path == (
@@ -220,23 +245,33 @@ original_save_cells_as_notebook = save_cells_as_notebook  # ty: ignore[unresolve
 
 
 def save_cells_as_notebook(
-    all_cells: list[tuple[str, str]],
+    all_cells: list[dict[str, typing.Any]],
     pytex: typing.Any,  # noqa: ANN401
 ) -> None:
     """Write a mock notebook instead of the actual one."""
-    return original_save_cells_as_notebook(
-        [
-            ("markdown", "This notebook was disabled"),
-            (
-                "code",
-                """
+    mock_cells = []
+
+    texsync_append_generated_cell(  # ty: ignore[unresolved-reference]
+        mock_cells,
+        "markdown",
+        "This notebook was disabled",
+        pytex,
+        "test_call_code.tex",
+        1,
+    )
+    texsync_append_generated_cell(  # ty: ignore[unresolved-reference]
+        mock_cells,
+        "code",
+        """
 # fmt: off
 print('This notebook was disabled')  # noqa: Q000
 # fmt: on""",
-            ),
-        ],
         pytex,
+        "test_call_code.tex",
+        1,
     )
+
+    return original_save_cells_as_notebook(mock_cells, pytex)
 \end{pycell}
 
 \end{document}

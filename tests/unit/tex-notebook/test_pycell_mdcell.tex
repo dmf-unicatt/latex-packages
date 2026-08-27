@@ -688,26 +688,26 @@ import typing
 
 original_save_cells_as_notebook = save_cells_as_notebook  # ty: ignore[unresolved-reference]
 
-
 def save_cells_as_notebook(
-    all_cells: list[tuple[str, str]],
+    all_cells: list[dict[str, typing.Any]],
     pytex: typing.Any,  # noqa: ANN401
 ) -> None:
     """Disable code cells containing pytex or fig_path."""
     modified_all_cells = []
     for cell in all_cells:
-        if cell[0] == "markdown":
+        if cell["type"] == "markdown":
             modified_all_cells.append(cell)
         else:
-            assert cell[0] == "code"
-            if "pytex" in cell[1]:
+            assert cell["type"] == "code"
+
+            if "pytex" in cell["content"]:
                 code = """
 # fmt: off
 print(
     'This cell was disabled because it contains the command pytex'  # noqa: Q000
 )
 # fmt: on"""
-            elif "fig_path" in cell[1]:
+            elif "fig_path" in cell["content"]:
                 code = """
 # fmt: off
 print(
@@ -715,8 +715,12 @@ print(
 )
 # fmt: on"""  # noqa: E501
             else:
-                code = cell[1]
-            modified_all_cells.append(("code", code))
+                code = cell["content"]
+
+            modified_cell = cell.copy()
+            modified_cell["content"] = code
+            modified_all_cells.append(modified_cell)
+
     return original_save_cells_as_notebook(modified_all_cells, pytex)
 \end{pycell}
 

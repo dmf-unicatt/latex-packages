@@ -500,28 +500,28 @@ and `\ref{...}`{=tex} commands.
        ↪→ ignore[unresolved-reference]
 169
 
-170
+170   def save_cells_as_notebook(
+171       all_cells: list[dict[str, typing.Any]],
+172       pytex: typing.Any, # noqa: ANN401
+173   ) -> None:
+174       """Disable code cells containing pytex or fig_path."""
+175       modified_all_cells = []
+176       for cell in all_cells:
+177           if cell["type"] == "markdown":
+178               modified_all_cells.append(cell)
+179           else:
+180               assert cell["type"] == "code"
+181
 
-171   def save_cells_as_notebook(
-172       all_cells: list[tuple[str, str]],
-173       pytex: typing.Any, # noqa: ANN401
-174   ) -> None:
-175       """Disable code cells containing pytex or fig_path."""
-176       modified_all_cells = []
-177       for cell in all_cells:
-178           if cell[0] == "markdown":
-179               modified_all_cells.append(cell)
-180           else:
-181               assert cell[0] == "code"
-182               if "pytex" in cell[1]:
-183                   code = """
+182                 if "pytex" in cell["content"]:
+183                     code = """
 184   # fmt: off
 185   print(
 186       'This cell was disabled because it contains the command
            ↪→ pytex' # noqa: Q000
 187   )
 188   # fmt: on"""
-189               elif "fig_path" in cell[1]:
+189               elif "fig_path" in cell["content"]:
 190                   code = """
 191   # fmt: off
 192   print(
@@ -530,8 +530,14 @@ and `\ref{...}`{=tex} commands.
 194   )
 195   # fmt: on""" # noqa: E501
 196               else:
-197                   code = cell[1]
-198               modified_all_cells.append(("code", code))
-199       return original_save_cells_as_notebook(modified_all_cells,
-           ↪→ pytex)
+197                   code = cell["content"]
+198
+
+199                 modified_cell = cell.copy()
+200                 modified_cell["content"] = code
+201          modified_all_cells.append(modified_cell)
+202
+
+203   return original_save_cells_as_notebook(modified_all_cells,
+       ↪→ pytex)
 

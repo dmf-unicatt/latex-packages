@@ -93,6 +93,10 @@ RUN export PIP_BREAK_SYSTEM_PACKAGES=1 && \
         python3 -m pip install --no-cache-dir ImageHash kaleido nbdime nbval pandas pillow plotly sympy; \
     fi
 
+# Set Plotly's MathJax default to the CDN used by Plotly itself
+COPY patches/plotly/set_mathjax_default.py /tmp/set_mathjax_default.py
+RUN python3 /tmp/set_mathjax_default.py && rm /tmp/set_mathjax_default.py
+
 # Install chromium (in debian) or chrome (in ubuntu) for kaleido
 RUN apt update -y -q && \
     # Determine the base image and install the appropriate browser:

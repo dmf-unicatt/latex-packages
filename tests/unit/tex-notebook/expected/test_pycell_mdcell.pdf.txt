@@ -196,8 +196,8 @@
 76           ticktext=xlabels,
 77       ),
 78   )
-79   del fig # fails with kaleido>=1, incorrect x axis
-Chapter 5
+79   fig
+Chapter 5
 
 Interacting with the outer
 document

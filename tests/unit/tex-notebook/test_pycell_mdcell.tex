@@ -285,9 +285,9 @@ fig.update_layout(
         ticktext=xlabels,
     ),
 )
-del fig  # fails with kaleido>=1, incorrect x axis
+fig
 \end{pycell}
-% \pyexpectedfigure{images/scatter_html_latex_labels_swapped.png}
+\pyexpectedfigure{images/scatter_html_latex_labels_swapped.png}
 
 \chapter{Interacting with the outer document}
 

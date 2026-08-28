@@ -86,10 +86,7 @@ def run_command(
         A tuple ``(returncode, stdout, stderr)`` with decoded strings.
     """
     result = subprocess.run(
-        command,
-        input=stdin_text,
-        capture_output=True,
-        text=True,
+        command, input=stdin_text, capture_output=True, text=True
     )
     return result.returncode, result.stdout, result.stderr
 
@@ -266,13 +263,7 @@ def format_pycell_code(
     RuntimeError
         If the ``ruff format`` invocation returns a non-zero exit code.
     """
-    command = [
-        ruff_bin,
-        "format",
-        "--stdin-filename",
-        str(source_path),
-        "-",
-    ]
+    command = [ruff_bin, "format", "--stdin-filename", str(source_path), "-"]
     ret, out, err = run_command(command, stdin_text=code)
     if ret != 0:
         raise RuntimeError(
@@ -540,11 +531,7 @@ def lint_tex_files(
                 ]
                 if unsafe_fixes:
                     fix_cmd.append("--unsafe-fixes")
-                fix_cmd += [
-                    "--stdin-filename",
-                    str(extraction.path),
-                    "-",
-                ]
+                fix_cmd += ["--stdin-filename", str(extraction.path), "-"]
 
                 fret, fout, ferr = run_command(fix_cmd, stdin_text=wrapper_text)
                 if fret not in (0, 1):
@@ -716,10 +703,7 @@ def ty_check_tex_files(
 
         py_content = extract_python_for_lint(extraction)
         with tempfile.NamedTemporaryFile(
-            mode="w",
-            suffix=".py",
-            delete=False,
-            encoding="utf-8",
+            mode="w", suffix=".py", delete=False, encoding="utf-8"
         ) as tmpf:
             tmpf.write(py_content)
             tmp_path = pathlib.Path(tmpf.name)
@@ -925,9 +909,7 @@ def main() -> int:
         if args.ty_command == "check":
             ty_args = normalize_ruff_args(args.ty_args)
             return ty_check_tex_files(
-                extractions,
-                ty_bin=args.ty_bin,
-                extra_args=ty_args,
+                extractions, ty_bin=args.ty_bin, extra_args=ty_args
             )
 
         parser.error(f"Unsupported ty command: {args.ty_command}")

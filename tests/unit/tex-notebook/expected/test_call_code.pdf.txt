@@ -239,15 +239,14 @@
            ↪→ ignore[unresolved-reference]
 211           mock_cells,
 212           "code",
-213           """
-214   # fmt: off
-215   print('This notebook was disabled') # noqa: Q000
-216   # fmt: on""",
-217           pytex,
-218           "test_call_code.tex",
-219           1,
-220       )
-221
+213           """# fmt: off
+214   print('This notebook was disabled') # noqa: Q000
+215   # fmt: on""",
+216           pytex,
+217           "test_call_code.tex",
+218           1,
+219       )
+220
 
-222       return original_save_cells_as_notebook(mock_cells, pytex)
+221       return original_save_cells_as_notebook(mock_cells, pytex)
 

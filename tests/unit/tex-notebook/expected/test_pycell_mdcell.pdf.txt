@@ -500,44 +500,46 @@ and `\ref{...}`{=tex} commands.
        ↪→ ignore[unresolved-reference]
 169
 
-170   def save_cells_as_notebook(
-171       all_cells: list[dict[str, typing.Any]],
-172       pytex: typing.Any, # noqa: ANN401
-173   ) -> None:
-174       """Disable code cells containing pytex or fig_path."""
-175       modified_all_cells = []
-176       for cell in all_cells:
-177           if cell["type"] == "markdown":
-178               modified_all_cells.append(cell)
-179           else:
-180               assert cell["type"] == "code"
-181
+170
 
-182                 if "pytex" in cell["content"]:
-183                     code = """
-184   # fmt: off
-185   print(
-186       'This cell was disabled because it contains the command
+171   def save_cells_as_notebook(
+172       all_cells: list[dict[str, typing.Any]],
+173       pytex: typing.Any, # noqa: ANN401
+174   ) -> None:
+175       """Disable code cells containing pytex or fig_path."""
+176       modified_all_cells = []
+177       for cell in all_cells:
+178           if cell["type"] == "markdown":
+179               modified_all_cells.append(cell)
+180           else:
+181               assert cell["type"] == "code"
+182
+
+183                 if "pytex" in cell["content"]:
+184                     code = """
+185   # fmt: off
+186   print(
+187       'This cell was disabled because it contains the command
            ↪→ pytex' # noqa: Q000
-187   )
-188   # fmt: on"""
-189               elif "fig_path" in cell["content"]:
-190                   code = """
-191   # fmt: off
-192   print(
-193       'This cell was disabled because it contains the variable
+188   )
+189   # fmt: on"""
+190               elif "fig_path" in cell["content"]:
+191                   code = """
+192   # fmt: off
+193   print(
+194       'This cell was disabled because it contains the variable
            ↪→ fig_path' # noqa: Q000
-194   )
-195   # fmt: on""" # noqa: E501
-196               else:
-197                   code = cell["content"]
-198
+195   )
+196   # fmt: on""" # noqa: E501
+197               else:
+198                   code = cell["content"]
+199
 
-199                 modified_cell = cell.copy()
-200                 modified_cell["content"] = code
-201          modified_all_cells.append(modified_cell)
-202
+200                 modified_cell = cell.copy()
+201          modified_cell["content"] = code
+202          modified_all_cells.append(modified_cell)
+203
 
-203   return original_save_cells_as_notebook(modified_all_cells,
+204   return original_save_cells_as_notebook(modified_all_cells,
        ↪→ pytex)
 

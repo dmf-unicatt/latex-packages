@@ -2,11 +2,17 @@
 line-length = 80
 target-version = "py312"
 
+[tool.ruff.format]
+skip-magic-trailing-comma = true
+
 [tool.ruff.lint]
 select = [
     "ANN", "D", "E", "F", "FLY", "I", "ICN", "N", "Q", "RUF", "UP", "W"
 ]
 ignore = []
+
+[tool.ruff.lint.isort]
+split-on-trailing-comma = false
 
 [tool.ruff.lint.per-file-ignores]
 "tests/unit/tex-notebook/test_call_code.tex" = ["F821"]

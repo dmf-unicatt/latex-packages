@@ -605,8 +605,7 @@ def run_latex_tests(tex_tests: list[str], maxfail: int, regold: bool) -> None:
         requires = []
         if os.path.exists(os.path.join(test_dir, base + ".requires")):
             with open(
-                os.path.join(test_dir, base + ".requires"),
-                encoding="utf-8",
+                os.path.join(test_dir, base + ".requires"), encoding="utf-8"
             ) as f:
                 for line in f:
                     require_tex_relative = line.strip()
@@ -653,8 +652,7 @@ def run_latex_tests(tex_tests: list[str], maxfail: int, regold: bool) -> None:
             expected_err_txt = os.path.join("expected", base + ".err.txt")
             if os.path.exists(os.path.join(test_dir, expected_err_txt)):
                 with open(
-                    os.path.join(test_dir, expected_err_txt),
-                    encoding="utf-8",
+                    os.path.join(test_dir, expected_err_txt), encoding="utf-8"
                 ) as exp_f:
                     expected_lines = [
                         line.strip() for line in exp_f if line.strip()
@@ -747,8 +745,7 @@ def run_latex_tests(tex_tests: list[str], maxfail: int, regold: bool) -> None:
             if os.path.exists(os.path.join(test_dir, expected_txt)):
                 with (
                     open(
-                        os.path.join(test_dir, expected_txt),
-                        encoding="utf-8",
+                        os.path.join(test_dir, expected_txt), encoding="utf-8"
                     ) as exp_f,
                     open(
                         os.path.join(test_dir, out_txt), encoding="utf-8"
@@ -911,30 +908,27 @@ def run_latex_tests(tex_tests: list[str], maxfail: int, regold: bool) -> None:
                     if not texsync_ipynb.endswith(suffix):
                         continue
 
-                    production_ipynb = (
-                        texsync_ipynb[: -len(suffix)] + ".ipynb"
-                    )
+                    production_ipynb = texsync_ipynb[: -len(suffix)] + ".ipynb"
 
                     if production_ipynb not in generated_ipynbs_set:
                         texsync_failures.append(
-                            f"Synchronization notebook "
-                            f"{os.path.join(test_dir, ipynb_dir, texsync_ipynb)} "
-                            "has no corresponding production notebook "
-                            f"{os.path.join(test_dir, ipynb_dir, production_ipynb)}."
+                            "Synchronization notebook "
+                            + os.path.join(test_dir, ipynb_dir, texsync_ipynb)
+                            + " has no corresponding production notebook "
+                            + os.path.join(
+                                test_dir, ipynb_dir, production_ipynb
+                            )
+                            + "."
                         )
                         continue
 
                     with (
                         open(
-                            os.path.join(
-                                test_dir, ipynb_dir, texsync_ipynb
-                            ),
+                            os.path.join(test_dir, ipynb_dir, texsync_ipynb),
                             encoding="utf-8",
                         ) as sync_f,
                         open(
-                            os.path.join(
-                                test_dir, ipynb_dir, production_ipynb
-                            ),
+                            os.path.join(test_dir, ipynb_dir, production_ipynb),
                             encoding="utf-8",
                         ) as prod_f,
                     ):
@@ -945,11 +939,13 @@ def run_latex_tests(tex_tests: list[str], maxfail: int, regold: bool) -> None:
 
                     if stripped_sync_nb != prod_nb:
                         texsync_failures.append(
-                            f"Synchronization notebook "
-                            f"{os.path.join(test_dir, ipynb_dir, texsync_ipynb)} "
-                            "does not match its production notebook "
-                            f"{os.path.join(test_dir, ipynb_dir, production_ipynb)} "
-                            "after removing tex-notebook metadata."
+                            "Synchronization notebook "
+                            + os.path.join(test_dir, ipynb_dir, texsync_ipynb)
+                            + " does not match its production notebook "
+                            + os.path.join(
+                                test_dir, ipynb_dir, production_ipynb
+                            )
+                            + " after removing tex-notebook metadata."
                         )
 
                 if texsync_failures:

@@ -262,8 +262,7 @@ def save_cells_as_notebook(
     texsync_append_generated_cell(  # ty: ignore[unresolved-reference]
         mock_cells,
         "code",
-        """
-# fmt: off
+        """# fmt: off
 print('This notebook was disabled')  # noqa: Q000
 # fmt: on""",
         pytex,

@@ -36,8 +36,16 @@ jobs:
           - base-image: debian:testing
             tag-name: debian-testing
             expected-texlive-version: "2026.20260711-2"
+          - base-image: debian:testing
+            apt-python-packages: "true"
+            tag-name: debian-testing-no-pip
+            expected-texlive-version: "2026.20260711-2"
           - base-image: debian:unstable
             tag-name: debian-unstable
+            expected-texlive-version: "2026.20260711-2"
+          - base-image: debian:unstable
+            apt-python-packages: "true"
+            tag-name: debian-unstable-no-pip
             expected-texlive-version: "2026.20260711-2"
       fail-fast: false
     runs-on: ubuntu-latest
@@ -50,7 +58,7 @@ jobs:
         run: |
           BASE_IMAGE="${{ matrix.base-image }}"
           TAG_NAME="${{ matrix.tag-name }}"
-          docker build --build-arg BASE_IMAGE=${BASE_IMAGE} -t ghcr.io/dmf-unicatt/latex-packages:latest-${TAG_NAME} .
+          docker build --build-arg BASE_IMAGE=${BASE_IMAGE} --build-arg APT_PYTHON_PACKAGES=${{ matrix.apt-python-packages }} -t ghcr.io/dmf-unicatt/latex-packages:latest-${TAG_NAME} .
       - name: Check texlive-base version
         run: |
           TAG_NAME="${{ matrix.tag-name }}"

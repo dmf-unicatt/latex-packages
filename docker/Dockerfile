@@ -1,12 +1,18 @@
-# Define a build argument with a default base image
+# Define the default base image
+# NOTE: build arguments used by FROM must be declared before FROM
 ARG BASE_IMAGE=debian:testing
 
 # Use the base image from the build argument
 FROM ${BASE_IMAGE}
 
-# Set the base image as environment variable for later use in RUN steps
+# Define the default value for the APT_PYTHON_PACKAGES build argument
+# which controls whether to install Python packages via apt (if true)
+# or pip (if false, default).
+# NOTE: Build arguments used inside this build stage must be declared after FROM
+#       We duplicate the BASE_IMAGE argument here to ensure it is available
+#       in the build stage, and not just in the FROM instruction.
 ARG BASE_IMAGE
-ENV BASE_IMAGE=${BASE_IMAGE}
+ARG APT_PYTHON_PACKAGES=false
 
 # Set environment variable to avoid interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
@@ -38,8 +44,13 @@ RUN apt update -y -q && \
     apt install -y -qq --no-install-recommends latexmk poppler-utils && \
     # Install fonts for plotly
     apt install -y -qq --no-install-recommends fonts-noto && \
-    # Install required Python packages via apt
-    apt install -y -qq --no-install-recommends python-is-python3 python3-mpi4py python3-pip python3-pygments && \
+    # Install required Python packages via apt. Note that python3-pygments
+    # is required by PythonTeX, hence it is installed via apt regardless
+    # of the APT_PYTHON_PACKAGES value.
+    apt install -y -qq --no-install-recommends python-is-python3 python3-pip python3-pygments && \
+    if [ "$APT_PYTHON_PACKAGES" = "true" ]; then \
+        apt install -y -qq --no-install-recommends python3-imagehash python3-nbval python3-pandas python3-pil python3-sympy; \
+    fi && \
     # Clean cache
     apt clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -73,10 +84,14 @@ RUN patch -p0 < /tmp/drop_tikz_semicolons.patch && rm /tmp/drop_tikz_semicolons.
 # Update LuaTeX font database
 RUN luaotfload-tool -u
 
-# Install required Python packages via pip
+# Install required Python packages via pip. For APT_PYTHON_PACKAGES=true,
+# use pip only for packages that are unavailable or too old in Debian.
 RUN export PIP_BREAK_SYSTEM_PACKAGES=1 && \
-    python3 -m pip install --no-cache-dir ImageHash nbdime nbval pandas pillow sympy && \
-    python3 -m pip install --no-cache-dir kaleido plotly
+    if [ "$APT_PYTHON_PACKAGES" = "true" ]; then \
+        python3 -m pip install --no-cache-dir nbdime kaleido plotly; \
+    else \
+        python3 -m pip install --no-cache-dir ImageHash kaleido nbdime nbval pandas pillow plotly sympy; \
+    fi
 
 # Install chromium (in debian) or chrome (in ubuntu) for kaleido
 RUN apt update -y -q && \

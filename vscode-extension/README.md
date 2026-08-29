@@ -67,7 +67,14 @@ The source bundle includes tests for:
 - XSIM provenance integration anchors for exercise, solution, and additional-information replay;
 - commented-out fake cells and fake parent environments;
 - `comment`, `verbatim`, `Verbatim`, `lstlisting`, and `minted` regions containing cell-like text;
-- metadata stripping.
+- metadata stripping;
+- stale in-memory/workspace manifest recovery from current notebook metadata;
+- informative unknown-sync-ID diagnostics, including 1-based global cell index, cell type, source preview, and offending sync ID;
+- production-notebook to `_texsync.ipynb` companion filename mapping;
+- local cell-spacing normalization after modify/add/delete/move operations;
+- exactly one blank line at touched `mdcell` / `pycell` boundaries;
+- no blank line between a touched `pycell` and its `pyexpectedoutput` / `\pyexpectedfigure` trailers;
+- preservation of pre-existing non-canonical spacing at unrelated, untouched cell boundaries.
 
 Run them from the source directory with:
 

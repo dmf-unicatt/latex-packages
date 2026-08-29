@@ -127,6 +127,152 @@ C
   assert.strictEqual(out.summary.deleted, 1);
 })();
 
+(function testDeletionLeavesExactlyOneBlankLineBetweenCells() {
+  const tex = String.raw`\begin{pycell}
+import plotly.subplots
+\end{pycell}
+
+\begin{pycell}
+jax.config.update("jax_enable_x64", True)
+\end{pycell}
+
+\begin{mdcell}[print=false]
+## Homework $\gamma$.1
+\end{mdcell}`;
+  const root = {
+    schema_version: 1,
+    source_file: 'homework_gamma.tex',
+    cells: [
+      manifestCell('a', 'code', 'import plotly.subplots'),
+      manifestCell('b', 'code', 'jax.config.update("jax_enable_x64", True)'),
+      manifestCell('c', 'markdown', '## Homework $\\gamma$.1'),
+    ],
+  };
+  const out = syncNotebookToTex(tex, root, [
+    { kind: 'code', source: 'import plotly.subplots', sync_id: 'a' },
+    { kind: 'markdown', source: '## Homework $\\gamma$.1', sync_id: 'c' },
+  ]);
+  assert.strictEqual(out.newText, String.raw`\begin{pycell}
+import plotly.subplots
+\end{pycell}
+
+\begin{mdcell}[print=false]
+## Homework $\gamma$.1
+\end{mdcell}`);
+})();
+
+(function testInsertionUsesExactlyOneBlankLineBetweenCells() {
+  const tex = String.raw`\begin{mdcell}
+A
+\end{mdcell}
+
+\begin{mdcell}
+B
+\end{mdcell}`;
+  const root = {
+    schema_version: 1,
+    source_file: 'a.tex',
+    cells: [manifestCell('a', 'markdown', 'A'), manifestCell('b', 'markdown', 'B')],
+  };
+  const out = syncNotebookToTex(tex, root, [
+    { kind: 'markdown', source: 'A', sync_id: 'a' },
+    { kind: 'code', source: 'x = 1', sync_id: null },
+    { kind: 'markdown', source: 'B', sync_id: 'b' },
+  ]);
+  assert.strictEqual(out.newText, String.raw`\begin{mdcell}
+A
+\end{mdcell}
+
+\begin{pycell}
+x = 1
+\end{pycell}
+
+\begin{mdcell}
+B
+\end{mdcell}`);
+})();
+
+(function testExpectedTrailersHaveNoBlankLineFromOwningPycell() {
+  const tex = String.raw`\begin{pycell}
+print(1)
+\end{pycell}
+
+\begin{pyexpectedoutput}
+1
+\end{pyexpectedoutput}
+
+\pyexpectedfigure{fig.png}
+
+\begin{mdcell}
+B
+\end{mdcell}`;
+  const root = {
+    schema_version: 1,
+    source_file: 'a.tex',
+    cells: [
+      manifestCell('a', 'code', 'print(1)', 'print(1)', {
+        expected_output: '1',
+        expected_figure: 'fig.png',
+      }),
+      manifestCell('b', 'markdown', 'B'),
+    ],
+  };
+  const out = syncNotebookToTex(tex, root, [
+    { kind: 'code', source: 'print(1)  # changed', sync_id: 'a' },
+    { kind: 'markdown', source: 'B', sync_id: 'b' },
+  ]);
+  assert.strictEqual(out.newText, String.raw`\begin{pycell}
+print(1)  # changed
+\end{pycell}
+\begin{pyexpectedoutput}
+1
+\end{pyexpectedoutput}
+\pyexpectedfigure{fig.png}
+
+\begin{mdcell}
+B
+\end{mdcell}`);
+})();
+
+(function testUntouchedNonCanonicalCellSpacingIsPreserved() {
+  const tex = String.raw`\begin{mdcell}
+A
+\end{mdcell}
+
+
+
+\begin{mdcell}
+B
+\end{mdcell}
+\begin{pycell}
+print(1)
+\end{pycell}
+
+\begin{pyexpectedoutput}
+1
+\end{pyexpectedoutput}`;
+  const root = {
+    schema_version: 1,
+    source_file: 'a.tex',
+    cells: [
+      manifestCell('a', 'markdown', 'A'),
+      manifestCell('b', 'markdown', 'B'),
+      manifestCell('c', 'code', 'print(1)', 'print(1)', { expected_output: '1' }),
+    ],
+  };
+  const out = syncNotebookToTex(tex, root, [
+    { kind: 'markdown', source: 'A changed', sync_id: 'a' },
+    { kind: 'markdown', source: 'B', sync_id: 'b' },
+    { kind: 'code', source: 'print(1)', sync_id: 'c' },
+  ]);
+
+  // A was modified, so its boundary with B is normalized to one blank line.
+  assert(out.newText.includes('\\end{mdcell}\n\n\\begin{mdcell}\nB'));
+  // C was untouched, so its pre-existing blank line before pyexpectedoutput
+  // remains unchanged even though it violates the preferred convention.
+  assert(out.newText.includes('print(1)\n\\end{pycell}\n\n\\begin{pyexpectedoutput}'));
+})();
+
 (function testReferenceRestoration() {
   const original = 'See `\\eqref{eq:a}`{=tex} for details.';
   const generated = 'See (12) for details.';

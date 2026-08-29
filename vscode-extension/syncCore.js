@@ -588,6 +588,73 @@ function sameParent(blocks) {
   return blocks.every(b => b.parent && b.parent.beginStart === p.beginStart && b.parent.name === p.name);
 }
 
+function locateManifestWindowNear(texText, manifestRoot, anchorStart) {
+  const cells = parseCells(texText);
+  const manifest = (manifestRoot.cells || []).filter(isTexBackedManifestCell);
+  if (!manifest.length) return [];
+
+  const candidates = [];
+  for (let start = 0; start + manifest.length <= cells.length; ++start) {
+    let ok = true;
+    for (let j = 0; j < manifest.length; ++j) {
+      if (!cellMatchesManifest(cells[start + j], manifest[j])) {
+        ok = false;
+        break;
+      }
+    }
+    if (ok) candidates.push(start);
+  }
+  if (!candidates.length) {
+    throw new SyncError('Internal sync error while locating edited cells for whitespace normalization.');
+  }
+  if (candidates.length === 1 || anchorStart === null || anchorStart === undefined) {
+    return cells.slice(candidates[0], candidates[0] + manifest.length);
+  }
+  candidates.sort((a, b) => Math.abs(cells[a].start - anchorStart) - Math.abs(cells[b].start - anchorStart));
+  return cells.slice(candidates[0], candidates[0] + manifest.length);
+}
+
+function canonicalizeTouchedCellSpacing(texText, manifestRoot, touchedIds, newline, anchorStart) {
+  if (!touchedIds.size) return texText;
+  const manifest = (manifestRoot.cells || []).filter(isTexBackedManifestCell);
+  if (!manifest.length) return texText;
+  const cells = locateManifestWindowNear(texText, manifestRoot, anchorStart);
+  const operations = [];
+
+  // Normalize pyexpected* spacing only when its owning pycell was touched.
+  // Pre-existing formatting of untouched pycells is deliberately preserved.
+  for (let i = 0; i < cells.length; ++i) {
+    const cell = cells[i];
+    if (!touchedIds.has(manifest[i].sync_id) || cell.env !== 'pycell' || !cell.trailers.length) continue;
+    let previousEnd = cell.endEnd;
+    for (const trailer of cell.trailers) {
+      const gap = texText.slice(previousEnd, trailer.start);
+      if (/^\s*$/.test(gap) && gap !== newline) {
+        operations.push({ start: previousEnd, end: trailer.start, text: newline });
+      }
+      previousEnd = trailer.end;
+    }
+  }
+
+  // Normalize only boundaries touched by the current edit. This includes a
+  // modified/added/moved cell and a newly-created boundary after deletion.
+  // Unrelated pre-existing cell spacing is left byte-for-byte unchanged.
+  for (let i = 1; i < cells.length; ++i) {
+    const previousId = manifest[i - 1].sync_id;
+    const currentId = manifest[i].sync_id;
+    if (!touchedIds.has(previousId) && !touchedIds.has(currentId)) continue;
+    const previous = cells[i - 1];
+    const current = cells[i];
+    const gap = texText.slice(previous.bundleEnd, current.start);
+    const wanted = newline + newline;
+    if (/^\s*$/.test(gap) && gap !== wanted) {
+      operations.push({ start: previous.bundleEnd, end: current.start, text: wanted });
+    }
+  }
+
+  return operations.length ? applyOperations(texText, operations) : texText;
+}
+
 function onlyTriviaBetween(texText, blocks) {
   for (let i = 1; i < blocks.length; ++i) {
     const gap = texText.slice(blocks[i - 1].bundleEnd, blocks[i].start);
@@ -765,6 +832,35 @@ function syncNotebookToTex(texText, manifestRoot, liveCells) {
     if (!syncId) syncId = makeSyncId(manifestRoot.source_file || '', cell.index, cell.kind, cell.source);
     return { ...cell, sync_id: syncId, old, texSource, refReplacements: refs };
   });
+
+  // Track only cells/boundaries affected by this sync. Existing unrelated
+  // whitespace is intentionally not reformatted.
+  const spacingTouchedIds = new Set();
+  for (const cell of prepared) {
+    if (!cell.old) {
+      spacingTouchedIds.add(cell.sync_id);
+    } else if (isTexBackedManifestCell(cell.old.manifest) && cell.source !== cell.old.manifest.generated_source) {
+      spacingTouchedIds.add(cell.sync_id);
+    }
+  }
+  const finalTexOrder = prepared
+    .filter(c => !c.old || isTexBackedManifestCell(c.old.manifest))
+    .map(c => c.sync_id);
+  const finalTexIndex = new Map(finalTexOrder.map((id, index) => [id, index]));
+  const oldTexIndex = new Map(oldTexOrder.map((id, index) => [id, index]));
+  for (const id of finalTexOrder) {
+    if (!oldTexIndex.has(id)) continue;
+    const oi = oldTexIndex.get(id);
+    const ni = finalTexIndex.get(id);
+    const oldPrevious = oi > 0 ? oldTexOrder[oi - 1] : null;
+    const oldNext = oi + 1 < oldTexOrder.length ? oldTexOrder[oi + 1] : null;
+    const newPrevious = ni > 0 ? finalTexOrder[ni - 1] : null;
+    const newNext = ni + 1 < finalTexOrder.length ? finalTexOrder[ni + 1] : null;
+    if (oldPrevious !== newPrevious || oldNext !== newNext) spacingTouchedIds.add(id);
+  }
+  const spacingAnchorStart = located.window.length
+    ? located.window[0].start
+    : locateEmptyRegionAnchor(texText, manifestRoot.empty_region_anchor);
 
   let newText;
   if (reordered) {
@@ -988,6 +1084,10 @@ function syncNotebookToTex(texText, manifestRoot, liveCells) {
     };
   });
   const freshRoot = { ...manifestRoot, cells: freshCells };
+
+  newText = canonicalizeTouchedCellSpacing(
+    newText, freshRoot, spacingTouchedIds, newline, spacingAnchorStart,
+  );
 
   const freshTexCells = freshCells.filter(isTexBackedManifestCell);
   if (freshTexCells.length) {

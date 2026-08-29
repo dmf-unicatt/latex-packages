@@ -15,6 +15,11 @@ function texSyncCompanionPath(filePath) {
   return filePath.slice(0, -'.ipynb'.length) + TEXSYNC_NOTEBOOK_SUFFIX;
 }
 
+function conflictPatchPath(filePath) {
+  if (!isTexSyncNotebookPath(filePath)) return null;
+  return filePath.slice(0, -'.ipynb'.length) + '.conflict.patch';
+}
+
 class SyncError extends Error {
   constructor(message) {
     super(message);
@@ -1147,6 +1152,213 @@ function minimalReplacement(oldText, newText) {
   return { start, oldEnd, text: newText.slice(start, newEnd) };
 }
 
+
+function splitLinesForDiff(text) {
+  const normalized = String(text).replace(/\r\n/g, '\n');
+  const endsWithNewline = normalized.endsWith('\n');
+  if (!normalized) return { lines: [], endsWithNewline: false };
+  const lines = normalized.split('\n');
+  if (endsWithNewline) lines.pop();
+  return { lines, endsWithNewline };
+}
+
+function myersLineDiff(oldLines, newLines) {
+  const n = oldLines.length;
+  const m = newLines.length;
+  const max = n + m;
+  let frontier = new Map([[1, 0]]);
+  const trace = [];
+  const value = (map, key) => map.has(key) ? map.get(key) : -Infinity;
+
+  for (let d = 0; d <= max; ++d) {
+    trace.push(new Map(frontier));
+    for (let k = -d; k <= d; k += 2) {
+      let x;
+      if (k === -d || (k !== d && value(frontier, k - 1) < value(frontier, k + 1))) {
+        x = value(frontier, k + 1);
+      } else {
+        x = value(frontier, k - 1) + 1;
+      }
+      if (!Number.isFinite(x)) x = 0;
+      let y = x - k;
+      while (x < n && y < m && oldLines[x] === newLines[y]) {
+        x += 1;
+        y += 1;
+      }
+      frontier.set(k, x);
+      if (x >= n && y >= m) {
+        let bx = n;
+        let by = m;
+        const edits = [];
+        for (let bd = d; bd > 0; --bd) {
+          const previous = trace[bd];
+          const bk = bx - by;
+          let previousK;
+          if (bk === -bd || (bk !== bd && value(previous, bk - 1) < value(previous, bk + 1))) {
+            previousK = bk + 1;
+          } else {
+            previousK = bk - 1;
+          }
+          let previousX = value(previous, previousK);
+          if (!Number.isFinite(previousX)) previousX = 0;
+          const previousY = previousX - previousK;
+          while (bx > previousX && by > previousY) {
+            edits.push({ type: 'equal', line: oldLines[bx - 1] });
+            bx -= 1;
+            by -= 1;
+          }
+          if (bx === previousX) {
+            edits.push({ type: 'insert', line: newLines[by - 1] });
+            by -= 1;
+          } else {
+            edits.push({ type: 'delete', line: oldLines[bx - 1] });
+            bx -= 1;
+          }
+        }
+        while (bx > 0 && by > 0) {
+          edits.push({ type: 'equal', line: oldLines[bx - 1] });
+          bx -= 1;
+          by -= 1;
+        }
+        while (bx > 0) {
+          edits.push({ type: 'delete', line: oldLines[bx - 1] });
+          bx -= 1;
+        }
+        while (by > 0) {
+          edits.push({ type: 'insert', line: newLines[by - 1] });
+          by -= 1;
+        }
+        return edits.reverse();
+      }
+    }
+  }
+  return [];
+}
+
+function lineDiffRecords(oldText, newText) {
+  const oldSplit = splitLinesForDiff(oldText);
+  const newSplit = splitLinesForDiff(newText);
+  const withFinalNewlineMarker = split => split.lines.map((line, index) =>
+    index === split.lines.length - 1 ? `${line}\u0000${split.endsWithNewline ? 'NL' : 'NONL'}` : line
+  );
+  const edits = myersLineDiff(
+    withFinalNewlineMarker(oldSplit),
+    withFinalNewlineMarker(newSplit),
+  ).map(edit => ({ ...edit, line: edit.line.replace(/\u0000(?:NL|NONL)$/, '') }));
+  let oldNo = 1;
+  let newNo = 1;
+  const records = edits.map(edit => {
+    const record = {
+      ...edit,
+      oldNo: edit.type === 'insert' ? null : oldNo,
+      newNo: edit.type === 'delete' ? null : newNo,
+    };
+    if (edit.type !== 'insert') oldNo += 1;
+    if (edit.type !== 'delete') newNo += 1;
+    return record;
+  });
+  return { records, oldSplit, newSplit };
+}
+
+function patchLabel(filePath) {
+  let label = String(filePath || 'source.tex').replace(/\\/g, '/');
+  label = label.replace(/^[A-Za-z]:\//, '').replace(/^\/+/, '');
+  return label || 'source.tex';
+}
+
+function unifiedDiff(oldText, newText, filePath = 'source.tex', context = 3) {
+  if (oldText === newText) return '';
+  const { records, oldSplit, newSplit } = lineDiffRecords(oldText, newText);
+  const changed = [];
+  records.forEach((record, index) => {
+    if (record.type !== 'equal') changed.push(index);
+  });
+  if (!changed.length) return '';
+
+  const ranges = [];
+  for (const index of changed) {
+    const start = Math.max(0, index - context);
+    const end = Math.min(records.length, index + context + 1);
+    const previous = ranges[ranges.length - 1];
+    if (previous && start <= previous.end) {
+      previous.end = Math.max(previous.end, end);
+    } else {
+      ranges.push({ start, end });
+    }
+  }
+
+  const label = patchLabel(filePath);
+  const output = [`diff --git a/${label} b/${label}`, `--- a/${label}`, `+++ b/${label}`];
+  const countBefore = (end, predicate) => records.slice(0, end).reduce((n, r) => n + (predicate(r) ? 1 : 0), 0);
+  const formatRange = (start, count) => count === 1 ? String(start) : `${start},${count}`;
+
+  for (const range of ranges) {
+    const slice = records.slice(range.start, range.end);
+    const oldBefore = countBefore(range.start, r => r.type !== 'insert');
+    const newBefore = countBefore(range.start, r => r.type !== 'delete');
+    const oldCount = slice.reduce((n, r) => n + (r.type !== 'insert' ? 1 : 0), 0);
+    const newCount = slice.reduce((n, r) => n + (r.type !== 'delete' ? 1 : 0), 0);
+    const oldStart = oldCount === 0 ? oldBefore : oldBefore + 1;
+    const newStart = newCount === 0 ? newBefore : newBefore + 1;
+    output.push(`@@ -${formatRange(oldStart, oldCount)} +${formatRange(newStart, newCount)} @@`);
+    for (const record of slice) {
+      const prefix = record.type === 'insert' ? '+' : record.type === 'delete' ? '-' : ' ';
+      output.push(prefix + record.line);
+      const oldLastWithoutNewline = record.oldNo === oldSplit.lines.length && !oldSplit.endsWithNewline;
+      const newLastWithoutNewline = record.newNo === newSplit.lines.length && !newSplit.endsWithNewline;
+      if ((record.type === 'delete' && oldLastWithoutNewline) ||
+          (record.type === 'insert' && newLastWithoutNewline) ||
+          (record.type === 'equal' && (oldLastWithoutNewline || newLastWithoutNewline))) {
+        output.push('\\ No newline at end of file');
+      }
+    }
+  }
+  return output.join('\n') + '\n';
+}
+
+function lineDiffStats(oldText, newText) {
+  const { records } = lineDiffRecords(oldText, newText);
+  return {
+    added: records.filter(record => record.type === 'insert').length,
+    deleted: records.filter(record => record.type === 'delete').length,
+  };
+}
+
+function buildConflictPatch({
+  baseText,
+  currentText,
+  desiredText,
+  sourcePath = 'source.tex',
+  notebookPath = '',
+  reason = '',
+}) {
+  const intentDiff = unifiedDiff(baseText, desiredText, sourcePath);
+  if (!intentDiff) return '';
+  const divergence = lineDiffStats(baseText, currentText);
+  const hash = text => crypto.createHash('sha256').update(String(text), 'utf8').digest('hex');
+  const cleanReason = String(reason || 'The current TeX source diverged from the synchronization snapshot.')
+    .replace(/\r?\n/g, ' ');
+
+  return [
+    '# TeX Notebook Sync conflict',
+    `# Notebook: ${notebookPath || '(unknown)'}`,
+    `# Source: ${sourcePath || '(unknown)'}`,
+    '#',
+    '# The notebook was saved. The TeX source was NOT modified.',
+    '# The unified diff below is LAST SYNCHRONIZED SNAPSHOT -> NOTEBOOK-REQUESTED TEX.',
+    '# It intentionally does not encode unrelated edits currently present in the TeX source as reversions.',
+    '# Review the hunks and apply them manually against the current TeX source.',
+    '# After resolving the conflict in TeX, regenerate the notebook pair before continuing reverse sync.',
+    `# Conflict: ${cleanReason}`,
+    `# Snapshot SHA-256: ${hash(baseText)}`,
+    `# Current TeX SHA-256: ${hash(currentText)}`,
+    `# Notebook-requested SHA-256: ${hash(desiredText)}`,
+    `# Current-vs-snapshot line divergence: +${divergence.added} / -${divergence.deleted}`,
+    '',
+    intentDiff,
+  ].join('\n');
+}
+
 module.exports = {
   SyncError,
   parseCells,
@@ -1154,8 +1366,11 @@ module.exports = {
   restoreRefs,
   syncNotebookToTex,
   minimalReplacement,
+  unifiedDiff,
+  buildConflictPatch,
   matchBody,
   isTexSyncNotebookPath,
   texSyncCompanionPath,
+  conflictPatchPath,
   TEXSYNC_NOTEBOOK_SUFFIX,
 };

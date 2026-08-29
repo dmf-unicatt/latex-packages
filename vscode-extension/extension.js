@@ -3,16 +3,20 @@
 const vscode = require('vscode');
 const fs = require('fs');
 const path = require('path');
+const zlib = require('zlib');
 const {
   SyncError,
   syncNotebookToTex,
   minimalReplacement,
+  buildConflictPatch,
   isTexSyncNotebookPath,
   texSyncCompanionPath,
+  conflictPatchPath,
   TEXSYNC_NOTEBOOK_SUFFIX,
 } = require('./syncCore');
 
 const sessionStates = new Map();
+const syncQueues = new Map();
 
 function notebookPath(notebook) {
   return notebook.uri.fsPath || notebook.uri.path || '';
@@ -69,7 +73,30 @@ function stateKey(notebook) {
   return `texNotebookSync.state.${notebook.uri.toString()}`;
 }
 
-function makeSessionState(manifest, notebook) {
+function encodeSourceSnapshot(text) {
+  if (typeof text !== 'string') return null;
+  return zlib.gzipSync(Buffer.from(text, 'utf8')).toString('base64');
+}
+
+function decodeSourceSnapshot(encoded) {
+  if (typeof encoded !== 'string' || !encoded) return null;
+  try {
+    return zlib.gunzipSync(Buffer.from(encoded, 'base64')).toString('utf8');
+  } catch (_) {
+    return null;
+  }
+}
+
+function manifestsShareIdentity(a, b) {
+  if (!a || !b || !Array.isArray(a.cells) || !Array.isArray(b.cells)) return false;
+  if (a.source_file !== b.source_file || a.cells.length !== b.cells.length) return false;
+  return a.cells.every((cell, index) => {
+    const other = b.cells[index];
+    return other && cell.sync_id === other.sync_id && cell.cell_type === other.cell_type;
+  });
+}
+
+function makeSessionState(manifest, notebook, sourceText = null) {
   const cellIds = new WeakMap();
   const cells = notebook.getCells();
   if (manifest && Array.isArray(manifest.cells) && manifest.cells.length === cells.length) {
@@ -83,7 +110,7 @@ function makeSessionState(manifest, notebook) {
       }
     });
   }
-  return { manifest, cellIds };
+  return { manifest, cellIds, sourceText };
 }
 
 function initializeNotebookState(context, notebook) {
@@ -110,7 +137,10 @@ function initializeNotebookState(context, notebook) {
   if (!manifest && metadataManifest) manifest = metadataManifest;
 
   if (!manifest) return null;
-  const state = makeSessionState(manifest, notebook);
+  const persistedSourceText = manifestsShareIdentity(manifest, persistedManifest)
+    ? decodeSourceSnapshot(persisted?.source_snapshot_gzip_base64)
+    : null;
+  const state = makeSessionState(manifest, notebook, persistedSourceText);
   sessionStates.set(key, state);
   return state;
 }
@@ -132,7 +162,7 @@ async function refreshStateFromNotebookMetadataIfNeeded(context, notebook, state
   // The notebook was most likely regenerated or reloaded while this extension
   // still held an older session/workspaceState manifest. The current notebook
   // metadata is authoritative for the cell identities in that situation.
-  const refreshed = makeSessionState(metadataManifest, notebook);
+  const refreshed = makeSessionState(metadataManifest, notebook, null);
   sessionStates.set(notebook.uri.toString(), refreshed);
   await context.workspaceState.update(stateKey(notebook), { manifest: metadataManifest });
   return refreshed;
@@ -242,14 +272,84 @@ function offsetPosition(document, offset) {
   return document.positionAt(offset);
 }
 
-async function persistSessionState(context, notebook, state, result) {
+async function persistSessionState(context, notebook, state, result, sourceText) {
   state.manifest = result.manifest;
+  state.sourceText = sourceText;
   state.cellIds = new WeakMap();
   notebook.getCells().forEach((cell, index) => {
     const syncId = result.cellSyncIds[index];
     if (syncId) state.cellIds.set(cell, syncId);
   });
-  await context.workspaceState.update(stateKey(notebook), { manifest: result.manifest });
+  await context.workspaceState.update(stateKey(notebook), {
+    manifest: result.manifest,
+    source_snapshot_gzip_base64: encodeSourceSnapshot(sourceText),
+  });
+}
+
+
+async function openConflictPatch(uri) {
+  const document = await vscode.workspace.openTextDocument(uri);
+  await vscode.window.showTextDocument(document, { preview: false });
+}
+
+async function writeConflictPatch(notebook, sourceUri, state, currentText, live, reason) {
+  if (typeof state.sourceText !== 'string') return null;
+
+  let desired;
+  try {
+    desired = syncNotebookToTex(state.sourceText, state.manifest, live);
+  } catch (_) {
+    // If the edited notebook is not valid even against the last known-good TeX
+    // snapshot, this is not merely a source-divergence conflict. Let the normal
+    // synchronization error explain the problem instead.
+    return null;
+  }
+
+  const report = buildConflictPatch({
+    baseText: state.sourceText,
+    currentText,
+    desiredText: desired.newText,
+    sourcePath: state.manifest.source_file || path.basename(sourceUri.fsPath),
+    notebookPath: path.basename(notebookPath(notebook)),
+    reason,
+  });
+  if (!report) return null;
+
+  const outputPath = conflictPatchPath(notebookPath(notebook));
+  if (!outputPath) return null;
+  const outputUri = vscode.Uri.file(outputPath);
+  await vscode.workspace.fs.writeFile(outputUri, Buffer.from(report, 'utf8'));
+  return outputUri;
+}
+
+async function reportSourceConflict(notebook, sourceUri, state, currentText, live, reason) {
+  let patchUri = null;
+  try {
+    patchUri = await writeConflictPatch(notebook, sourceUri, state, currentText, live, reason);
+  } catch (patchError) {
+    const detail = patchError instanceof Error ? patchError.message : String(patchError);
+    vscode.window.showErrorMessage(
+      `TeX Notebook Sync: The notebook was saved and the TeX source was left unchanged, ` +
+      `but the conflict patch could not be written: ${detail}`
+    );
+    return;
+  }
+
+  if (!patchUri) {
+    vscode.window.showWarningMessage(
+      `TeX Notebook Sync: The notebook was saved, but the TeX source was left unchanged: ${reason} ` +
+      'No last synchronized full-source snapshot is available to build a conflict patch yet.'
+    );
+    return;
+  }
+
+  const openPatch = 'Open conflict patch';
+  const choice = await vscode.window.showWarningMessage(
+    `TeX Notebook Sync: The notebook was saved, but the TeX source was left unchanged because it diverged ` +
+      `from the synchronization snapshot. A review patch was written to ${path.basename(patchUri.fsPath)}.`,
+    openPatch,
+  );
+  if (choice === openPatch) await openConflictPatch(patchUri);
 }
 
 async function syncNotebookToLatexOnSave(context, notebook) {
@@ -267,12 +367,36 @@ async function syncNotebookToLatexOnSave(context, notebook) {
 
   const sourceUri = await resolveSourceUri(notebook, state.manifest);
   const sourceDoc = await vscode.workspace.openTextDocument(sourceUri);
+  const oldText = sourceDoc.getText();
+  const live = liveCells(notebook, state);
+
   if (sourceDoc.isDirty) {
-    throw new SyncError('The TeX source has unsaved changes. Save it and regenerate the notebook before syncing back.');
+    await reportSourceConflict(
+      notebook, sourceUri, state, oldText, live,
+      'The TeX source has unsaved changes in the editor.'
+    );
+    return;
   }
 
-  const oldText = sourceDoc.getText();
-  const result = syncNotebookToTex(oldText, state.manifest, liveCells(notebook, state));
+  let result;
+  try {
+    result = syncNotebookToTex(oldText, state.manifest, live);
+  } catch (err) {
+    if (err instanceof SyncError && typeof state.sourceText === 'string') {
+      let validAgainstSnapshot = false;
+      try {
+        syncNotebookToTex(state.sourceText, state.manifest, live);
+        validAgainstSnapshot = true;
+      } catch (_) {
+        validAgainstSnapshot = false;
+      }
+      if (validAgainstSnapshot) {
+        await reportSourceConflict(notebook, sourceUri, state, oldText, live, err.message);
+        return;
+      }
+    }
+    throw err;
+  }
   const replacement = minimalReplacement(oldText, result.newText);
 
   if (replacement) {
@@ -298,16 +422,31 @@ async function syncNotebookToLatexOnSave(context, notebook) {
   // extension independent of notebook metadata-cleaning extensions and avoids
   // recursively saving the notebook from its own save hook. The fresh manifest
   // and cell identities are kept in extension state instead.
-  await persistSessionState(context, notebook, state, result);
+  await persistSessionState(context, notebook, state, result, result.newText);
 }
+
 
 async function saveGuard(context, notebook) {
   try {
     await syncNotebookToLatexOnSave(context, notebook);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    vscode.window.showErrorMessage(`TeX Notebook Sync: ${message}`);
+    vscode.window.showErrorMessage(
+      `TeX Notebook Sync: The notebook was saved, but TeX synchronization failed: ${message}`
+    );
   }
+}
+
+function enqueueSyncAfterSave(context, notebook) {
+  const key = notebook.uri.toString();
+  const previous = syncQueues.get(key) || Promise.resolve();
+  const next = previous
+    .catch(() => undefined)
+    .then(() => saveGuard(context, notebook))
+    .finally(() => {
+      if (syncQueues.get(key) === next) syncQueues.delete(key);
+    });
+  syncQueues.set(key, next);
 }
 
 function activate(context) {
@@ -326,9 +465,9 @@ function activate(context) {
     vscode.workspace.onDidCloseNotebookDocument(notebook => {
       sessionStates.delete(notebook.uri.toString());
     }),
-    vscode.workspace.onWillSaveNotebookDocument(event => {
-      if (!isTexSyncNotebookPath(notebookPath(event.notebook))) return;
-      event.waitUntil(saveGuard(context, event.notebook));
+    vscode.workspace.onDidSaveNotebookDocument(notebook => {
+      if (!isTexSyncNotebookPath(notebookPath(notebook))) return;
+      enqueueSyncAfterSave(context, notebook);
     }),
   );
 }

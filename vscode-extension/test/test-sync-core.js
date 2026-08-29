@@ -6,6 +6,9 @@ const {
   syncNotebookToTex,
   isTexSyncNotebookPath,
   texSyncCompanionPath,
+  conflictPatchPath,
+  buildConflictPatch,
+  unifiedDiff,
   TEXSYNC_NOTEBOOK_SUFFIX,
 } = require('../syncCore');
 
@@ -18,6 +21,66 @@ const {
   assert.strictEqual(texSyncCompanionPath('/tmp/lesson.ipynb'), '/tmp/lesson_texsync.ipynb');
   assert.strictEqual(texSyncCompanionPath('/tmp/lesson_texsync.ipynb'), null);
   assert.strictEqual(texSyncCompanionPath('/tmp/lesson.txt'), null);
+  assert.strictEqual(conflictPatchPath('/tmp/lesson_texsync.ipynb'), '/tmp/lesson_texsync.conflict.patch');
+  assert.strictEqual(conflictPatchPath('/tmp/lesson.ipynb'), null);
+})();
+
+(function testUnifiedDiffProducesSeparateReviewableHunks() {
+  const oldText = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', ''].join('\n');
+  const newText = ['one', 'TWO', 'three', 'four', 'five', 'six', 'seven', 'eight', 'NINE', 'ten', ''].join('\n');
+  const patch = unifiedDiff(oldText, newText, 'chapter.tex', 1);
+  assert.match(patch, /^diff --git a\/chapter\.tex b\/chapter\.tex/m);
+  assert.match(patch, /-two\n\+TWO/);
+  assert.match(patch, /-nine\n\+NINE/);
+  assert.strictEqual((patch.match(/^@@/gm) || []).length, 2);
+})();
+
+(function testConflictPatchContainsNotebookIntentButNotUnrelatedCurrentEdit() {
+  const baseText = String.raw`before
+\begin{pycell}
+x = 1
+\end{pycell}
+after
+`;
+  const desiredText = String.raw`before
+\begin{pycell}
+x = 2
+\end{pycell}
+after
+`;
+  const currentText = String.raw`before -- independently changed in TeX
+\begin{pycell}
+x = 99
+\end{pycell}
+after
+`;
+  const patch = buildConflictPatch({
+    baseText,
+    currentText,
+    desiredText,
+    sourcePath: 'lectures/chapter.tex',
+    notebookPath: 'chapter_texsync.ipynb',
+    reason: 'TeX source changed since notebook generation.',
+  });
+  assert.match(patch, /The notebook was saved\. The TeX source was NOT modified\./);
+  assert.match(patch, /LAST SYNCHRONIZED SNAPSHOT -> NOTEBOOK-REQUESTED TEX/);
+  assert.match(patch, /-x = 1\n\+x = 2/);
+  assert(!patch.includes('x = 99'));
+  assert(!patch.includes('independently changed in TeX'));
+  assert.match(patch, /Current-vs-snapshot line divergence: \+2 \/ -2/);
+  assert.match(patch, /--- a\/lectures\/chapter\.tex/);
+  assert.match(patch, /\+\+\+ b\/lectures\/chapter\.tex/);
+})();
+
+(function testConflictPatchIsEmptyWhenNotebookRequestsNoTexChange() {
+  assert.strictEqual(buildConflictPatch({
+    baseText: 'same\n',
+    currentText: 'different\n',
+    desiredText: 'same\n',
+    sourcePath: 'a.tex',
+    notebookPath: 'a_texsync.ipynb',
+    reason: 'changed',
+  }), '');
 })();
 
 function manifestCell(id, type, original, generated = original, extra = {}) {

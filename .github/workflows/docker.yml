@@ -35,18 +35,18 @@ jobs:
             expected-texlive-version: "2025.20260124-1"
           - base-image: debian:testing
             tag-name: debian-testing
-            expected-texlive-version: "2026.20260711-2"
+            expected-texlive-version: "2026.20260911-1"
           - base-image: debian:testing
             apt-python-packages: "true"
             tag-name: debian-testing-no-pip
-            expected-texlive-version: "2026.20260711-2"
+            expected-texlive-version: "2026.20260911-1"
           - base-image: debian:unstable
             tag-name: debian-unstable
-            expected-texlive-version: "2026.20260711-2"
+            expected-texlive-version: "2026.20260911-1"
           - base-image: debian:unstable
             apt-python-packages: "true"
             tag-name: debian-unstable-no-pip
-            expected-texlive-version: "2026.20260711-2"
+            expected-texlive-version: "2026.20260911-1"
       fail-fast: false
     runs-on: ubuntu-latest
     defaults:

@@ -81,6 +81,16 @@ COPY patches/neuralnetwork/add_if_false_branch.patch /tmp/add_if_false_branch.pa
 RUN patch -p0 < /tmp/drop_tikz_semicolons.patch && rm /tmp/drop_tikz_semicolons.patch && \
     patch -p0 < /tmp/add_if_false_branch.patch && rm /tmp/add_if_false_branch.patch
 
+# Apply xtufte patch to avoid requiring texlive-fonts-extras via the nofonts option
+COPY patches/xtufte /tmp/patches-xtufte
+RUN if [ -s "/tmp/patches-xtufte/fix-nofonts-${BASE_IMAGE}.patch" ]; then \
+        echo "Applying patch fix-nofonts-${BASE_IMAGE}.patch"; \
+        patch -p0 < /tmp/patches-xtufte/fix-nofonts-${BASE_IMAGE}.patch; \
+    else \
+        echo "Patch file is empty, skipping."; \
+    fi \
+    && rm -rf /tmp/patches-xtufte
+
 # Update LuaTeX font database
 RUN luaotfload-tool -u
 

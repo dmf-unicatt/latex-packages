@@ -1,0 +1,17 @@
+--- /usr/share/texlive/texmf-dist/tex/latex/xtufte/xtufte-common.def
++++ /usr/share/texlive/texmf-dist/tex/latex/xtufte/xtufte-common.def
+@@ -286,6 +286,7 @@
+ \iftutex
+   \usepackage{mathtools}
+   \usepackage{unicode-math}
++  \ifthenelse{\boolean{@tufte@loadfonts}}{%
+   % If they're installed, use Bergamo and Chantilly from www.fontsite.com.
+   % They're clones of Bembo and Gill Sans, respectively.
+   %%
+@@ -344,6 +345,7 @@
+   \setmathfont{KpMath-Sans.otf}
+   \AtBeginDocument{\renewcommand\familydefault{\sfdefault}}
+   \usepackage[Scale=MatchLowercase]{juliamono}
++  }{}
+ \else
+   \RequirePackage[T1]{fontenc}
